@@ -1,0 +1,44 @@
+# COR4EDU SMS - Cloud Run Service Configuration
+# This file is optional but helps document service requirements
+
+# Service name
+service: cor4edu-sms
+
+# Runtime configuration
+runtime: custom
+
+# Environment variables (non-sensitive)
+env_variables:
+  APP_ENV: production
+  APP_DEBUG: false
+  LOG_LEVEL: info
+  SESSION_DRIVER: file
+  TIMEZONE: America/New_York
+
+# Cloud Run specific settings
+# Note: Most settings are in cloudbuild.yaml, this is for reference
+
+# Recommended settings:
+# - Memory: 512Mi (adjust based on usage)
+# - CPU: 1 (adjust based on usage)
+# - Min instances: 0 (cold starts acceptable for small schools)
+# - Max instances: 10 (adjust based on expected traffic)
+# - Timeout: 60s
+# - Port: 8080 (required for Cloud Run)
+# - Concurrency: 80 (default, adjust based on testing)
+
+# Database connection
+# DB_SOCKET: /cloudsql/PROJECT_ID:REGION:INSTANCE_NAME (set via cloudbuild.yaml)
+# DB_NAME: cor4edu_sms (set via cloudbuild.yaml)
+# DB_USERNAME: (stored in Secret Manager)
+# DB_PASSWORD: (stored in Secret Manager)
+
+# Health check endpoint: /health
+# Startup probe: /health (5s delay, 3s timeout, 3 retries)
+# Liveness probe: /health (30s interval, 3s timeout)
+
+# VPC Connector (if needed for private Cloud SQL)
+# vpc_access_connector: projects/PROJECT_ID/locations/REGION/connectors/CONNECTOR_NAME
+
+# Service Account (recommended)
+# service_account: cor4edu-sms@PROJECT_ID.iam.gserviceaccount.com

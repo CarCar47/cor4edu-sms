@@ -1,0 +1,165 @@
+{% extends "base.twig.html" %}
+
+{% block content %}
+<div class="flex flex-col space-y-6">
+    <!-- Page Header -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <nav class="flex" aria-label="Breadcrumb">
+                    <ol class="flex items-center space-x-4">
+                        <li>
+                            <a href="index.php?q=/modules/Admin/Permissions/permissions_manage.php" class="text-gray-400 hover:text-gray-500">
+                                Permission Management
+                            </a>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <svg class="flex-shrink-0 h-4 w-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                                <span class="ml-4 text-gray-500">Edit Permissions</span>
+                            </div>
+                        </li>
+                    </ol>
+                </nav>
+                <h1 class="mt-2 text-2xl font-bold text-gray-900">
+                    Edit Permissions: {{ target_staff.title }} {{ target_staff.firstName }} {{ target_staff.lastName }}
+                </h1>
+                <p class="mt-1 text-sm text-gray-600">
+                    Username: {{ target_staff.username }} | Role: {{ target_staff.roleName ?? 'N/A' }}
+                    {% if target_staff.isAdminRole == 'Y' %}
+                        <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">Admin</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permission Form -->
+    <form method="POST" action="">
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-medium text-gray-900">Individual Permission Overrides</h2>
+                        <p class="mt-1 text-sm text-gray-600">
+                            These settings override role defaults. Leave blank to use role default permissions.
+                        </p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button type="button" onclick="setAllPermissions('Y')"
+                                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Allow All
+                        </button>
+                        <button type="button" onclick="setAllPermissions('N')"
+                                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Deny All
+                        </button>
+                        <button type="button" onclick="clearAllPermissions()"
+                                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Reset to Defaults
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6">
+                {% for category, permissions in grouped_permissions %}
+                <div class="mb-8">
+                    <h3 class="text-base font-medium text-gray-900 mb-4 capitalize border-b border-gray-200 pb-2">
+                        {{ category | replace({'_': ' '}) }} Permissions
+                    </h3>
+
+                    <div class="grid grid-cols-1 gap-4">
+                        {% for permission in permissions %}
+                        {% set permission_key = permission.module ~ ':' ~ permission.action %}
+                        {% set role_default = role_defaults[permission_key] ?? 'N' %}
+                        {% set current_value = current_permissions[permission_key] ?? null %}
+
+                        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <h4 class="text-sm font-medium text-gray-900">{{ permission.name }}</h4>
+                                    {% if permission.requiresAdminRole == 'Y' %}
+                                        <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            Admin Only
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">{{ permission.description }}</p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Role default:
+                                    <span class="font-medium {% if role_default == 'Y' %}text-green-600{% else %}text-red-600{% endif %}">
+                                        {{ role_default == 'Y' ? 'Allow' : 'Deny' }}
+                                    </span>
+                                </p>
+                            </div>
+
+                            <div class="ml-6 flex items-center space-x-4">
+                                <label class="flex items-center">
+                                    <input type="radio"
+                                           name="permissions[{{ permission_key }}]"
+                                           value=""
+                                           {% if current_value is null %}checked{% endif %}
+                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                    <span class="ml-2 text-sm text-gray-900">Default</span>
+                                </label>
+
+                                <label class="flex items-center">
+                                    <input type="radio"
+                                           name="permissions[{{ permission_key }}]"
+                                           value="Y"
+                                           {% if current_value == 'Y' %}checked{% endif %}
+                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                    <span class="ml-2 text-sm text-green-600 font-medium">Allow</span>
+                                </label>
+
+                                <label class="flex items-center">
+                                    <input type="radio"
+                                           name="permissions[{{ permission_key }}]"
+                                           value="N"
+                                           {% if current_value == 'N' %}checked{% endif %}
+                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                    <span class="ml-2 text-sm text-red-600 font-medium">Deny</span>
+                                </label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+                <div class="flex justify-between">
+                    <a href="index.php?q=/modules/Admin/Permissions/permissions_manage.php"
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </a>
+                    <button type="submit" name="update_permissions"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Update Permissions
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+function setAllPermissions(value) {
+    const radios = document.querySelectorAll('input[type="radio"][value="' + value + '"]');
+    radios.forEach(radio => {
+        radio.checked = true;
+    });
+}
+
+function clearAllPermissions() {
+    const defaultRadios = document.querySelectorAll('input[type="radio"][value=""]');
+    defaultRadios.forEach(radio => {
+        radio.checked = true;
+    });
+}
+</script>
+{% endblock %}

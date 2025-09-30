@@ -1,0 +1,328 @@
+<!-- Intervention Activity Log Table -->
+<div class="overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Student
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Type
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Category
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Faculty/Staff
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Description
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Follow-Up
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for activity in reportData %}
+                <tr class="hover:bg-gray-50 {% if activity.recordType == 'note' and activity.typeCategory == 'disciplinary' %}bg-red-50{% elseif activity.recordType == 'note' and activity.typeCategory == 'concern' %}bg-yellow-50{% endif %}">
+                    <!-- Date -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">
+                            {{ activity.activityDate | date('M j, Y') }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            {{ activity.activityDate | date('g:i A') }}
+                        </div>
+                    </td>
+
+                    <!-- Student -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-8 w-8">
+                                <div class="h-8 w-8 rounded-full
+                                    {% if activity.recordType == 'note' and activity.typeCategory == 'disciplinary' %}bg-red-100
+                                    {% elseif activity.recordType == 'note' and activity.typeCategory == 'concern' %}bg-yellow-100
+                                    {% elseif activity.recordType == 'meeting' %}bg-orange-100
+                                    {% else %}bg-blue-100{% endif %}
+                                    flex items-center justify-center">
+                                    <span class="text-xs font-medium
+                                        {% if activity.recordType == 'note' and activity.typeCategory == 'disciplinary' %}text-red-600
+                                        {% elseif activity.recordType == 'note' and activity.typeCategory == 'concern' %}text-yellow-600
+                                        {% elseif activity.recordType == 'meeting' %}text-orange-600
+                                        {% else %}text-blue-600{% endif %}">
+                                        {{ activity.firstName[:1] }}{{ activity.lastName[:1] }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ activity.firstName }} {{ activity.lastName }}
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    {{ activity.email }}
+                                </div>
+                                {% if activity.phone %}
+                                <div class="text-xs text-gray-500">
+                                    {{ activity.phone }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Record Type -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                            {% if activity.recordType == 'note' %}bg-blue-100 text-blue-800
+                            {% elseif activity.recordType == 'meeting' %}bg-orange-100 text-orange-800
+                            {% elseif activity.recordType == 'support_session' %}bg-purple-100 text-purple-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ activity.recordType | replace({'_': ' '}) | capitalize }}
+                        </span>
+                    </td>
+
+                    <!-- Category/Type -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                            {% if activity.typeCategory == 'disciplinary' %}bg-red-100 text-red-800
+                            {% elseif activity.typeCategory == 'concern' %}bg-yellow-100 text-yellow-800
+                            {% elseif activity.typeCategory == 'positive' %}bg-green-100 text-green-800
+                            {% elseif activity.typeCategory == 'potential_failure' %}bg-red-100 text-red-800
+                            {% elseif activity.typeCategory == 'concerned' %}bg-yellow-100 text-yellow-800
+                            {% elseif activity.typeCategory == 'tutoring' %}bg-indigo-100 text-indigo-800
+                            {% elseif activity.typeCategory == 'counseling' %}bg-purple-100 text-purple-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ activity.typeCategory | replace({'_': ' '}) | capitalize }}
+                        </span>
+                    </td>
+
+                    <!-- Faculty/Staff Member -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if activity.facultyFirstName %}
+                        <div class="text-sm text-gray-900">
+                            {{ activity.facultyFirstName }} {{ activity.facultyLastName }}
+                        </div>
+                        {% else %}
+                        <span class="text-gray-400">—</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Description -->
+                    <td class="px-6 py-4">
+                        {% if activity.description %}
+                        <div class="text-sm text-gray-900 max-w-md">
+                            {{ activity.description | length > 150 ? activity.description[:150] ~ '...' : activity.description }}
+                        </div>
+                        {% else %}
+                        <span class="text-gray-400">No description</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Follow-Up Status -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% if activity.followUpRequired %}
+                            {% if activity.followUpDate %}
+                            <div class="text-xs">
+                                <div class="font-medium text-orange-600">Required</div>
+                                <div class="text-gray-500">
+                                    {{ activity.followUpDate | date('M j') }}
+                                </div>
+                            </div>
+                            {% else %}
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
+                                Pending
+                            </span>
+                            {% endif %}
+                        {% else %}
+                        <span class="text-gray-400 text-xs">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                        No intervention activities found for the selected criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Activity Summary -->
+{% if reportData | length > 0 %}
+<div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    {% set totalNotes = 0 %}
+    {% set totalMeetings = 0 %}
+    {% set totalSessions = 0 %}
+    {% set pendingFollowUps = 0 %}
+
+    {% for activity in reportData %}
+        {% if activity.recordType == 'note' %}
+            {% set totalNotes = totalNotes + 1 %}
+        {% elseif activity.recordType == 'meeting' %}
+            {% set totalMeetings = totalMeetings + 1 %}
+        {% elseif activity.recordType == 'support_session' %}
+            {% set totalSessions = totalSessions + 1 %}
+        {% endif %}
+        {% if activity.followUpRequired and not activity.followUpDate %}
+            {% set pendingFollowUps = pendingFollowUps + 1 %}
+        {% endif %}
+    {% endfor %}
+
+    <!-- Faculty Notes -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-blue-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Faculty Notes</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ totalNotes }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    {% if reportData | length > 0 %}
+                    {{ ((totalNotes / reportData | length) * 100) | number_format(0) }}% of activities
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Meetings -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-orange-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Student Meetings</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ totalMeetings }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    {% if reportData | length > 0 %}
+                    {{ ((totalMeetings / reportData | length) * 100) | number_format(0) }}% of activities
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Sessions -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-purple-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Support Sessions</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ totalSessions }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    {% if reportData | length > 0 %}
+                    {{ ((totalSessions / reportData | length) * 100) | number_format(0) }}% of activities
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Follow-Ups -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-yellow-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Pending Follow-Ups</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ pendingFollowUps }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    Require attention
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Timeline Breakdown -->
+<div class="mt-6 bg-gray-50 rounded-lg p-4">
+    <h4 class="text-sm font-medium text-gray-900 mb-3">Activity Distribution</h4>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {% set disciplinaryCount = 0 %}
+        {% set concernCount = 0 %}
+        {% set positiveCount = 0 %}
+        {% set supportCount = 0 %}
+
+        {% for activity in reportData %}
+            {% if activity.typeCategory == 'disciplinary' %}
+                {% set disciplinaryCount = disciplinaryCount + 1 %}
+            {% elseif activity.typeCategory == 'concern' or activity.typeCategory == 'concerned' or activity.typeCategory == 'potential_failure' %}
+                {% set concernCount = concernCount + 1 %}
+            {% elseif activity.typeCategory == 'positive' %}
+                {% set positiveCount = positiveCount + 1 %}
+            {% elseif activity.recordType == 'support_session' %}
+                {% set supportCount = supportCount + 1 %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="bg-white rounded-lg p-3 text-center border-2 border-red-200">
+            <div class="text-2xl font-semibold text-red-600">{{ disciplinaryCount }}</div>
+            <div class="text-sm text-gray-600">Disciplinary</div>
+            <div class="text-xs text-gray-500">Critical issues</div>
+        </div>
+
+        <div class="bg-white rounded-lg p-3 text-center border-2 border-yellow-200">
+            <div class="text-2xl font-semibold text-yellow-600">{{ concernCount }}</div>
+            <div class="text-sm text-gray-600">Concerns</div>
+            <div class="text-xs text-gray-500">Needs monitoring</div>
+        </div>
+
+        <div class="bg-white rounded-lg p-3 text-center border-2 border-green-200">
+            <div class="text-2xl font-semibold text-green-600">{{ positiveCount }}</div>
+            <div class="text-sm text-gray-600">Positive</div>
+            <div class="text-xs text-gray-500">Recognition</div>
+        </div>
+
+        <div class="bg-white rounded-lg p-3 text-center border-2 border-purple-200">
+            <div class="text-2xl font-semibold text-purple-600">{{ supportCount }}</div>
+            <div class="text-sm text-gray-600">Support</div>
+            <div class="text-xs text-gray-500">Tutoring/counseling</div>
+        </div>
+    </div>
+</div>
+{% endif %}

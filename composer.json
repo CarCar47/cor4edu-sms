@@ -1,0 +1,76 @@
+{
+    "name": "cor4edu/sms",
+    "description": "COR4EDU Student Management System - Modern PHP Implementation following Gibbon patterns",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "COR4EDU Development Team",
+            "email": "dev@cor4edu.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "slim/slim": "^4.0",
+        "slim/psr7": "^1.6",
+        "slim/twig-view": "^3.3",
+        "twig/twig": "^3.0",
+        "aura/auth": "^4.0",
+        "league/container": "^3.3",
+        "php-di/php-di": "^6.4",
+        "vlucas/phpdotenv": "^5.5",
+        "aura/sqlquery": "^2.7",
+        "league/flysystem": "^3.0",
+        "monolog/monolog": "^3.0",
+        "ramsey/uuid": "^4.7",
+        "phpoffice/phpspreadsheet": "^1.29",
+        "league/csv": "^9.8"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "codeception/codeception": "^5.0",
+        "phpstan/phpstan": "^1.10",
+        "squizlabs/php_codesniffer": "^3.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cor4Edu\\": "src/",
+            "Cor4Edu\\Reports\\": "modules/Reports/src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Cor4Edu\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": [
+            "@test:phpunit",
+            "@test:codeception"
+        ],
+        "test:phpunit": [
+            "phpunit"
+        ],
+        "test:codeception": [
+            "codecept run"
+        ],
+        "test:phpstan": [
+            "phpstan analyse --ansi --no-progress --memory-limit=-1"
+        ],
+        "test:codesniffer": [
+            "phpcs --standard=PSR12 src/"
+        ],
+        "fix:codesniffer": [
+            "phpcbf --standard=PSR12 src/"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true,
+        "allow-plugins": {
+            "codeception/c3": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

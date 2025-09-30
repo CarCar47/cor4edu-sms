@@ -1,0 +1,266 @@
+{% extends "base.twig.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-6">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">{{ staff.firstName }} {{ staff.lastName }}</h1>
+                        <p class="mt-1 text-sm text-gray-500">Staff Member Details</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <a href="index.php?q=/modules/Admin/Staff/staff_manage_edit.php&staffID={{ staff.staffID }}"
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                            Edit Staff
+                        </a>
+                        <a href="index.php?q=/modules/Admin/Staff/staff_manage.php"
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Staff Information -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Staff Information</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Personal and contact details</p>
+            </div>
+            <div class="border-t border-gray-200">
+                <dl>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Full Name</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ staff.firstName }} {{ staff.lastName }}</dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Email</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ staff.email }}</dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Username</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ staff.username }}</dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Phone</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ staff.phone | default('—') }}</dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Department</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ staff.department | default('—') }}</dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Position</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ staff.position | default('—') }}</dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Role Type</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if staff.roleTypeName %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    {{ staff.roleTypeName }}
+                                </span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Status</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ staff.active == 'Y' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                {{ staff.active == 'Y' ? 'Active' : 'Inactive' }}
+                            </span>
+                            {% if staff.isSuperAdmin == 'Y' %}
+                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                Super Admin
+                            </span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Required Staff Documents -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Required Staff Documents</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Professional documents and certifications required for employment</p>
+            </div>
+            <div class="border-t border-gray-200">
+                <dl>
+                    {% for requirement in staffRequirements %}
+                    <div class="{% if loop.index is odd %}bg-gray-50{% else %}bg-white{% endif %} px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">{{ requirement.title }}</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if requirement.status == 'submitted' %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-green-800 font-medium">Submitted</span>
+                                        <span class="ml-2 text-gray-500">{{ requirement.currentDocument.fileName }}</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <a href="{{ app_url }}/file.php?path={{ requirement.currentDocument.filePath|url_encode }}" target="_blank"
+                                           class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">View</a>
+                                        <a href="index.php?q=/modules/Admin/Staff/Documents/staff_document_upload.php&staffID={{ staff.staffID }}&requirementCode={{ requirement.requirementCode }}"
+                                           class="text-blue-600 hover:text-blue-900 text-sm font-medium">Replace</a>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-yellow-800 font-medium">Missing</span>
+                                        <span class="ml-2 text-gray-500">{{ requirement.description }}</span>
+                                    </div>
+                                    <a href="index.php?q=/modules/Admin/Staff/Documents/staff_document_upload.php&staffID={{ staff.staffID }}&requirementCode={{ requirement.requirementCode }}"
+                                       class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                        Upload Document
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Other Staff Documents -->
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Other Staff Documents</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <a href="index.php?q=/modules/Admin/Staff/Documents/staff_document_upload.php&staffID={{ staff.staffID }}&category=staff_other"
+                               class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                Manage Other Documents
+                            </a>
+                        </dd>
+                    </div>
+
+                    <!-- Manage All Staff Documents -->
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">All Documents</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <a href="index.php?q=/modules/Admin/Staff/Documents/staff_document_manage.php&staffID={{ staff.staffID }}"
+                               class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                Manage All Staff Documents
+                            </a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Account History -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Account History</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Account creation and modification details</p>
+            </div>
+            <div class="border-t border-gray-200">
+                <dl>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Staff ID</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ staff.staffID }}</dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Created On</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ staff.createdOn | date('F j, Y \\a\\t g:i A') }}
+                            {% if staff.createdByName %}
+                                <span class="text-gray-500">by {{ staff.createdByName }}</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    {% if staff.lastModifiedOn %}
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Last Modified</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ staff.lastModifiedOn | date('F j, Y \\a\\t g:i A') }}
+                            {% if staff.modifiedByName %}
+                                <span class="text-gray-500">by {{ staff.modifiedByName }}</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    {% endif %}
+                    {% if staff.lastLogin %}
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Last Login</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ staff.lastLogin | date('F j, Y \\a\\t g:i A') }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <!-- Permissions (Admin Only) -->
+        {% if user.permissions.manage_staff_permissions is defined %}
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Permissions</h3>
+                        <p class="mt-1 max-w-2xl text-sm text-gray-500">Individual permissions assigned to this staff member</p>
+                    </div>
+                    <a href="index.php?q=/modules/Admin/Permissions/staff_permissions_edit.php&staffID={{ staff.staffID }}"
+                       class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                        Manage Permissions
+                    </a>
+                </div>
+            </div>
+            {% if permissions %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Module</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Granted On</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for permission in permissions %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ permission.module }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ permission.action }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ permission.allowed == 'Y' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    {{ permission.allowed == 'Y' ? 'Allowed' : 'Denied' }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ permission.createdOn | date('M j, Y') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m8-9V6a2 2 0 00-2-2h-4.586a1 1 0 00-.707.293L9.293 6.707A1 1 0 009.586 7H7a2 2 0 00-2 2v9a2 2 0 002 2h10a2 2 0 002-2V8z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No permissions assigned</h3>
+                <p class="mt-1 text-sm text-gray-500">This staff member has no individual permissions assigned.</p>
+                <div class="mt-6">
+                    <a href="index.php?q=/modules/Admin/Permissions/staff_permissions_edit.php&staffID={{ staff.staffID }}"
+                       class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                        Assign Permissions
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

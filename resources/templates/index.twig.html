@@ -1,0 +1,22 @@
+{% extends "base.twig.html" %}
+
+{% block content %}
+<div class="text-center">
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ message }}</h1>
+        <p class="text-gray-600 mb-6">Welcome to COR4EDU Student Management System</p>
+
+        <div class="space-y-4">
+            <a href="index.php?q=/login" class="block w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
+                Login to System
+            </a>
+
+            <div class="text-sm text-gray-500">
+                <p>SuperAdmin Login:</p>
+                <p>Username: <code class="bg-gray-100 px-1 rounded">superadmin</code></p>
+                <p>Password: <code class="bg-gray-100 px-1 rounded">admin123</code></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

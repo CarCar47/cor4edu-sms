@@ -1,0 +1,151 @@
+{% extends "base.twig.html" %}
+
+{% block title %}Reports - {{ parent() }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Reports Header -->
+    <div class="md:flex md:items-center md:justify-between">
+        <div class="flex-1 min-w-0">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                Reports Dashboard
+            </h2>
+            <p class="mt-1 text-sm text-gray-500">
+                Comprehensive reporting and analytics for institutional insights
+            </p>
+        </div>
+        <div class="mt-4 flex md:mt-0 md:ml-4">
+            {% if user.permissions.export_reports_csv %}
+            <span class="ml-3 shadow-sm rounded-md">
+                <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Export CSV
+                </button>
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="border-b border-gray-200">
+        <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <!-- Overview Tab -->
+            <a href="index.php?q=/modules/Reports/reports_overview.php"
+               class="{% if activeTab == 'overview' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                <svg class="-ml-0.5 mr-2 h-5 w-5 {% if activeTab == 'overview' %}text-indigo-500{% else %}text-gray-400{% endif %} inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                Overview
+            </a>
+
+            <!-- Admissions Tab -->
+            {% if user.permissions.generate_admissions_reports %}
+            <a href="index.php?q=/modules/Reports/reports_admissions.php"
+               class="{% if activeTab == 'admissions' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                <svg class="-ml-0.5 mr-2 h-5 w-5 {% if activeTab == 'admissions' %}text-indigo-500{% else %}text-gray-400{% endif %} inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                </svg>
+                Admissions & Enrollment
+            </a>
+            {% endif %}
+
+            <!-- Financial Tab -->
+            {% if user.permissions.generate_financial_reports %}
+            <a href="index.php?q=/modules/Reports/reports_financial.php"
+               class="{% if activeTab == 'financial' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                <svg class="-ml-0.5 mr-2 h-5 w-5 {% if activeTab == 'financial' %}text-indigo-500{% else %}text-gray-400{% endif %} inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                </svg>
+                Financial Reports
+            </a>
+            {% endif %}
+
+            <!-- Career Services Tab -->
+            {% if user.permissions.generate_career_reports %}
+            <a href="index.php?q=/modules/Reports/reports_career.php"
+               class="{% if activeTab == 'career' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                <svg class="-ml-0.5 mr-2 h-5 w-5 {% if activeTab == 'career' %}text-indigo-500{% else %}text-gray-400{% endif %} inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 00-2 2H10a2 2 0 00-2-2V6m8 0h2a2 2 0 012 2v6a2 2 0 01-2 2h-2"/>
+                </svg>
+                Career Services
+            </a>
+            {% endif %}
+
+            <!-- Academic Performance Tab -->
+            {% if user.permissions.generate_academic_reports %}
+            <a href="index.php?q=/modules/Reports/reports_academic.php"
+               class="{% if activeTab == 'academic' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                <svg class="-ml-0.5 mr-2 h-5 w-5 {% if activeTab == 'academic' %}text-indigo-500{% else %}text-gray-400{% endif %} inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                Academic Performance
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="mt-6">
+        {% block report_content %}{% endblock %}
+    </div>
+</div>
+
+<!-- Export Modal removed - CSV export now direct (no modal needed) -->
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Direct CSV export (no modal)
+{% if user.permissions.export_reports_csv %}
+document.addEventListener('DOMContentLoaded', function() {
+    // Export button click handler
+    const exportButtons = document.querySelectorAll('button');
+    const exportButton = Array.from(exportButtons).find(btn => btn.textContent.includes('Export CSV'));
+    if (exportButton) {
+        exportButton.addEventListener('click', function() {
+            exportReport('csv');
+        });
+    }
+});
+
+function exportReport(format) {
+    // Get current report parameters
+    const reportType = getCurrentReportType();
+
+    // Build export URL
+    const exportUrl = new URL('index.php', window.location.origin);
+    exportUrl.searchParams.set('q', '/modules/Reports/export_process.php');
+    exportUrl.searchParams.set('reportType', reportType);
+    exportUrl.searchParams.set('format', format);
+
+    // Copy current filters
+    const form = document.querySelector('form');
+    if (form) {
+        const formData = new FormData(form);
+        for (let [key, value] of formData.entries()) {
+            if (key !== 'q') {
+                exportUrl.searchParams.append(key, value);
+            }
+        }
+    }
+
+    // Trigger download
+    window.location.href = exportUrl.toString();
+}
+
+function getCurrentReportType() {
+    const query = new URLSearchParams(window.location.search).get('q');
+
+    if (query && query.includes('overview')) return 'overview';
+    if (query && query.includes('admissions')) return 'admissions';
+    if (query && query.includes('financial')) return 'financial';
+    if (query && query.includes('career')) return 'career';
+    if (query && query.includes('academic')) return 'academic';
+
+    return 'overview'; // default
+}
+{% endif %}
+</script>
+{% endblock %}

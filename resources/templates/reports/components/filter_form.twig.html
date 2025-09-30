@@ -1,0 +1,329 @@
+<!-- Reusable Filter Form Component -->
+<div class="bg-white shadow rounded-lg mb-6">
+    <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+            {% if filterTitle %}{{ filterTitle }}{% else %}Report Filters{% endif %}
+        </h3>
+
+        <form method="GET" action="{{ currentUrl }}" class="space-y-4">
+            <input type="hidden" name="q" value="{{ currentQuery }}">
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <!-- Program Filter -->
+                {% if showProgramFilter %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Program</label>
+                    <div class="space-y-2 border border-gray-300 rounded-md p-3 bg-gray-50 max-h-64 overflow-y-auto">
+                        <!-- Select/Remove All -->
+                        <label class="flex items-center font-medium border-b border-gray-300 pb-2 sticky top-0 bg-gray-50">
+                            <input type="checkbox" id="selectAllPrograms" onchange="toggleAllPrograms(this)" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-900">All Programs</span>
+                        </label>
+
+                        <!-- Individual checkboxes -->
+                        {% for program in availablePrograms %}
+                        <label class="flex items-center">
+                            <input type="checkbox" name="programID[]" value="{{ program.programID }}" class="program-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" onchange="updateSelectAllPrograms()" {% if program.programID in selectedPrograms %}checked{% endif %}>
+                            <span class="ml-2 text-sm text-gray-700">{{ program.name }} ({{ program.programCode }})</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Status Filter -->
+                {% if showStatusFilter %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Student Status</label>
+                    <div class="space-y-2 border border-gray-300 rounded-md p-3 bg-gray-50">
+                        <!-- Select/Remove All -->
+                        <label class="flex items-center font-medium border-b border-gray-300 pb-2">
+                            <input type="checkbox" id="selectAllStatuses" onchange="toggleAllStatuses(this)" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-900">All Statuses</span>
+                        </label>
+
+                        <!-- Individual checkboxes -->
+                        {% for status in availableStatuses %}
+                        <label class="flex items-center">
+                            <input type="checkbox" name="status[]" value="{{ status.value }}" class="status-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" onchange="updateSelectAllStatuses()" {% if status.value in selectedStatuses %}checked{% endif %}>
+                            <span class="ml-2 text-sm text-gray-700">{{ status.label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Employment Status Filter (Career Reports) -->
+                {% if showEmploymentStatusFilter %}
+                <div>
+                    <label for="employmentStatus" class="block text-sm font-medium text-gray-700">Employment Status</label>
+                    <select name="employmentStatus[]" id="employmentStatus" multiple
+                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option value="">All Employment Statuses</option>
+                        {% for status in availableEmploymentStatuses %}
+                        <option value="{{ status.value }}"
+                                {% if status.value in selectedEmploymentStatuses %}selected{% endif %}>
+                            {{ status.label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                <!-- Note Category Filter (Academic Reports) -->
+                {% if showCategoryFilter %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Note Category</label>
+                    <div class="space-y-2 border border-gray-300 rounded-md p-3 bg-gray-50">
+                        <!-- Select/Remove All -->
+                        <label class="flex items-center font-medium border-b border-gray-300 pb-2">
+                            <input type="checkbox" id="selectAllCategories" onchange="toggleAllCategories(this)" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-900">All Categories</span>
+                        </label>
+
+                        <!-- Individual checkboxes -->
+                        {% for cat in availableCategories %}
+                        <label class="flex items-center">
+                            <input type="checkbox" name="category[]" value="{{ cat.value }}" class="category-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" onchange="updateSelectAllCategories()" {% if cat.value in selectedCategories %}checked{% endif %}>
+                            <span class="ml-2 text-sm text-gray-700">{{ cat.label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Meeting Type Filter (Academic Reports) -->
+                {% if showMeetingTypeFilter %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Meeting Type</label>
+                    <div class="space-y-2 border border-gray-300 rounded-md p-3 bg-gray-50">
+                        <!-- Select/Remove All -->
+                        <label class="flex items-center font-medium border-b border-gray-300 pb-2">
+                            <input type="checkbox" id="selectAllMeetingTypes" onchange="toggleAllMeetingTypes(this)" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-900">All Meeting Types</span>
+                        </label>
+
+                        <!-- Individual checkboxes -->
+                        {% for type in availableMeetingTypes %}
+                        <label class="flex items-center">
+                            <input type="checkbox" name="meetingType[]" value="{{ type.value }}" class="meeting-type-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" onchange="updateSelectAllMeetingTypes()" {% if type.value in selectedMeetingTypes %}checked{% endif %}>
+                            <span class="ml-2 text-sm text-gray-700">{{ type.label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Faculty Filter (Academic Reports) -->
+                {% if showFacultyFilter %}
+                <div>
+                    <label for="facultyID" class="block text-sm font-medium text-gray-700">Faculty Member</label>
+                    <select name="facultyID" id="facultyID"
+                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option value="">All Faculty</option>
+                        {% for faculty in availableFaculty %}
+                        <option value="{{ faculty.value }}"
+                                {% if faculty.value == selectedFacultyID %}selected{% endif %}>
+                            {{ faculty.label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                <!-- Date Range Filters -->
+                {% if showDateFilter %}
+                <div>
+                    <label for="startDate" class="block text-sm font-medium text-gray-700">
+                        {% if dateFilterLabel %}{{ dateFilterLabel }} Start{% else %}Start Date{% endif %}
+                    </label>
+                    <input type="date" name="startDate" id="startDate" value="{{ selectedStartDate }}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+
+                <div>
+                    <label for="endDate" class="block text-sm font-medium text-gray-700">
+                        {% if dateFilterLabel %}{{ dateFilterLabel }} End{% else %}End Date{% endif %}
+                    </label>
+                    <input type="date" name="endDate" id="endDate" value="{{ selectedEndDate }}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                {% endif %}
+
+                <!-- Report Type Selection -->
+                {% if showReportTypeFilter %}
+                <div>
+                    <label for="reportType" class="block text-sm font-medium text-gray-700">Report Type</label>
+                    <select name="reportType" id="reportType"
+                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        {% for type in availableReportTypes %}
+                        <option value="{{ type.value }}"
+                                {% if type.value == selectedReportType %}selected{% endif %}>
+                            {{ type.label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                <!-- Optional Fields (for detailed reports) -->
+                {% if showOptionalFieldsFilter %}
+                <div class="sm:col-span-2 lg:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Optional Fields (for detailed reports)</label>
+                    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+                        {% for field in availableOptionalFields %}
+                        <div class="flex items-center">
+                            <input type="checkbox" name="optionalFields[]" value="{{ field.value }}" id="field_{{ field.value }}"
+                                   {% if field.value in selectedOptionalFields %}checked{% endif %}
+                                   class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                            <label for="field_{{ field.value }}" class="ml-2 text-sm text-gray-700">{{ field.label }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Special Filters -->
+                {% if showSpecialFilters %}
+                    {% for filter in specialFilters %}
+                    <div>
+                        {% if filter.type == 'checkbox' %}
+                        <div class="flex items-center">
+                            <input type="checkbox" name="{{ filter.name }}" value="1" id="{{ filter.name }}"
+                                   {% if filter.checked %}checked{% endif %}
+                                   class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                            <label for="{{ filter.name }}" class="ml-2 text-sm text-gray-700">{{ filter.label }}</label>
+                        </div>
+                        {% elseif filter.type == 'select' %}
+                        <label for="{{ filter.name }}" class="block text-sm font-medium text-gray-700">{{ filter.label }}</label>
+                        <select name="{{ filter.name }}" id="{{ filter.name }}"
+                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            {% for option in filter.options %}
+                            <option value="{{ option.value }}"
+                                    {% if option.value == filter.selected %}selected{% endif %}>
+                                {{ option.label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between pt-4">
+                <div class="flex items-center space-x-3">
+                    <button type="submit"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Generate Report
+                    </button>
+
+                    <a href="{{ currentUrl }}?q={{ currentQuery }}"
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        Clear Filters
+                    </a>
+                </div>
+
+                <!-- Export Buttons -->
+                {% if showExportButtons and user.permissions.export_reports_csv %}
+                <div class="flex items-center space-x-2">
+                    <button type="button" onclick="exportReport('csv')"
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="-ml-0.5 mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Export CSV
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Program checkboxes toggle functions
+function toggleAllPrograms(checkbox) {
+    const programCheckboxes = document.querySelectorAll('.program-checkbox');
+    programCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+}
+
+function updateSelectAllPrograms() {
+    const programCheckboxes = document.querySelectorAll('.program-checkbox');
+    const selectAll = document.getElementById('selectAllPrograms');
+    if (selectAll) {
+        const allChecked = Array.from(programCheckboxes).every(cb => cb.checked);
+        selectAll.checked = allChecked;
+    }
+}
+
+// Student status checkboxes toggle functions
+function toggleAllStatuses(checkbox) {
+    const statusCheckboxes = document.querySelectorAll('.status-checkbox');
+    statusCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+}
+
+function updateSelectAllStatuses() {
+    const statusCheckboxes = document.querySelectorAll('.status-checkbox');
+    const selectAll = document.getElementById('selectAllStatuses');
+    if (selectAll) {
+        const allChecked = Array.from(statusCheckboxes).every(cb => cb.checked);
+        selectAll.checked = allChecked;
+    }
+}
+
+// Category checkboxes toggle functions
+function toggleAllCategories(checkbox) {
+    const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
+    categoryCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+}
+
+function updateSelectAllCategories() {
+    const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
+    const selectAll = document.getElementById('selectAllCategories');
+    if (selectAll) {
+        const allChecked = Array.from(categoryCheckboxes).every(cb => cb.checked);
+        selectAll.checked = allChecked;
+    }
+}
+
+// Meeting type checkboxes toggle functions
+function toggleAllMeetingTypes(checkbox) {
+    const meetingTypeCheckboxes = document.querySelectorAll('.meeting-type-checkbox');
+    meetingTypeCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+}
+
+function updateSelectAllMeetingTypes() {
+    const meetingTypeCheckboxes = document.querySelectorAll('.meeting-type-checkbox');
+    const selectAll = document.getElementById('selectAllMeetingTypes');
+    if (selectAll) {
+        const allChecked = Array.from(meetingTypeCheckboxes).every(cb => cb.checked);
+        selectAll.checked = allChecked;
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize "All" checkboxes
+    updateSelectAllPrograms();
+    updateSelectAllStatuses();
+    updateSelectAllCategories();
+    updateSelectAllMeetingTypes();
+
+    // Form dependency handling
+    const reportTypeSelect = document.getElementById('reportType');
+    if (reportTypeSelect) {
+        reportTypeSelect.addEventListener('change', function() {
+            // Auto-submit form when report type changes
+            this.form.submit();
+        });
+    }
+});
+</script>

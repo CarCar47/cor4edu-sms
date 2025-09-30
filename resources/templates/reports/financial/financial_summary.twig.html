@@ -1,0 +1,358 @@
+<!-- Financial Summary by Program Table -->
+<div class="overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Program
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Total Students
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Paying Students
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Total Revenue
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Expected Revenue
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Collection Rate
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Outstanding
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Avg Payment
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for program in reportData %}
+                <tr class="hover:bg-gray-50">
+                    <!-- Program Information -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-8 w-8">
+                                <div class="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
+                                    <span class="text-xs font-medium text-yellow-600">
+                                        {{ program.programCode[:2] | upper }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ program.programName }}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {{ program.programCode }}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Total Students -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-sm font-medium text-gray-900">
+                            {{ program.totalStudents | number_format }}
+                        </div>
+                    </td>
+
+                    <!-- Paying Students -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-sm font-medium text-blue-600">
+                            {{ program.studentsWithPayments | number_format }}
+                        </div>
+                        {% if program.totalStudents > 0 %}
+                        <div class="text-xs text-gray-500">
+                            {{ ((program.studentsWithPayments / program.totalStudents) * 100) | number_format(1) }}%
+                        </div>
+                        {% endif %}
+                    </td>
+
+                    <!-- Total Revenue -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-lg font-semibold text-green-600">
+                            ${{ program.totalRevenue | number_format(0) }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            Program: ${{ program.programRevenue | number_format(0) }}
+                        </div>
+                        {% if program.otherRevenue > 0 %}
+                        <div class="text-xs text-gray-400">
+                            Other: ${{ program.otherRevenue | number_format(0) }}
+                        </div>
+                        {% endif %}
+                    </td>
+
+                    <!-- Expected Revenue -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-sm font-medium text-gray-700">
+                            ${{ program.expectedRevenue | number_format(0) }}
+                        </div>
+                        {% if program.expectedRevenue > 0 %}
+                        <div class="text-xs text-gray-500">
+                            Per student target
+                        </div>
+                        {% endif %}
+                    </td>
+
+                    <!-- Collection Rate -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% if program.expectedRevenue > 0 %}
+                            {% set collectionRate = (program.totalRevenue / program.expectedRevenue) * 100 %}
+                            <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if collectionRate >= 80 %}bg-green-100 text-green-800
+                                {% elseif collectionRate >= 60 %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ collectionRate | number_format(1) }}%
+                            </div>
+                        {% else %}
+                            <span class="text-gray-400">—</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Outstanding Amount -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% set outstanding = program.expectedRevenue - program.totalRevenue %}
+                        {% if outstanding > 0 %}
+                        <div class="text-sm font-medium text-red-600">
+                            ${{ outstanding | number_format(0) }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            {{ ((outstanding / program.expectedRevenue) * 100) | number_format(1) }}% unpaid
+                        </div>
+                        {% elseif outstanding < 0 %}
+                        <div class="text-sm font-medium text-green-600">
+                            +${{ (outstanding * -1) | number_format(0) }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            Over collection
+                        </div>
+                        {% else %}
+                        <div class="text-sm font-medium text-green-600">
+                            $0
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            Fully paid
+                        </div>
+                        {% endif %}
+                    </td>
+
+                    <!-- Average Payment -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% if program.studentsWithPayments > 0 %}
+                        <div class="text-sm font-medium text-gray-700">
+                            ${{ program.averagePayment | number_format(0) }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            per paying student
+                        </div>
+                        {% else %}
+                        <span class="text-gray-400">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                        No financial data found for the selected criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Financial Summary Statistics -->
+{% if reportData | length > 0 %}
+<div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    {% set totalRevenueSum = 0 %}
+    {% set totalExpectedSum = 0 %}
+    {% set totalStudentsSum = 0 %}
+    {% set totalPayingStudentsSum = 0 %}
+    {% set programsWithRevenue = 0 %}
+
+    {% for program in reportData %}
+        {% set totalRevenueSum = totalRevenueSum + program.totalRevenue %}
+        {% set totalExpectedSum = totalExpectedSum + program.expectedRevenue %}
+        {% set totalStudentsSum = totalStudentsSum + program.totalStudents %}
+        {% set totalPayingStudentsSum = totalPayingStudentsSum + program.studentsWithPayments %}
+        {% if program.totalRevenue > 0 %}
+            {% set programsWithRevenue = programsWithRevenue + 1 %}
+        {% endif %}
+    {% endfor %}
+
+    <!-- Total Revenue Collected -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-green-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
+                        <dd class="text-lg font-medium text-gray-900">${{ totalRevenueSum | number_format(0) }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    From {{ totalPayingStudentsSum | number_format }} paying students
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collection Efficiency -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-blue-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Collection Rate</dt>
+                        <dd class="text-lg font-medium text-gray-900">
+                            {% if totalExpectedSum > 0 %}
+                                {{ ((totalRevenueSum / totalExpectedSum) * 100) | number_format(1) }}%
+                            {% else %}
+                                —
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    {% if totalExpectedSum > 0 %}
+                        Expected: ${{ totalExpectedSum | number_format(0) }}
+                    {% else %}
+                        No expected revenue target
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Outstanding Balances -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-yellow-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Outstanding</dt>
+                        <dd class="text-lg font-medium text-gray-900">
+                            {% set totalOutstanding = totalExpectedSum - totalRevenueSum %}
+                            {% if totalOutstanding > 0 %}
+                                ${{ totalOutstanding | number_format(0) }}
+                            {% else %}
+                                $0
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    {% if totalOutstanding > 0 %}
+                        {{ ((totalOutstanding / totalExpectedSum) * 100) | number_format(1) }}% of expected
+                    {% else %}
+                        All accounts current
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Participation -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-purple-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Participation</dt>
+                        <dd class="text-lg font-medium text-gray-900">
+                            {% if totalStudentsSum > 0 %}
+                                {{ ((totalPayingStudentsSum / totalStudentsSum) * 100) | number_format(1) }}%
+                            {% else %}
+                                —
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    {{ totalPayingStudentsSum | number_format }} of {{ totalStudentsSum | number_format }} students
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Indicators -->
+<div class="mt-6 bg-gray-50 rounded-lg p-4">
+    <h4 class="text-sm font-medium text-gray-900 mb-3">Program Performance Indicators</h4>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- High Performing Programs -->
+        <div class="bg-white rounded-lg p-3 text-center">
+            {% set highPerformers = 0 %}
+            {% for program in reportData %}
+                {% if program.expectedRevenue > 0 and ((program.totalRevenue / program.expectedRevenue) * 100) >= 80 %}
+                    {% set highPerformers = highPerformers + 1 %}
+                {% endif %}
+            {% endfor %}
+            <div class="text-lg font-semibold text-green-600">{{ highPerformers }}</div>
+            <div class="text-sm text-gray-600">High Performers</div>
+            <div class="text-xs text-gray-500">≥80% collection rate</div>
+        </div>
+
+        <!-- Programs Needing Attention -->
+        <div class="bg-white rounded-lg p-3 text-center">
+            {% set needsAttention = 0 %}
+            {% for program in reportData %}
+                {% if program.expectedRevenue > 0 and ((program.totalRevenue / program.expectedRevenue) * 100) < 50 %}
+                    {% set needsAttention = needsAttention + 1 %}
+                {% endif %}
+            {% endfor %}
+            <div class="text-lg font-semibold text-red-600">{{ needsAttention }}</div>
+            <div class="text-sm text-gray-600">Need Attention</div>
+            <div class="text-xs text-gray-500">&lt;50% collection rate</div>
+        </div>
+
+        <!-- Average Revenue per Student -->
+        <div class="bg-white rounded-lg p-3 text-center">
+            <div class="text-lg font-semibold text-blue-600">
+                {% if totalPayingStudentsSum > 0 %}
+                    ${{ (totalRevenueSum / totalPayingStudentsSum) | number_format(0) }}
+                {% else %}
+                    $0
+                {% endif %}
+            </div>
+            <div class="text-sm text-gray-600">Avg Revenue</div>
+            <div class="text-xs text-gray-500">per paying student</div>
+        </div>
+    </div>
+</div>
+{% endif %}

@@ -1,0 +1,77 @@
+# COR4EDU SMS - Docker Build Exclusions
+# Optimizes build context and reduces image size
+
+# Version Control
+.git
+.gitignore
+.gitattributes
+
+# Dependencies (will be installed via composer in Dockerfile)
+/vendor/
+composer.lock
+composer.phar
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+
+# Storage & Uploads (created at runtime)
+/storage/uploads/*
+/storage/documents/*
+/storage/logs/*
+/storage/cache/*
+/storage/sessions/*
+
+# IDE & Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.editorconfig
+
+# Testing
+/tests/
+phpunit.xml
+.phpunit.result.cache
+coverage/
+
+# Documentation
+*.md
+!README.md
+/docs/
+
+# Build & CI
+docker-compose.yml
+docker-compose.override.yml
+Dockerfile.dev
+.dockerignore
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# Temporary Files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.bak
+*.backup
+
+# Database
+*.sql
+*.sqlite
+*.db
+
+# Cloud Build (will be handled separately)
+cloudbuild.yaml
+.gcloudignore

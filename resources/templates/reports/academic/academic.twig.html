@@ -1,0 +1,261 @@
+{% extends "reports/base.twig.html" %}
+
+{% set activeTab = 'academic' %}
+
+{% block report_content %}
+
+<!-- Filter Form -->
+{% include "reports/components/filter_form.twig.html" %}
+
+<!-- Report Content -->
+<div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                {{ reportTitle }}
+            </h3>
+            <div class="text-sm text-gray-500">
+                {% if selectedDateStart and selectedDateEnd %}
+                {{ selectedDateStart | date('M j, Y') }} - {{ selectedDateEnd | date('M j, Y') }}
+                {% else %}
+                Generated {{ 'now' | date('M j, Y g:i A') }}
+                {% endif %}
+            </div>
+        </div>
+
+        {% if reportData %}
+            {% if reportType == 'notes_summary' %}
+                <!-- Faculty Notes Summary by Program -->
+                {% include "reports/academic/notes_summary.twig.html" %}
+
+            {% elseif reportType == 'at_risk_students' %}
+                <!-- At-Risk Students Report -->
+                {% include "reports/academic/at_risk_students.twig.html" %}
+
+            {% elseif reportType == 'student_engagement' %}
+                <!-- Student Engagement Details -->
+                {% include "reports/academic/student_engagement.twig.html" %}
+
+            {% elseif reportType == 'intervention_log' %}
+                <!-- Intervention Activity Log -->
+                {% include "reports/academic/intervention_log.twig.html" %}
+
+            {% elseif reportType == 'faculty_activity' %}
+                <!-- Faculty Activity Report -->
+                {% include "reports/academic/faculty_activity.twig.html" %}
+
+            {% endif %}
+        {% else %}
+            <!-- No Data Message -->
+            <div class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No Academic Data</h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    No academic records found matching your filter criteria. Try adjusting your filters.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Report Metadata -->
+    {% if reportData %}
+    <div class="bg-gray-50 px-4 py-3">
+        <div class="flex items-center justify-between text-sm text-gray-600">
+            <div>
+                {% if reportType == 'notes_summary' %}
+                    {{ reportData | length }} programs analyzed
+                {% elseif reportType == 'at_risk_students' %}
+                    {{ reportData | length }} at-risk students identified
+                {% elseif reportType == 'student_engagement' %}
+                    {{ reportData | length }} student engagement records
+                {% elseif reportType == 'intervention_log' %}
+                    {{ reportData | length }} intervention activities logged
+                {% elseif reportType == 'faculty_activity' %}
+                    {{ reportData | length }} faculty members tracked
+                {% endif %}
+            </div>
+            <div class="flex items-center space-x-4">
+                {% if selectedPrograms | length > 0 %}
+                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                    {{ selectedPrograms | length }} program(s) filtered
+                </span>
+                {% endif %}
+                {% if selectedCategories | length > 0 %}
+                <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                    {{ selectedCategories | length }} note category(ies) filtered
+                </span>
+                {% endif %}
+                {% if selectedMeetingTypes | length > 0 %}
+                <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                    {{ selectedMeetingTypes | length }} meeting type(s) filtered
+                </span>
+                {% endif %}
+                <span class="text-gray-500">
+                    Generated {{ 'now' | date('g:i A') }}
+                </span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Academic Insights -->
+{% if reportData and reportType == 'notes_summary' %}
+<div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-blue-800">
+                Faculty Engagement Insights
+            </h3>
+            <div class="mt-2 text-sm text-blue-700">
+                {% set totalNotes = 0 %}
+                {% set totalConcerns = 0 %}
+                {% set totalStudents = 0 %}
+                {% set totalFaculty = 0 %}
+
+                {% for program in reportData %}
+                    {% set totalNotes = totalNotes + program.totalNotes %}
+                    {% set totalConcerns = totalConcerns + program.concernNotes + program.disciplinaryNotes %}
+                    {% set totalStudents = totalStudents + program.studentsWithNotes %}
+                    {% set totalFaculty = totalFaculty + program.activeFaculty %}
+                {% endfor %}
+
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div>
+                        <div class="text-lg font-semibold text-blue-900">{{ totalNotes | number_format }}</div>
+                        <div class="text-xs">Total Faculty Notes</div>
+                    </div>
+                    <div>
+                        <div class="text-lg font-semibold text-blue-900">{{ totalStudents | number_format }}</div>
+                        <div class="text-xs">Students with Notes</div>
+                    </div>
+                    <div>
+                        <div class="text-lg font-semibold text-blue-900">{{ totalFaculty | number_format }}</div>
+                        <div class="text-xs">Active Faculty Members</div>
+                    </div>
+                    <div>
+                        <div class="text-lg font-semibold text-{% if totalConcerns > 0 %}red{% else %}green{% endif %}-900">
+                            {{ totalConcerns | number_format }}
+                        </div>
+                        <div class="text-xs">Concerns/Disciplinary</div>
+                    </div>
+                </div>
+
+                {% if totalNotes > 0 and totalStudents > 0 %}
+                <div class="mt-3 space-y-1">
+                    <div>
+                        <strong>Average Notes per Student:</strong>
+                        {{ (totalNotes / totalStudents) | number_format(1) }} notes
+                    </div>
+                    {% if totalFaculty > 0 %}
+                    <div>
+                        <strong>Average Notes per Faculty Member:</strong>
+                        {{ (totalNotes / totalFaculty) | number_format(1) }} notes
+                    </div>
+                    {% endif %}
+                    {% if totalNotes > 0 %}
+                    <div>
+                        <strong>Concern Rate:</strong>
+                        {{ ((totalConcerns / totalNotes) * 100) | number_format(1) }}%
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- At-Risk Insights -->
+{% if reportData and reportType == 'at_risk_students' %}
+<div class="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">
+                At-Risk Student Analysis
+            </h3>
+            <div class="mt-2 text-sm text-red-700">
+                {% set highRisk = 0 %}
+                {% set needsFollowUp = 0 %}
+
+                {% for student in reportData %}
+                    {% if student.riskScore >= 10 %}
+                        {% set highRisk = highRisk + 1 %}
+                    {% endif %}
+                    {% if student.pendingFollowUps > 0 %}
+                        {% set needsFollowUp = needsFollowUp + 1 %}
+                    {% endif %}
+                {% endfor %}
+
+                <div class="space-y-2">
+                    <div>
+                        <strong>High-Risk Students (Score ≥10):</strong>
+                        {{ highRisk }} of {{ reportData | length }} require immediate attention
+                    </div>
+                    <div>
+                        <strong>Pending Follow-Ups:</strong>
+                        {{ needsFollowUp }} students have outstanding action items
+                    </div>
+                    <div class="text-xs mt-3 p-2 bg-red-100 rounded">
+                        <strong>Risk Scoring:</strong> Calculated based on disciplinary notes (3 points), concern notes (2 points), and potential failure meetings (2 points). Higher scores indicate greater risk.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Actions -->
+<div class="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-green-800">
+                Available Academic Reports
+            </h3>
+            <div class="mt-2 text-sm text-green-700">
+                <ul class="space-y-1">
+                    <li><strong>Faculty Notes Summary:</strong> Program-level summary of faculty engagement and note statistics</li>
+                    <li><strong>At-Risk Students:</strong> Identifies students requiring intervention based on concerns, meetings, and support needs</li>
+                    <li><strong>Student Engagement:</strong> Individual student academic support tracking with session and meeting details</li>
+                    <li><strong>Intervention Log:</strong> Chronological timeline of all academic interventions (notes, meetings, support sessions)</li>
+                    <li><strong>Faculty Activity:</strong> Track faculty member engagement, notes created, and students helped</li>
+                </ul>
+            </div>
+            <div class="mt-4 space-x-3">
+                <a href="index.php?q=/modules/Students/student_manage.php" class="text-sm font-medium text-green-600 hover:text-green-500">
+                    Manage Student Records →
+                </a>
+                {% if user.permissions.generate_financial_reports %}
+                <a href="index.php?q=/modules/Reports/reports_financial.php" class="text-sm font-medium text-green-600 hover:text-green-500">
+                    View Financial Reports →
+                </a>
+                {% endif %}
+                {% if user.permissions.generate_career_reports %}
+                <a href="index.php?q=/modules/Reports/reports_career.php" class="text-sm font-medium text-green-600 hover:text-green-500">
+                    View Career Reports →
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

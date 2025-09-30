@@ -1,0 +1,370 @@
+<!-- Faculty Activity Report Table -->
+<div class="overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Faculty Member
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Total Notes
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Note Categories
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Meetings
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Support Sessions
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Students Helped
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Programs
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Last Activity
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for faculty in reportData %}
+                <tr class="hover:bg-gray-50">
+                    <!-- Faculty Member -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                    <span class="text-sm font-medium text-indigo-600">
+                                        {{ faculty.facultyFirstName[:1] }}{{ faculty.facultyLastName[:1] }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ faculty.facultyFirstName }} {{ faculty.facultyLastName }}
+                                </div>
+                                {% if faculty.facultyEmail %}
+                                <div class="text-sm text-gray-500">
+                                    {{ faculty.facultyEmail }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Total Notes -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-lg font-bold text-blue-600">
+                            {{ faculty.totalNotes }}
+                        </div>
+                    </td>
+
+                    <!-- Note Categories Breakdown -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="flex flex-col space-y-1">
+                            {% if faculty.positiveNotes > 0 %}
+                            <div class="inline-flex items-center justify-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                Positive: {{ faculty.positiveNotes }}
+                            </div>
+                            {% endif %}
+                            {% if faculty.concernNotes > 0 %}
+                            <div class="inline-flex items-center justify-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Concerns: {{ faculty.concernNotes }}
+                            </div>
+                            {% endif %}
+                            {% if faculty.neutralNotes > 0 %}
+                            <div class="inline-flex items-center justify-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                Neutral: {{ faculty.neutralNotes }}
+                            </div>
+                            {% endif %}
+                            {% if faculty.disciplinaryNotes > 0 %}
+                            <div class="inline-flex items-center justify-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                Disciplinary: {{ faculty.disciplinaryNotes }}
+                            </div>
+                            {% endif %}
+                            {% if faculty.totalNotes == 0 %}
+                            <span class="text-gray-400">—</span>
+                            {% endif %}
+                        </div>
+                    </td>
+
+                    <!-- Meetings -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-lg font-bold text-orange-600">
+                            {{ faculty.totalMeetings }}
+                        </div>
+                        {% if faculty.totalMeetings > 0 %}
+                        <div class="text-xs text-gray-500 space-y-0.5 mt-1">
+                            {% if faculty.concernedMeetings > 0 %}
+                            <div>Concerned: {{ faculty.concernedMeetings }}</div>
+                            {% endif %}
+                            {% if faculty.potentialFailureMeetings > 0 %}
+                            <div class="text-red-600">Failure: {{ faculty.potentialFailureMeetings }}</div>
+                            {% endif %}
+                            {% if faculty.normalMeetings > 0 %}
+                            <div>Normal: {{ faculty.normalMeetings }}</div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </td>
+
+                    <!-- Support Sessions -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-lg font-bold text-purple-600">
+                            {{ faculty.totalSupportSessions }}
+                        </div>
+                        {% if faculty.totalSupportMinutes > 0 %}
+                        <div class="text-xs text-gray-500 mt-1">
+                            {{ (faculty.totalSupportMinutes / 60) | number_format(1) }} hours
+                        </div>
+                        {% endif %}
+                    </td>
+
+                    <!-- Students Helped -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-lg font-semibold text-green-600">
+                            {{ faculty.uniqueStudents }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            students
+                        </div>
+                    </td>
+
+                    <!-- Programs Served -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-sm font-medium text-gray-900">
+                            {{ faculty.programsServed }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            programs
+                        </div>
+                    </td>
+
+                    <!-- Last Activity -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% if faculty.lastActivityDate %}
+                        <div class="text-sm text-gray-900">
+                            {{ faculty.lastActivityDate | date('M j, Y') }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            {% set daysSince = date().diff(date(faculty.lastActivityDate)).days %}
+                            {% if daysSince == 0 %}
+                                Today
+                            {% elseif daysSince == 1 %}
+                                Yesterday
+                            {% elseif daysSince < 7 %}
+                                {{ daysSince }} days ago
+                            {% elseif daysSince < 30 %}
+                                {{ (daysSince / 7) | round }} weeks ago
+                            {% else %}
+                                {{ (daysSince / 30) | round }} months ago
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <span class="text-gray-400">No activity</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                        No faculty activity found for the selected criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Faculty Activity Summary -->
+{% if reportData | length > 0 %}
+<div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    {% set totalNotes = 0 %}
+    {% set totalMeetings = 0 %}
+    {% set totalSessions = 0 %}
+    {% set totalStudents = 0 %}
+    {% set totalMinutes = 0 %}
+
+    {% for faculty in reportData %}
+        {% set totalNotes = totalNotes + faculty.totalNotes %}
+        {% set totalMeetings = totalMeetings + faculty.totalMeetings %}
+        {% set totalSessions = totalSessions + faculty.totalSupportSessions %}
+        {% set totalStudents = totalStudents + faculty.uniqueStudents %}
+        {% set totalMinutes = totalMinutes + faculty.totalSupportMinutes %}
+    {% endfor %}
+
+    <!-- Total Notes Written -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-blue-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Notes</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ totalNotes }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    {% if reportData | length > 0 %}
+                    Avg: {{ (totalNotes / reportData | length) | number_format(1) }} per faculty
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Meetings -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-orange-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Meetings</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ totalMeetings }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    {% if reportData | length > 0 %}
+                    Avg: {{ (totalMeetings / reportData | length) | number_format(1) }} per faculty
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Support Sessions -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-purple-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Support Sessions</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ totalSessions }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    {{ (totalMinutes / 60) | number_format(0) }} total hours
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Students Impacted -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-green-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Students Impacted</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ totalStudents }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    Unique students helped
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Faculty Performance Tiers -->
+<div class="mt-6 bg-gray-50 rounded-lg p-4">
+    <h4 class="text-sm font-medium text-gray-900 mb-3">Faculty Engagement Levels</h4>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {% set highEngagement = 0 %}
+        {% set moderateEngagement = 0 %}
+        {% set lowEngagement = 0 %}
+
+        {% for faculty in reportData %}
+            {% set totalActivities = faculty.totalNotes + faculty.totalMeetings + faculty.totalSupportSessions %}
+            {% if totalActivities >= 20 %}
+                {% set highEngagement = highEngagement + 1 %}
+            {% elseif totalActivities >= 10 %}
+                {% set moderateEngagement = moderateEngagement + 1 %}
+            {% else %}
+                {% set lowEngagement = lowEngagement + 1 %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="bg-white rounded-lg p-3 text-center border-2 border-green-200">
+            <div class="text-2xl font-semibold text-green-600">{{ highEngagement }}</div>
+            <div class="text-sm text-gray-600">High Engagement</div>
+            <div class="text-xs text-gray-500">≥20 activities</div>
+        </div>
+
+        <div class="bg-white rounded-lg p-3 text-center border-2 border-yellow-200">
+            <div class="text-2xl font-semibold text-yellow-600">{{ moderateEngagement }}</div>
+            <div class="text-sm text-gray-600">Moderate Engagement</div>
+            <div class="text-xs text-gray-500">10-19 activities</div>
+        </div>
+
+        <div class="bg-white rounded-lg p-3 text-center border-2 border-red-200">
+            <div class="text-2xl font-semibold text-red-600">{{ lowEngagement }}</div>
+            <div class="text-sm text-gray-600">Low Engagement</div>
+            <div class="text-xs text-gray-500">&lt;10 activities</div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Performers -->
+{% set sortedFaculty = reportData | sort((a, b) => (b.totalNotes + b.totalMeetings + b.totalSupportSessions) <=> (a.totalNotes + a.totalMeetings + a.totalSupportSessions)) %}
+<div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+    <h4 class="text-sm font-medium text-yellow-900 mb-3">Top 5 Most Active Faculty</h4>
+    <div class="space-y-2">
+        {% for faculty in sortedFaculty | slice(0, 5) %}
+        <div class="flex items-center justify-between bg-white rounded-lg px-3 py-2">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
+                    <span class="text-xs font-medium text-yellow-600">
+                        {{ loop.index }}
+                    </span>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm font-medium text-gray-900">
+                        {{ faculty.facultyFirstName }} {{ faculty.facultyLastName }}
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4 text-xs text-gray-600">
+                <div><span class="font-semibold">{{ faculty.totalNotes }}</span> notes</div>
+                <div><span class="font-semibold">{{ faculty.totalMeetings }}</span> meetings</div>
+                <div><span class="font-semibold">{{ faculty.totalSupportSessions }}</span> sessions</div>
+                <div class="text-green-600 font-semibold">{{ faculty.uniqueStudents }} students</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}

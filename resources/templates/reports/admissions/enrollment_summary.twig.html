@@ -1,0 +1,255 @@
+<!-- Program Enrollment Summary Table -->
+<div class="overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Program
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Total Enrollments
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Active Students
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Graduated
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Withdrawn
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Prospective
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Retention Rate
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Enrollment Period
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for program in reportData %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-8 w-8">
+                                <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                                    <span class="text-xs font-medium text-indigo-600">
+                                        {{ program.programCode[:2] | upper }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ program.programName }}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {{ program.programCode }}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-lg font-semibold text-gray-900">
+                            {{ program.totalEnrollments | number_format }}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-sm font-medium text-green-600">
+                            {{ program.activeStudents | number_format }}
+                        </div>
+                        {% if program.totalEnrollments > 0 %}
+                        <div class="text-xs text-gray-500">
+                            {{ ((program.activeStudents / program.totalEnrollments) * 100) | number_format(1) }}%
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-sm font-medium text-blue-600">
+                            {{ program.graduatedStudents | number_format }}
+                        </div>
+                        {% if program.totalEnrollments > 0 %}
+                        <div class="text-xs text-gray-500">
+                            {{ ((program.graduatedStudents / program.totalEnrollments) * 100) | number_format(1) }}%
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-sm font-medium text-red-600">
+                            {{ program.withdrawnStudents | number_format }}
+                        </div>
+                        {% if program.totalEnrollments > 0 %}
+                        <div class="text-xs text-gray-500">
+                            {{ ((program.withdrawnStudents / program.totalEnrollments) * 100) | number_format(1) }}%
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-sm font-medium text-yellow-600">
+                            {{ program.prospectiveStudents | number_format }}
+                        </div>
+                        {% if program.totalEnrollments > 0 %}
+                        <div class="text-xs text-gray-500">
+                            {{ ((program.prospectiveStudents / program.totalEnrollments) * 100) | number_format(1) }}%
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% if program.totalEnrollments > 0 %}
+                            {% set retentionRate = ((program.activeStudents + program.graduatedStudents) / program.totalEnrollments) * 100 %}
+                            <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if retentionRate >= 80 %}bg-green-100 text-green-800
+                                {% elseif retentionRate >= 60 %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ retentionRate | number_format(1) }}%
+                            </div>
+                        {% else %}
+                            <span class="text-gray-400">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
+                        {% if program.firstEnrollment and program.lastEnrollment %}
+                            <div>{{ program.firstEnrollment | date('M Y') }}</div>
+                            <div class="text-xs">to {{ program.lastEnrollment | date('M Y') }}</div>
+                        {% else %}
+                            <span class="text-gray-400">No enrollments</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                        No programs found matching the selected criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Summary Statistics -->
+{% if reportData | length > 0 %}
+<div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    {% set totalPrograms = reportData | length %}
+    {% set programsWithEnrollments = 0 %}
+    {% set highPerformingPrograms = 0 %}
+    {% set totalStudentsAcrossPrograms = 0 %}
+
+    {% for program in reportData %}
+        {% set totalStudentsAcrossPrograms = totalStudentsAcrossPrograms + program.totalEnrollments %}
+        {% if program.totalEnrollments > 0 %}
+            {% set programsWithEnrollments = programsWithEnrollments + 1 %}
+            {% set retentionRate = ((program.activeStudents + program.graduatedStudents) / program.totalEnrollments) * 100 %}
+            {% if retentionRate >= 80 %}
+                {% set highPerformingPrograms = highPerformingPrograms + 1 %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+    <!-- Total Programs Analyzed -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-blue-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Programs Analyzed</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ totalPrograms | number_format }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    {{ programsWithEnrollments | number_format }} with active enrollments
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- High Performing Programs -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-green-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">High Performing</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ highPerformingPrograms | number_format }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    ≥80% retention rate
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Students -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-purple-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Students</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ totalStudentsAcrossPrograms | number_format }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    Across all analyzed programs
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Average Enrollment -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-yellow-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Avg per Program</dt>
+                        <dd class="text-lg font-medium text-gray-900">
+                            {% if programsWithEnrollments > 0 %}
+                                {{ (totalStudentsAcrossPrograms / programsWithEnrollments) | number_format(1) }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    Students per active program
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

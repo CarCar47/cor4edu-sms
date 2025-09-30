@@ -1,0 +1,382 @@
+{% extends "base.twig.html" %}
+
+{% block content %}
+<div class="content">
+    <h1>{{ title }}</h1>
+
+    {% if errors %}
+        <div class="error">
+            {% for error in errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if success %}
+        <div class="success">
+            <p>{{ success }}</p>
+        </div>
+    {% endif %}
+
+    <div class="admin-nav">
+        <a href="index.php?q=/dashboard" class="button">← Back to Dashboard</a>
+    </div>
+
+    <!-- Storage Statistics -->
+    <div class="section">
+        <h2>Storage Overview</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Documents</h3>
+                <p class="stat-number">{{ storageStats.totalDocuments }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Size</h3>
+                <p class="stat-number">{{ (storageStats.totalSize / 1024 / 1024) | round(2) }} MB</p>
+            </div>
+            <div class="stat-card">
+                <h3>Archived Documents</h3>
+                <p class="stat-number">{{ storageStats.archivedDocuments }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Old Documents (>1 year)</h3>
+                <p class="stat-number">{{ storageStats.oldDocuments }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Categories -->
+    <div class="section">
+        <h2>Documents by Category</h2>
+        <div class="category-grid">
+            {% for category in categoryStats %}
+                <div class="category-card">
+                    <h4>{{ category.category ?: 'Uncategorized' }}</h4>
+                    <p>{{ category.count }} documents</p>
+                    <p>{{ (category.totalSize / 1024 / 1024) | round(2) }} MB</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="section">
+        <h2>Filter Documents</h2>
+        <form method="GET" action="index.php" class="filter-form">
+            <input type="hidden" name="q" value="/modules/Admin/Documents/document_history_manage.php">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="entityType">Entity Type:</label>
+                    <select id="entityType" name="entityType">
+                        <option value="">All Types</option>
+                        <option value="Student" {{ filters.entityType == 'Student' ? 'selected' : '' }}>Student</option>
+                        <option value="Staff" {{ filters.entityType == 'Staff' ? 'selected' : '' }}>Staff</option>
+                        <option value="Program" {{ filters.entityType == 'Program' ? 'selected' : '' }}>Program</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category:</label>
+                    <select id="category" name="category">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.code }}" {{ filters.category == cat.code ? 'selected' : '' }}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="isArchived">Status:</label>
+                    <select id="isArchived" name="isArchived">
+                        <option value="">All Documents</option>
+                        <option value="N" {{ filters.isArchived == 'N' ? 'selected' : '' }}>Active Only</option>
+                        <option value="Y" {{ filters.isArchived == 'Y' ? 'selected' : '' }}>Archived Only</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="olderThan">Older Than:</label>
+                    <select id="olderThan" name="olderThan">
+                        <option value="">Any Age</option>
+                        <option value="6 months" {{ filters.olderThan == '6 months' ? 'selected' : '' }}>6 Months</option>
+                        <option value="1 year" {{ filters.olderThan == '1 year' ? 'selected' : '' }}>1 Year</option>
+                        <option value="2 years" {{ filters.olderThan == '2 years' ? 'selected' : '' }}>2 Years</option>
+                        <option value="5 years" {{ filters.olderThan == '5 years' ? 'selected' : '' }}>5 Years</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="button">Apply Filters</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Document List -->
+    <div class="section">
+        <h2>Document Management</h2>
+        <p>Total documents matching filters: {{ documents|length }}</p>
+
+        {% if documents %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Student</th>
+                            <th>Category</th>
+                            <th>Entity Type</th>
+                            <th>Size</th>
+                            <th>Uploaded</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for document in documents %}
+                            <tr class="{{ document.isArchived == 'Y' ? 'archived-row' : '' }}">
+                                <td>{{ document.fileName }}</td>
+                                <td>
+                                    {% if document.studentName %}
+                                        <a href="index.php?q=/modules/Students/student_manage_view.php&studentID={{ document.studentID }}">
+                                            {{ document.studentName }}
+                                        </a>
+                                    {% else %}
+                                        <em>No student linked</em>
+                                    {% endif %}
+                                </td>
+                                <td>{{ document.category ?: 'Uncategorized' }}</td>
+                                <td>{{ document.entityType }}</td>
+                                <td>{{ (document.fileSize / 1024) | round(1) }} KB</td>
+                                <td>{{ document.uploadedOn | date('Y-m-d H:i') }}</td>
+                                <td>
+                                    <span class="status-badge {{ document.isArchived == 'Y' ? 'archived' : 'active' }}">
+                                        {{ document.isArchived == 'Y' ? 'Archived' : 'Active' }}
+                                    </span>
+                                </td>
+                                <td class="actions">
+                                    <a href="index.php?q=/serve-file&documentID={{ document.documentID }}"
+                                       class="button-small" target="_blank">View</a>
+
+                                    {% if user.is_super_admin %}
+                                        <button type="button" class="button-small danger"
+                                                onclick="confirmPermanentDelete({{ document.documentID }}, '{{ document.fileName }}')">
+                                            Delete Permanently
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="no-data">No documents found matching the current filters.</p>
+        {% endif %}
+    </div>
+
+    <!-- Bulk Actions for Super Admins -->
+    {% if user.is_super_admin %}
+        <div class="section danger-zone">
+            <h2>⚠️ Bulk Cleanup Actions</h2>
+            <p class="warning">These actions cannot be undone. Use with extreme caution.</p>
+
+            <div class="bulk-actions">
+                <div class="bulk-action">
+                    <h3>Delete Old Archived Documents</h3>
+                    <p>Permanently delete archived documents older than the specified time period.</p>
+                    <form method="POST" action="index.php?q=/modules/Admin/Documents/document_bulkDeleteProcess.php"
+                          onsubmit="return confirm('This will permanently delete ALL archived documents older than the selected period. This action cannot be undone. Are you sure?')">
+                        <div class="form-row">
+                            <select name="olderThan" required>
+                                <option value="">Select age threshold</option>
+                                <option value="1 year">Older than 1 year</option>
+                                <option value="2 years">Older than 2 years</option>
+                                <option value="5 years">Older than 5 years</option>
+                            </select>
+                            <input type="hidden" name="onlyArchived" value="Y">
+                            <button type="submit" class="button danger">Delete Old Archived Documents</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Permanent Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h3>⚠️ Permanent Document Deletion</h3>
+        <p>You are about to <strong>permanently delete</strong> the following document:</p>
+        <p><strong id="deleteFileName"></strong></p>
+        <p class="warning">This action cannot be undone. The file will be permanently removed from the system and storage.</p>
+
+        <form method="POST" action="index.php?q=/modules/Admin/Documents/document_deleteProcess.php">
+            <input type="hidden" id="deleteDocumentID" name="documentID" value="">
+            <div class="form-group">
+                <label for="confirmDelete">Type "DELETE" to confirm:</label>
+                <input type="text" id="confirmDelete" name="confirmDelete" required
+                       placeholder="Type DELETE to confirm">
+            </div>
+            <div class="modal-actions">
+                <button type="button" onclick="closeDeleteModal()" class="button">Cancel</button>
+                <button type="submit" class="button danger">Delete Permanently</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function confirmPermanentDelete(documentID, fileName) {
+    document.getElementById('deleteDocumentID').value = documentID;
+    document.getElementById('deleteFileName').textContent = fileName;
+    document.getElementById('confirmDelete').value = '';
+    document.getElementById('deleteModal').style.display = 'block';
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    var modal = document.getElementById('deleteModal');
+    if (event.target == modal) {
+        closeDeleteModal();
+    }
+}
+</script>
+
+<style>
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0066cc;
+    margin: 0.5rem 0 0 0;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.category-card {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    text-align: center;
+}
+
+.filter-form .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: end;
+}
+
+.archived-row {
+    background-color: #f8f9fa;
+    opacity: 0.8;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: bold;
+}
+
+.status-badge.active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-badge.archived {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.danger-zone {
+    border: 2px solid #dc3545;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: #fff5f5;
+}
+
+.warning {
+    color: #856404;
+    background-color: #fff3cd;
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #ffeaa7;
+}
+
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.button.danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.button.danger:hover {
+    background-color: #c82333;
+}
+
+.button-small {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    margin-right: 0.25rem;
+}
+
+.no-data {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 2rem;
+}
+</style>
+{% endblock %}

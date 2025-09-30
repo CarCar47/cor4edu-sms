@@ -1,0 +1,2828 @@
+{% extends "base.twig.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Success/Error Messages -->
+    {% if user.session.success is defined and user.session.success %}
+    <div id="successBanner" class="rounded-md bg-green-50 p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium text-green-800">
+                    {{ user.session.success }}
+                </p>
+            </div>
+            <div class="ml-auto pl-3">
+                <div class="-mx-1.5 -my-1.5">
+                    <button onclick="hideSuccessBanner()" class="inline-flex bg-green-50 rounded-md p-1.5 text-green-500 hover:bg-green-100">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if user.session.payment_errors is defined and user.session.payment_errors %}
+    <div class="rounded-md bg-red-50 p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">
+                    Please correct the following errors:
+                </h3>
+                <div class="mt-2 text-sm text-red-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        {% for error in user.session.payment_errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Header -->
+    <div class="md:flex md:items-center md:justify-between">
+        <div class="flex-1 min-w-0">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                {{ student.firstName }} {{ student.lastName }}
+            </h2>
+            <p class="mt-1 text-sm text-gray-500">
+                Student Code: {{ student.studentCode }} | Status: {{ student.status|capitalize }}
+            </p>
+        </div>
+        <div class="mt-4 flex md:mt-0 md:ml-4">
+            <a href="index.php?q=/modules/Students/student_manage_edit.php&studentID={{ student.studentID }}"
+               class="mr-3 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Edit Student
+            </a>
+            <a href="index.php?q=/modules/Students/student_manage.php"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Back to Students
+            </a>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="bg-white shadow">
+        <div class="border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                {% if 'information' in accessibleTabs %}
+                <button id="tab-information" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm active" onclick="switchTab('information')">
+                    Information
+                </button>
+                {% endif %}
+                {% if 'admissions' in accessibleTabs %}
+                <button id="tab-admissions" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="switchTab('admissions')">
+                    Admissions
+                </button>
+                {% endif %}
+                {% if 'bursar' in accessibleTabs %}
+                <button id="tab-bursar" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="switchTab('bursar')">
+                    Bursar
+                </button>
+                {% endif %}
+                {% if 'registrar' in accessibleTabs %}
+                <button id="tab-registrar" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="switchTab('registrar')">
+                    Registrar
+                </button>
+                {% endif %}
+                {% if 'career' in accessibleTabs %}
+                <button id="tab-career" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="switchTab('career')">
+                    Career
+                </button>
+                {% endif %}
+                {% if 'academics' in accessibleTabs %}
+                <button id="tab-academics" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="switchTab('academics')">
+                    Academics
+                </button>
+                {% endif %}
+                {% if 'graduation' in accessibleTabs %}
+                <button id="tab-graduation" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="switchTab('graduation')">
+                    Graduation
+                </button>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+
+        <!-- Information Tab -->
+        {% if 'information' in accessibleTabs %}
+        <div id="content-information" class="tab-content">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Student Information</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Personal details and contact information.</p>
+            </div>
+            <div class="border-t border-gray-200">
+                <dl>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Full name</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ student.firstName }} {{ student.lastName }}</dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Student Code</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ student.studentCode }}</dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Email address</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ student.email | default('—') }}</dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Phone number</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ student.phone | default('—') }}</dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Date of birth</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ student.dateOfBirth | date('F j, Y') | default('—') }}</dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Gender</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ student.gender | default('—') }}</dd>
+                    </div>
+                    {% if student.address or student.city or student.state or student.zipCode or student.country %}
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Address</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if student.address %}{{ student.address }}<br>{% endif %}
+                            {% if student.city %}{{ student.city }}{% endif %}{% if student.state %}, {{ student.state }}{% endif %}{% if student.zipCode %} {{ student.zipCode }}{% endif %}
+                            {% if student.country %}<br>{{ student.country }}{% endif %}
+                        </dd>
+                    </div>
+                    {% endif %}
+                    {% if student.notes %}
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Notes</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ student.notes }}</dd>
+                    </div>
+                    {% endif %}
+                    <!-- ID Verification Requirement -->
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">ID Verification</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% set idVerification = null %}
+                            {% for req in informationRequirements %}
+                                {% if req.requirementCode == 'id_verification' %}
+                                    {% set idVerification = req %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if idVerification and idVerification.status == 'submitted' %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-green-800 font-medium">Submitted</span>
+                                        <span class="ml-2 text-gray-500">{{ idVerification.currentFileName }}</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <a href="{{ app_url }}/file.php?path={{ idVerification.currentFilePath|url_encode }}" target="_blank"
+                                           class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">View</a>
+                                        {% if editPermissions.information %}
+                                        <a href="index.php?q=/modules/Students/Requirements/requirement_upload.php&studentID={{ student.studentID }}&requirementCode=id_verification"
+                                           class="text-blue-600 hover:text-blue-900 text-sm font-medium">Replace</a>
+                                        <form method="POST" action="index.php?q=/modules/Students/Requirements/requirement_delete.php" class="inline">
+                                            <input type="hidden" name="studentID" value="{{ student.studentID }}">
+                                            <input type="hidden" name="requirementCode" value="id_verification">
+                                            <button type="submit" onclick="return confirm('Are you sure you want to remove this document from the requirement? It will be preserved in document management for audit trail.')"
+                                                    class="text-red-600 hover:text-red-900 text-sm font-medium">Remove</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-yellow-800 font-medium">Missing</span>
+                                        <span class="ml-2 text-gray-500">Government-issued photo identification required</span>
+                                    </div>
+                                    {% if editPermissions.information %}
+                                    <a href="index.php?q=/modules/Students/Requirements/requirement_upload.php&studentID={{ student.studentID }}&requirementCode=id_verification"
+                                       class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                        Upload Document
+                                    </a>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-400 bg-gray-50 cursor-not-allowed">
+                                        View Only
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    <!-- General Documents -->
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">All Documents</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if editPermissions.information %}
+                            <a href="index.php?q=/modules/Students/Documents/document_upload.php&studentID={{ student.studentID }}&category=personal"
+                               class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                Manage All Documents
+                            </a>
+                            {% else %}
+                            <span class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-400 bg-gray-50 cursor-not-allowed">
+                                View Only
+                            </span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Admissions Tab -->
+        {% if 'admissions' in accessibleTabs %}
+        <div id="content-admissions" class="tab-content hidden">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Admissions Information</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Application status and admissions requirements.</p>
+            </div>
+            <div class="border-t border-gray-200">
+                <dl>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Application Status</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                {% if student.status == 'active' %}
+                                    bg-green-100 text-green-800
+                                {% elseif student.status == 'prospective' %}
+                                    bg-yellow-100 text-yellow-800
+                                {% elseif student.status == 'graduated' %}
+                                    bg-blue-100 text-blue-800
+                                {% elseif student.status == 'withdrawn' %}
+                                    bg-red-100 text-red-800
+                                {% else %}
+                                    bg-gray-100 text-gray-800
+                                {% endif %}">
+                                {{ student.status|capitalize }}
+                            </span>
+                        </dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Program Applied For</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ student.programName | default('—') }}</dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Enrollment Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ student.enrollmentDate | date('F j, Y') | default('—') }}</dd>
+                    </div>
+                    <!-- Enrollment Agreement Requirement -->
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Enrollment Agreement</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% set enrollmentAgreement = null %}
+                            {% for req in admissionsRequirements %}
+                                {% if req.requirementCode == 'enrollment_agreement' %}
+                                    {% set enrollmentAgreement = req %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if enrollmentAgreement and enrollmentAgreement.status == 'submitted' %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-green-800 font-medium">Submitted</span>
+                                        <span class="ml-2 text-gray-500">{{ enrollmentAgreement.currentFileName }}</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <a href="{{ app_url }}/file.php?path={{ enrollmentAgreement.currentFilePath|url_encode }}" target="_blank"
+                                           class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">View</a>
+                                        {% if editPermissions.admissions %}
+                                        <a href="index.php?q=/modules/Students/Requirements/requirement_upload.php&studentID={{ student.studentID }}&requirementCode=enrollment_agreement"
+                                           class="text-blue-600 hover:text-blue-900 text-sm font-medium">Replace</a>
+                                        <form method="POST" action="index.php?q=/modules/Students/Requirements/requirement_delete.php" class="inline">
+                                            <input type="hidden" name="studentID" value="{{ student.studentID }}">
+                                            <input type="hidden" name="requirementCode" value="enrollment_agreement">
+                                            <button type="submit" onclick="return confirm('Are you sure you want to remove this document from the requirement? It will be preserved in document management for audit trail.')"
+                                                    class="text-red-600 hover:text-red-900 text-sm font-medium">Remove</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-yellow-800 font-medium">Missing</span>
+                                        <span class="ml-2 text-gray-500">Signed enrollment agreement document</span>
+                                    </div>
+                                    {% if editPermissions.admissions %}
+                                    <a href="index.php?q=/modules/Students/Requirements/requirement_upload.php&studentID={{ student.studentID }}&requirementCode=enrollment_agreement"
+                                       class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                        Upload Document
+                                    </a>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-400 bg-gray-50 cursor-not-allowed">
+                                        View Only
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    <!-- High School Documentation Requirement -->
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">High School Diploma, GED, Official Transcripts</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% set hsDocumentation = null %}
+                            {% for req in admissionsRequirements %}
+                                {% if req.requirementCode == 'hs_diploma_transcripts' %}
+                                    {% set hsDocumentation = req %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if hsDocumentation and hsDocumentation.status == 'submitted' %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-green-800 font-medium">Submitted</span>
+                                        <span class="ml-2 text-gray-500">{{ hsDocumentation.currentFileName }}</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <a href="{{ app_url }}/file.php?path={{ hsDocumentation.currentFilePath|url_encode }}" target="_blank"
+                                           class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">View</a>
+                                        <a href="index.php?q=/modules/Students/Requirements/requirement_upload.php&studentID={{ student.studentID }}&requirementCode=hs_diploma_transcripts"
+                                           class="text-blue-600 hover:text-blue-900 text-sm font-medium">Replace</a>
+                                        <form method="POST" action="index.php?q=/modules/Students/Requirements/requirement_delete.php" class="inline">
+                                            <input type="hidden" name="studentID" value="{{ student.studentID }}">
+                                            <input type="hidden" name="requirementCode" value="hs_diploma_transcripts">
+                                            <button type="submit" onclick="return confirm('Are you sure you want to remove this document from the requirement? It will be preserved in document management for audit trail.')"
+                                                    class="text-red-600 hover:text-red-900 text-sm font-medium">Remove</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-yellow-800 font-medium">Missing</span>
+                                        <span class="ml-2 text-gray-500">High school completion documentation or equivalent</span>
+                                    </div>
+                                    <a href="index.php?q=/modules/Students/Requirements/requirement_upload.php&studentID={{ student.studentID }}&requirementCode=hs_diploma_transcripts"
+                                       class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                        Upload Document
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    <!-- General Admissions Documents -->
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Other Application Documents</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <a href="index.php?q=/modules/Students/Documents/document_upload.php&studentID={{ student.studentID }}&category=admissions"
+                               class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                Manage Other Documents
+                            </a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Bursar Tab -->
+        {% if 'bursar' in accessibleTabs %}
+        <div id="content-bursar" class="tab-content hidden">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Financial Information</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Account balances and payment history.</p>
+            </div>
+
+            <!-- Financial Summary Cards -->
+            <div class="p-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <!-- Outstanding Balance Card -->
+                    <div class="{% if financialSummary.outstandingBalance > 0 %}bg-red-50 border-red-200{% else %}bg-green-50 border-green-200{% endif %} border rounded-lg p-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                {% if financialSummary.outstandingBalance > 0 %}
+                                <svg class="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {% else %}
+                                <svg class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {% endif %}
+                            </div>
+                            <div class="ml-3 flex-1">
+                                <p class="text-sm font-medium {% if financialSummary.outstandingBalance > 0 %}text-red-800{% else %}text-green-800{% endif %}">Outstanding Balance</p>
+                                <p class="text-lg font-semibold {% if financialSummary.outstandingBalance > 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                                    {{ financialSummary.formattedOutstandingBalance | default('$0.00') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Program Payments Card -->
+                    <div class="bg-blue-50 border-blue-200 border rounded-lg p-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                </svg>
+                            </div>
+                            <div class="ml-3 flex-1">
+                                <p class="text-sm font-medium text-blue-800">Program Payments</p>
+                                <p class="text-lg font-semibold text-blue-600">
+                                    {{ financialSummary.formattedProgramPayments | default('$0.00') }}
+                                </p>
+                                <p class="text-xs text-blue-600">{{ financialSummary.programPaymentCount | default(0) }} payments</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other Payments Card -->
+                    <div class="bg-purple-50 border-purple-200 border rounded-lg p-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                            <div class="ml-3 flex-1">
+                                <p class="text-sm font-medium text-purple-800">Other Payments</p>
+                                <p class="text-lg font-semibold text-purple-600">
+                                    {{ financialSummary.formattedOtherPayments | default('$0.00') }}
+                                </p>
+                                <p class="text-xs text-purple-600">{{ financialSummary.otherPaymentCount | default(0) }} payments</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Program Cost Card -->
+                    <div class="bg-gray-50 border-gray-200 border rounded-lg p-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                            <div class="ml-3 flex-1">
+                                <p class="text-sm font-medium text-gray-800">Total Program Cost</p>
+                                <p class="text-lg font-semibold text-gray-600">
+                                    {{ financialSummary.formattedTotalCost | default('$0.00') }}
+                                </p>
+                                <p class="text-xs text-gray-600">Locked-in pricing</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Actions -->
+                <div class="mb-6 flex flex-wrap gap-2">
+                    <button onclick="openPaymentModal('program')"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Add Program Payment
+                    </button>
+                    <button onclick="openPaymentModal('other')"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Add Other Payment
+                    </button>
+                </div>
+
+                <!-- Payment History Tables -->
+                <div class="space-y-6">
+                    <!-- Program Payments Table -->
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-900 mb-4">Program Payments</h4>
+                        {% if programPayments and programPayments|length > 0 %}
+                        <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-300">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied To</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    {% for payment in programPayments %}
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ payment.paymentDate | date('M j, Y') }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                            ${{ payment.amount | number_format(2) }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ payment.paymentMethod | replace({'_': ' '}) | title }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ payment.referenceNumber | default('—') }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ payment.formattedChargeApplications | default('—') }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button onclick="editPayment({{ payment.paymentID }})"
+                                                    class="text-indigo-600 hover:text-indigo-900">Edit</button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-6 text-gray-500">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <p class="mt-2">No program payments recorded</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Other Payments Table -->
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-900 mb-4">Other Payments</h4>
+                        {% if otherPayments and otherPayments|length > 0 %}
+                        <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-300">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purpose</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    {% for payment in otherPayments %}
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ payment.paymentDate | date('M j, Y') }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                            ${{ payment.amount | number_format(2) }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ payment.paymentMethod | replace({'_': ' '}) | title }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ payment.referenceNumber | default('—') }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ payment.notes | default('—') }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button onclick="editPayment({{ payment.paymentID }})"
+                                                    class="text-indigo-600 hover:text-indigo-900">Edit</button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-6 text-gray-500">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <p class="mt-2">No other payments recorded</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Financial Documents -->
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-900 mb-4">Financial Documents</h4>
+                        <div class="text-center py-4">
+                            <a href="index.php?q=/modules/Students/Documents/document_upload.php&studentID={{ student.studentID }}&category=financial"
+                               class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Manage Financial Documents
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Plan Agreement Requirement -->
+                <div class="mt-6 bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:px-6">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Payment Plan Agreement</h3>
+                        <p class="mt-1 max-w-2xl text-sm text-gray-500">Required payment plan agreement documentation.</p>
+                    </div>
+                    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+                        {% set paymentPlanAgreement = null %}
+                        {% for req in bursarRequirements %}
+                            {% if req.requirementCode == 'payment_plan_agreement' %}
+                                {% set paymentPlanAgreement = req %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if paymentPlanAgreement and paymentPlanAgreement.status == 'submitted' %}
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <svg class="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span class="text-green-800 font-medium">Submitted</span>
+                                    <span class="ml-2 text-gray-500">{{ paymentPlanAgreement.currentFileName }}</span>
+                                    <span class="ml-2 text-xs text-gray-400">Submitted on {{ paymentPlanAgreement.submittedOn|date('M j, Y') }}</span>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <a href="{{ app_url }}/file.php?path={{ paymentPlanAgreement.currentFilePath|url_encode }}" target="_blank"
+                                       class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">View</a>
+                                    <a href="index.php?q=/modules/Students/Requirements/requirement_upload.php&studentID={{ student.studentID }}&requirementCode=payment_plan_agreement"
+                                       class="text-blue-600 hover:text-blue-900 text-sm font-medium">Replace</a>
+                                    <form method="POST" action="index.php?q=/modules/Students/Requirements/requirement_delete.php" class="inline">
+                                        <input type="hidden" name="studentID" value="{{ student.studentID }}">
+                                        <input type="hidden" name="requirementCode" value="payment_plan_agreement">
+                                        <button type="submit" onclick="return confirm('Are you sure you want to remove this document from the requirement? It will be preserved in document management for audit trail.')"
+                                                class="text-red-600 hover:text-red-900 text-sm font-medium">Remove</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <svg class="h-5 w-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span class="text-yellow-800 font-medium">Missing</span>
+                                    <span class="ml-2 text-gray-500">Signed payment plan agreement document required</span>
+                                </div>
+                                <a href="index.php?q=/modules/Students/Requirements/requirement_upload.php&studentID={{ student.studentID }}&requirementCode=payment_plan_agreement"
+                                   class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    <svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    Upload Payment Plan Agreement
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Registrar Tab -->
+        {% if 'registrar' in accessibleTabs %}
+        <div id="content-registrar" class="tab-content hidden">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Academic Information</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Program enrollment and academic records.</p>
+            </div>
+            <div class="border-t border-gray-200">
+                <dl>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Program</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 flex items-center justify-between">
+                            <span>{{ student.programName | default('—') }}</span>
+                            <button onclick="openAcademicModal()"
+                                    class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <svg class="-ml-1 mr-1 h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Edit Academic Info
+                            </button>
+                        </dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Enrollment Start Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ student.enrollmentDate | date('F j, Y') | default('—') }}</dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Anticipated Graduation Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if student.anticipatedGraduationDate %}
+                                {{ student.anticipatedGraduationDate | date('F j, Y') }}
+                            {% else %}
+                                <span class="text-gray-500">None</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Actual Graduation Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if student.actualGraduationDate %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <svg class="-ml-0.5 mr-1.5 h-2 w-2" fill="currentColor" viewBox="0 0 8 8">
+                                        <circle cx="4" cy="4" r="3" />
+                                    </svg>
+                                    {{ student.actualGraduationDate | date('F j, Y') }}
+                                </span>
+                            {% else %}
+                                <span class="text-gray-500">None</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Last Day of Attendance</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if student.lastDayOfAttendance %}
+                                {{ student.lastDayOfAttendance | date('F j, Y') }}
+                            {% else %}
+                                <span class="text-gray-500">None</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Withdrawn Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if student.withdrawnDate %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <svg class="-ml-0.5 mr-1.5 h-2 w-2" fill="currentColor" viewBox="0 0 8 8">
+                                        <circle cx="4" cy="4" r="3" />
+                                    </svg>
+                                    {{ student.withdrawnDate | date('F j, Y') }}
+                                </span>
+                            {% else %}
+                                <span class="text-gray-500">None</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Academic Status</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                {% if student.status == 'active' %}
+                                    bg-green-100 text-green-800
+                                {% elseif student.status == 'prospective' %}
+                                    bg-yellow-100 text-yellow-800
+                                {% elseif student.status == 'graduated' %}
+                                    bg-blue-100 text-blue-800
+                                {% elseif student.status == 'alumni' %}
+                                    bg-purple-100 text-purple-800
+                                {% elseif student.status == 'withdrawn' %}
+                                    bg-red-100 text-red-800
+                                {% else %}
+                                    bg-gray-100 text-gray-800
+                                {% endif %}">
+                                {{ student.status|capitalize }}
+                            </span>
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Academic Documents</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <a href="index.php?q=/modules/Students/Documents/document_upload.php&studentID={{ student.studentID }}&category=academic"
+                               class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                Manage Documents
+                            </a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Career Tab -->
+        {% if 'career' in accessibleTabs %}
+        <div id="content-career" class="tab-content hidden">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Career Services</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Employment preparation and job placement services.</p>
+            </div>
+
+            <!-- Employment Status Section -->
+            <div class="border-t border-gray-200 bg-white">
+                <div class="px-4 py-5 sm:px-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="text-md leading-6 font-medium text-gray-900">Employment Tracking</h4>
+                            <p class="mt-1 text-sm text-gray-500">Current employment status and job placement progress.</p>
+                        </div>
+                        <button onclick="openEmploymentStatusModal()"
+                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Update Status
+                        </button>
+                    </div>
+
+                    <!-- Employment Status Display -->
+                    <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        <!-- Current Status Card -->
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    {% set statusColor = 'gray' %}
+                                    {% if currentPlacement %}
+                                        {% if currentPlacement.employmentStatus == 'not_graduated' %}
+                                            {% set statusColor = 'gray' %}
+                                        {% elseif currentPlacement.employmentStatus == 'not_employed_seeking' %}
+                                            {% set statusColor = 'blue' %}
+                                        {% elseif currentPlacement.employmentStatus == 'not_employed_not_seeking' %}
+                                            {% set statusColor = 'gray' %}
+                                        {% elseif currentPlacement.employmentStatus in ['employed_related', 'employed_unrelated', 'self_employed_related', 'self_employed_unrelated'] %}
+                                            {% set statusColor = 'green' %}
+                                        {% elseif currentPlacement.employmentStatus == 'continuing_education' %}
+                                            {% set statusColor = 'purple' %}
+                                        {% endif %}
+                                    {% endif %}
+                                    <div class="h-8 w-8 rounded-full bg-{{ statusColor }}-100 flex items-center justify-center">
+                                        <svg class="h-5 w-5 text-{{ statusColor }}-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            {% if currentPlacement and currentPlacement.employmentStatus in ['employed_related', 'employed_unrelated', 'self_employed_related', 'self_employed_unrelated'] %}
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            {% elseif currentPlacement and currentPlacement.employmentStatus == 'not_employed_seeking' %}
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            {% elseif currentPlacement and currentPlacement.employmentStatus == 'continuing_education' %}
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                                            {% else %}
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                            {% endif %}
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <p class="text-sm font-medium text-gray-500">Employment Status</p>
+                                    <p class="text-lg font-semibold text-gray-900">
+                                        {% if currentPlacement %}
+                                            {% if currentPlacement.employmentStatus == 'not_graduated' %}
+                                                None (Not Graduated)
+                                            {% elseif currentPlacement.employmentStatus == 'employed_related' %}
+                                                Employed (Related Field)
+                                            {% elseif currentPlacement.employmentStatus == 'employed_unrelated' %}
+                                                Employed (Unrelated Field)
+                                            {% elseif currentPlacement.employmentStatus == 'self_employed_related' %}
+                                                Self-Employed (Related Field)
+                                            {% elseif currentPlacement.employmentStatus == 'self_employed_unrelated' %}
+                                                Self-Employed (Unrelated Field)
+                                            {% elseif currentPlacement.employmentStatus == 'not_employed_seeking' %}
+                                                Job Seeking
+                                            {% elseif currentPlacement.employmentStatus == 'not_employed_not_seeking' %}
+                                                Not Seeking Employment
+                                            {% elseif currentPlacement.employmentStatus == 'continuing_education' %}
+                                                Continuing Education
+                                            {% endif %}
+                                        {% else %}
+                                            No Status Set
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Comprehensive Employment Details -->
+                    {% if currentPlacement %}
+                        <div class="mt-6 bg-white border border-gray-200 rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-gray-900 mb-4">Employment Details</h4>
+
+                            <!-- Employment Information -->
+                            {% if currentPlacement.employmentStatus in ['employed_related', 'employed_unrelated', 'self_employed_related', 'self_employed_unrelated'] %}
+                                <dl class="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+                                    {% if currentPlacement.jobTitle %}
+                                        <div>
+                                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Position</dt>
+                                            <dd class="mt-1 text-sm text-gray-900">{{ currentPlacement.jobTitle }}</dd>
+                                        </div>
+                                    {% endif %}
+                                    {% if currentPlacement.employerName %}
+                                        <div>
+                                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Employer</dt>
+                                            <dd class="mt-1 text-sm text-gray-900">{{ currentPlacement.employerName }}</dd>
+                                        </div>
+                                    {% endif %}
+                                    {% if currentPlacement.employmentDate %}
+                                        <div>
+                                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Start Date</dt>
+                                            <dd class="mt-1 text-sm text-gray-900">{{ currentPlacement.employmentDate | date('M j, Y') }}</dd>
+                                        </div>
+                                    {% endif %}
+                                    {% if currentPlacement.employmentType %}
+                                        <div>
+                                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Employment Type</dt>
+                                            <dd class="mt-1 text-sm text-gray-900">
+                                                {% if currentPlacement.employmentType == 'full_time' %}Full-Time
+                                                {% elseif currentPlacement.employmentType == 'part_time' %}Part-Time
+                                                {% elseif currentPlacement.employmentType == 'contract' %}Contract/Temporary
+                                                {% elseif currentPlacement.employmentType == 'internship' %}Internship
+                                                {% endif %}
+                                            </dd>
+                                        </div>
+                                    {% endif %}
+                                    {% if currentPlacement.salaryRange %}
+                                        <div>
+                                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Salary Range</dt>
+                                            <dd class="mt-1 text-sm text-gray-900">
+                                                {% if currentPlacement.salaryRange == 'under_20k' %}Under $20,000
+                                                {% elseif currentPlacement.salaryRange == '20k_30k' %}$20,000 - $30,000
+                                                {% elseif currentPlacement.salaryRange == '30k_40k' %}$30,000 - $40,000
+                                                {% elseif currentPlacement.salaryRange == '40k_50k' %}$40,000 - $50,000
+                                                {% elseif currentPlacement.salaryRange == '50k_60k' %}$50,000 - $60,000
+                                                {% elseif currentPlacement.salaryRange == 'over_60k' %}Over $60,000
+                                                {% endif %}
+                                            </dd>
+                                        </div>
+                                    {% endif %}
+                                    {% if currentPlacement.isEntryLevel %}
+                                        <div>
+                                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Entry Level</dt>
+                                            <dd class="mt-1 text-sm text-gray-900">{{ currentPlacement.isEntryLevel == 'Y' ? 'Yes' : 'No' }}</dd>
+                                        </div>
+                                    {% endif %}
+                                    {% if currentPlacement.salaryExact %}
+                                        <div>
+                                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Exact Salary</dt>
+                                            <dd class="mt-1 text-sm text-gray-900">${{ currentPlacement.salaryExact | number_format(2) }}</dd>
+                                        </div>
+                                    {% endif %}
+                                </dl>
+
+                                <!-- Employer Contact Information -->
+                                {% if currentPlacement.employerContactName or currentPlacement.employerContactPhone or currentPlacement.employerContactEmail %}
+                                    <div class="mt-4 pt-4 border-t border-gray-200">
+                                        <h5 class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Employer Contact</h5>
+                                        <dl class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+                                            {% if currentPlacement.employerContactName %}
+                                                <div>
+                                                    <dt class="text-xs text-gray-500">Contact Name</dt>
+                                                    <dd class="text-sm text-gray-900">{{ currentPlacement.employerContactName }}</dd>
+                                                </div>
+                                            {% endif %}
+                                            {% if currentPlacement.employerContactPhone %}
+                                                <div>
+                                                    <dt class="text-xs text-gray-500">Phone</dt>
+                                                    <dd class="text-sm text-gray-900">{{ currentPlacement.employerContactPhone }}</dd>
+                                                </div>
+                                            {% endif %}
+                                            {% if currentPlacement.employerContactEmail %}
+                                                <div>
+                                                    <dt class="text-xs text-gray-500">Email</dt>
+                                                    <dd class="text-sm text-gray-900">{{ currentPlacement.employerContactEmail }}</dd>
+                                                </div>
+                                            {% endif %}
+                                        </dl>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+
+                            <!-- Continuing Education Information -->
+                            {% if currentPlacement.employmentStatus == 'continuing_education' %}
+                                <dl class="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+                                    {% if currentPlacement.continuingEducationInstitution %}
+                                        <div>
+                                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Institution</dt>
+                                            <dd class="mt-1 text-sm text-gray-900">{{ currentPlacement.continuingEducationInstitution }}</dd>
+                                        </div>
+                                    {% endif %}
+                                    {% if currentPlacement.continuingEducationProgram %}
+                                        <div>
+                                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Program</dt>
+                                            <dd class="mt-1 text-sm text-gray-900">{{ currentPlacement.continuingEducationProgram }}</dd>
+                                        </div>
+                                    {% endif %}
+                                </dl>
+                            {% endif %}
+
+                            <!-- Licensure Information -->
+                            {% if currentPlacement.requiresLicense == 'Y' and (currentPlacement.licenseType or currentPlacement.licenseObtained or currentPlacement.licenseNumber) %}
+                                <div class="mt-4 pt-4 border-t border-gray-200">
+                                    <h5 class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Licensure/Certification</h5>
+                                    <dl class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+                                        {% if currentPlacement.licenseType %}
+                                            <div>
+                                                <dt class="text-xs text-gray-500">License Type</dt>
+                                                <dd class="text-sm text-gray-900">{{ currentPlacement.licenseType }}</dd>
+                                            </div>
+                                        {% endif %}
+                                        {% if currentPlacement.licenseObtained %}
+                                            <div>
+                                                <dt class="text-xs text-gray-500">License Obtained</dt>
+                                                <dd class="text-sm text-gray-900">{{ currentPlacement.licenseObtained == 'Y' ? 'Yes' : 'No' }}</dd>
+                                            </div>
+                                        {% endif %}
+                                        {% if currentPlacement.licenseNumber %}
+                                            <div>
+                                                <dt class="text-xs text-gray-500">License Number</dt>
+                                                <dd class="text-sm text-gray-900">{{ currentPlacement.licenseNumber }}</dd>
+                                            </div>
+                                        {% endif %}
+                                    </dl>
+                                </div>
+                            {% endif %}
+
+                            <!-- Comments/Notes -->
+                            {% if currentPlacement.comments %}
+                                <div class="mt-4 pt-4 border-t border-gray-200">
+                                    <h5 class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Notes</h5>
+                                    <p class="text-sm text-gray-900">{{ currentPlacement.comments }}</p>
+                                </div>
+                            {% endif %}
+
+                            <!-- Verification Information -->
+                            {% if currentPlacement.verificationDate or currentPlacement.verificationSource or currentPlacement.verificationNotes %}
+                                <div class="mt-4 pt-4 border-t border-gray-200">
+                                    <h5 class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Verification</h5>
+                                    <dl class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+                                        {% if currentPlacement.verificationDate %}
+                                            <div>
+                                                <dt class="text-xs text-gray-500">Date</dt>
+                                                <dd class="text-sm text-gray-900">{{ currentPlacement.verificationDate | date('M j, Y') }}</dd>
+                                            </div>
+                                        {% endif %}
+                                        {% if currentPlacement.verificationSource %}
+                                            <div>
+                                                <dt class="text-xs text-gray-500">Source</dt>
+                                                <dd class="text-sm text-gray-900">
+                                                    {% if currentPlacement.verificationSource == 'employer_confirmation' %}Employer Confirmation
+                                                    {% elseif currentPlacement.verificationSource == 'pay_stub' %}Pay Stub
+                                                    {% elseif currentPlacement.verificationSource == 'student_self_report' %}Student Self-Report
+                                                    {% elseif currentPlacement.verificationSource == 'other' %}Other
+                                                    {% endif %}
+                                                </dd>
+                                            </div>
+                                        {% endif %}
+                                        {% if currentPlacement.verifiedByFirstName %}
+                                            <div>
+                                                <dt class="text-xs text-gray-500">Verified By</dt>
+                                                <dd class="text-sm text-gray-900">{{ currentPlacement.verifiedByFirstName }} {{ currentPlacement.verifiedByLastName }}</dd>
+                                            </div>
+                                        {% endif %}
+                                    </dl>
+                                    {% if currentPlacement.verificationNotes %}
+                                        <div class="mt-2">
+                                            <dt class="text-xs text-gray-500 mb-1">Verification Notes</dt>
+                                            <dd class="text-sm text-gray-900">{{ currentPlacement.verificationNotes }}</dd>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <div class="border-t border-gray-200">
+                <dl>
+                    <!-- Current Resume/CV Requirement -->
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Current Resume/CV</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% set currentResume = null %}
+                            {% for req in careerRequirements %}
+                                {% if req.requirementCode == 'current_resume' %}
+                                    {% set currentResume = req %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if currentResume and currentResume.status == 'submitted' %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <div class="flex flex-col">
+                                            <span class="text-green-800 font-medium">Submitted</span>
+                                            <span class="text-gray-500 text-sm">{{ currentResume.currentFileName }}</span>
+                                            <span class="text-gray-400 text-xs">Updated {{ currentResume.submittedOn|date('M j, Y') }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <a href="{{ app_url }}/file.php?path={{ currentResume.currentFilePath|url_encode }}" target="_blank"
+                                           class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">View</a>
+                                        <a href="index.php?q=/modules/Students/Requirements/requirement_upload.php&studentID={{ student.studentID }}&requirementCode=current_resume"
+                                           class="text-blue-600 hover:text-blue-900 text-sm font-medium">Update</a>
+                                        <form method="POST" action="index.php?q=/modules/Students/Requirements/requirement_delete.php" class="inline">
+                                            <input type="hidden" name="studentID" value="{{ student.studentID }}">
+                                            <input type="hidden" name="requirementCode" value="current_resume">
+                                            <button type="submit" onclick="return confirm('Are you sure you want to remove this document from the requirement? It will be preserved in document management for audit trail.')"
+                                                    class="text-red-600 hover:text-red-900 text-sm font-medium">Remove</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.530 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <div class="flex flex-col">
+                                            <span class="text-yellow-800 font-medium">Not Submitted</span>
+                                            <span class="text-gray-500 text-sm">Most recent resume or curriculum vitae</span>
+                                        </div>
+                                    </div>
+                                    <a href="index.php?q=/modules/Students/Requirements/requirement_upload.php&studentID={{ student.studentID }}&requirementCode=current_resume"
+                                       class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                        Upload Resume/CV
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Career Documents</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <a href="index.php?q=/modules/Students/Documents/document_upload.php&studentID={{ student.studentID }}&category=career"
+                               class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                Manage Documents
+                            </a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Academics Tab -->
+        {% if 'academics' in accessibleTabs %}
+        <div id="content-academics" class="tab-content hidden">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Academic Progress</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Academic Support Services</p>
+            </div>
+            <!-- Quick Actions Bar -->
+            <div class="bg-white border-b border-gray-200 px-4 py-3">
+                <div class="flex space-x-3">
+                    <button onclick="openAddNoteModal()"
+                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                        <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Add Faculty Note
+                    </button>
+                    <button onclick="openScheduleMeetingModal()"
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Schedule Meeting
+                    </button>
+                    <button onclick="openSupportSessionModal()"
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        Record Support Session
+                    </button>
+                </div>
+            </div>
+
+            <!-- Faculty Notes Section -->
+            <div class="bg-white border-b border-gray-200">
+                <div class="px-4 py-5 sm:px-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-lg leading-6 font-medium text-gray-900">Faculty Notes</h4>
+                            <p class="mt-1 text-sm text-gray-500">Document student progress, concerns, and interventions</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <select id="noteFilter" onchange="filterNotes()"
+                                    class="text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">All Categories</option>
+                                <option value="positive">Positive</option>
+                                <option value="concern">Concern</option>
+                                <option value="neutral">Neutral</option>
+                                <option value="disciplinary">Disciplinary</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes List -->
+                <div class="px-4 pb-4">
+                    <div id="facultyNotesList" class="space-y-4">
+                        {% if facultyNotes %}
+                            {% for note in facultyNotes %}
+                                <div class="border border-gray-200 rounded-lg p-4 note-item" data-category="{{ note.category }}">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2 mb-2">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                    {% if note.category == 'positive' %}bg-green-100 text-green-800
+                                                    {% elseif note.category == 'concern' %}bg-yellow-100 text-yellow-800
+                                                    {% elseif note.category == 'neutral' %}bg-gray-100 text-gray-800
+                                                    {% elseif note.category == 'disciplinary' %}bg-red-100 text-red-800
+                                                    {% endif %}">
+                                                    {{ note.category|capitalize }}
+                                                </span>
+                                                <span class="text-sm text-gray-500">{{ note.createdOn | date('M j, Y g:i A') }}</span>
+                                                <span class="text-sm text-gray-500">by {{ note.facultyName }}</span>
+                                            </div>
+                                            <p class="text-sm text-gray-900">{{ note.content }}</p>
+                                        </div>
+                                        <div class="flex space-x-2 ml-4">
+                                            <button onclick="editNote({{ note.noteID }})"
+                                                    class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">Edit</button>
+                                            <button onclick="deleteNote({{ note.noteID }})"
+                                                    class="text-red-600 hover:text-red-900 text-sm font-medium">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-8">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <h3 class="mt-2 text-sm font-medium text-gray-900">No faculty notes</h3>
+                                <p class="mt-1 text-sm text-gray-500">Get started by adding your first note about this student.</p>
+                                <div class="mt-6">
+                                    <button onclick="openAddNoteModal()"
+                                            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                                        Add Faculty Note
+                                    </button>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Support Sessions Section -->
+            <div class="bg-white border-b border-gray-200">
+                <div class="px-4 py-5 sm:px-6">
+                    <h4 class="text-lg leading-6 font-medium text-gray-900">Recent Support Sessions</h4>
+                    <p class="mt-1 text-sm text-gray-500">Tutoring, study groups, and counseling sessions</p>
+                </div>
+
+                <div class="px-4 pb-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {% if supportSessions %}
+                            {% for session in supportSessions %}
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            {% if session.sessionType == 'tutoring' %}bg-blue-100 text-blue-800
+                                            {% elseif session.sessionType == 'study_group' %}bg-purple-100 text-purple-800
+                                            {% elseif session.sessionType == 'counseling' %}bg-green-100 text-green-800
+                                            {% else %}bg-gray-100 text-gray-800
+                                            {% endif %}">
+                                            {{ session.sessionType|replace({'_': ' '})|title }}
+                                        </span>
+                                        <span class="text-sm text-gray-500">{{ session.sessionDate | date('M j') }}</span>
+                                    </div>
+                                    {% if session.subject %}
+                                        <p class="text-sm font-medium text-gray-900 mb-1">{{ session.subject }}</p>
+                                    {% endif %}
+                                    <p class="text-sm text-gray-600">{{ session.description|length > 80 ? session.description|slice(0, 80) ~ '...' : session.description }}</p>
+                                    {% if session.duration %}
+                                        <p class="text-xs text-gray-500 mt-2">Duration: {{ session.duration }} minutes</p>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-span-full text-center py-6">
+                                <p class="text-sm text-gray-500">No support sessions recorded yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Meetings Section -->
+            <div class="bg-white">
+                <div class="px-4 py-5 sm:px-6">
+                    <h4 class="text-lg leading-6 font-medium text-gray-900">Recent Meetings</h4>
+                    <p class="mt-1 text-sm text-gray-500">One-on-one meetings and intervention discussions</p>
+                </div>
+
+                <div class="px-4 pb-4">
+                    {% if studentMeetings %}
+                        <div class="space-y-4">
+                            {% for meeting in studentMeetings %}
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2 mb-2">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                    {% if meeting.meetingType == 'concerned' %}bg-yellow-100 text-yellow-800
+                                                    {% elseif meeting.meetingType == 'potential_failure' %}bg-red-100 text-red-800
+                                                    {% elseif meeting.meetingType == 'normal' %}bg-green-100 text-green-800
+                                                    {% elseif meeting.meetingType == 'disciplinary' %}bg-red-100 text-red-800
+                                                    {% endif %}">
+                                                    {{ meeting.meetingType|replace({'_': ' '})|title }}
+                                                </span>
+                                                <span class="text-sm text-gray-500">{{ meeting.meetingDate | date('M j, Y') }}</span>
+                                            </div>
+                                            <p class="text-sm text-gray-900 mb-2"><strong>Topics:</strong> {{ meeting.topicsDiscussed }}</p>
+                                            {% if meeting.currentPerformance %}
+                                                <p class="text-sm text-gray-600 mb-1"><strong>Performance:</strong> {{ meeting.currentPerformance }}</p>
+                                            {% endif %}
+                                            {% if meeting.actionItems %}
+                                                <p class="text-sm text-gray-600"><strong>Action Items:</strong> {{ meeting.actionItems }}</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex space-x-2 ml-4">
+                                            <button onclick="editMeeting({{ meeting.meetingID }})"
+                                                    class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">Edit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-6">
+                            <p class="text-sm text-gray-500">No meetings recorded yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Academic Documents Section -->
+            <div class="bg-white border-t border-gray-200">
+                <div class="px-4 py-5 sm:px-6">
+                    <h4 class="text-lg leading-6 font-medium text-gray-900">Academic Documents</h4>
+                    <p class="mt-1 text-sm text-gray-500">Upload and manage academic-related documents</p>
+                </div>
+                <div class="px-4 pb-4">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-gray-600">Upload transcripts, academic reports, or other academic documentation</p>
+                        <a href="index.php?q=/modules/Students/Documents/document_upload.php&studentID={{ student.studentID }}&category=academic"
+                           class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                            <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            Upload Academic Document
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Graduation Tab -->
+        {% if 'graduation' in accessibleTabs %}
+        <div id="content-graduation" class="tab-content hidden">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Graduation Requirements</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Progress toward degree completion.</p>
+            </div>
+            <div class="border-t border-gray-200">
+                <dl>
+                    <!-- Academic Information -->
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Program</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ student.programName | default('—') }}</dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Academic Status</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                {% if student.status == 'active' %}
+                                    bg-green-100 text-green-800
+                                {% elseif student.status == 'prospective' %}
+                                    bg-yellow-100 text-yellow-800
+                                {% elseif student.status == 'graduated' %}
+                                    bg-blue-100 text-blue-800
+                                {% elseif student.status == 'alumni' %}
+                                    bg-purple-100 text-purple-800
+                                {% elseif student.status == 'withdrawn' %}
+                                    bg-red-100 text-red-800
+                                {% else %}
+                                    bg-gray-100 text-gray-800
+                                {% endif %}">
+                                {{ student.status|capitalize }}
+                            </span>
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Enrollment Start Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ student.enrollmentDate | date('F j, Y') | default('—') }}</dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Anticipated Graduation Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if student.anticipatedGraduationDate %}
+                                {{ student.anticipatedGraduationDate | date('F j, Y') }}
+                            {% else %}
+                                <span class="text-gray-500">None</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Actual Graduation Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if student.actualGraduationDate %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <svg class="-ml-0.5 mr-1.5 h-2 w-2" fill="currentColor" viewBox="0 0 8 8">
+                                        <circle cx="4" cy="4" r="3" />
+                                    </svg>
+                                    {{ student.actualGraduationDate | date('F j, Y') }}
+                                </span>
+                            {% else %}
+                                <span class="text-gray-500">None</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <!-- School Degree Earned Requirement -->
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">School Degree Earned</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% set schoolDegree = null %}
+                            {% for req in graduationRequirements %}
+                                {% if req.requirementCode == 'school_degree' %}
+                                    {% set schoolDegree = req %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if schoolDegree and schoolDegree.status == 'submitted' %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-green-800 font-medium">Submitted</span>
+                                        <span class="ml-2 text-gray-500">{{ schoolDegree.currentFileName }}</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <a href="{{ app_url }}/file.php?path={{ schoolDegree.currentFilePath|url_encode }}" target="_blank"
+                                           class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">View</a>
+                                        {% if editPermissions.graduation %}
+                                        <a href="index.php?q=/modules/Students/Requirements/requirement_upload.php&studentID={{ student.studentID }}&requirementCode=school_degree"
+                                           class="text-blue-600 hover:text-blue-900 text-sm font-medium">Replace</a>
+                                        <form method="POST" action="index.php?q=/modules/Students/Requirements/requirement_delete.php" class="inline">
+                                            <input type="hidden" name="studentID" value="{{ student.studentID }}">
+                                            <input type="hidden" name="requirementCode" value="school_degree">
+                                            <button type="submit" onclick="return confirm('Are you sure you want to remove this document from the requirement? It will be preserved in document management for audit trail.')"
+                                                    class="text-red-600 hover:text-red-900 text-sm font-medium">Remove</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-yellow-800 font-medium">Missing</span>
+                                        <span class="ml-2 text-gray-500">Official degree certificate from institution</span>
+                                    </div>
+                                    {% if editPermissions.graduation %}
+                                    <a href="index.php?q=/modules/Students/Requirements/requirement_upload.php&studentID={{ student.studentID }}&requirementCode=school_degree"
+                                       class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                        Upload Degree
+                                    </a>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-400 bg-gray-50 cursor-not-allowed">
+                                        View Only
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    <!-- School Official Transcript Requirement -->
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">School Official Transcript</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% set schoolTranscript = null %}
+                            {% for req in graduationRequirements %}
+                                {% if req.requirementCode == 'school_transcript' %}
+                                    {% set schoolTranscript = req %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if schoolTranscript and schoolTranscript.status == 'submitted' %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-green-800 font-medium">Submitted</span>
+                                        <span class="ml-2 text-gray-500">{{ schoolTranscript.currentFileName }}</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <a href="{{ app_url }}/file.php?path={{ schoolTranscript.currentFilePath|url_encode }}" target="_blank"
+                                           class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">View</a>
+                                        {% if editPermissions.graduation %}
+                                        <a href="index.php?q=/modules/Students/Requirements/requirement_upload.php&studentID={{ student.studentID }}&requirementCode=school_transcript"
+                                           class="text-blue-600 hover:text-blue-900 text-sm font-medium">Replace</a>
+                                        <form method="POST" action="index.php?q=/modules/Students/Requirements/requirement_delete.php" class="inline">
+                                            <input type="hidden" name="studentID" value="{{ student.studentID }}">
+                                            <input type="hidden" name="requirementCode" value="school_transcript">
+                                            <button type="submit" onclick="return confirm('Are you sure you want to remove this document from the requirement? It will be preserved in document management for audit trail.')"
+                                                    class="text-red-600 hover:text-red-900 text-sm font-medium">Remove</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-yellow-800 font-medium">Missing</span>
+                                        <span class="ml-2 text-gray-500">Official academic transcript from institution</span>
+                                    </div>
+                                    {% if editPermissions.graduation %}
+                                    <a href="index.php?q=/modules/Students/Requirements/requirement_upload.php&studentID={{ student.studentID }}&requirementCode=school_transcript"
+                                       class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                        Upload Transcript
+                                    </a>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-400 bg-gray-50 cursor-not-allowed">
+                                        View Only
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    <!-- General Graduation Documents -->
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Other Graduation Documents</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <a href="index.php?q=/modules/Students/Documents/document_upload.php&studentID={{ student.studentID }}&category=graduation"
+                               class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                Manage Other Documents
+                            </a>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function switchTab(tabName) {
+    // Hide all tab content
+    const allContent = document.querySelectorAll('.tab-content');
+    allContent.forEach(content => {
+        content.classList.add('hidden');
+    });
+
+    // Remove active state from all tab buttons
+    const allButtons = document.querySelectorAll('.tab-button');
+    allButtons.forEach(button => {
+        button.classList.remove('active', 'border-indigo-500', 'text-indigo-600');
+        button.classList.add('border-transparent', 'text-gray-500');
+    });
+
+    // Show selected tab content
+    const selectedContent = document.getElementById('content-' + tabName);
+    if (selectedContent) {
+        selectedContent.classList.remove('hidden');
+    }
+
+    // Activate selected tab button
+    const selectedButton = document.getElementById('tab-' + tabName);
+    if (selectedButton) {
+        selectedButton.classList.remove('border-transparent', 'text-gray-500');
+        selectedButton.classList.add('active', 'border-indigo-500', 'text-indigo-600');
+    }
+}
+
+// Tab initialization is now handled by the main DOMContentLoaded event at the bottom
+
+// Payment Modal Functions
+function openPaymentModal(type) {
+    if (type === 'program') {
+        document.getElementById('programPaymentModal').classList.remove('hidden');
+        // Set default date to today
+        document.getElementById('programPaymentDate').value = new Date().toISOString().split('T')[0];
+    } else if (type === 'other') {
+        document.getElementById('otherPaymentModal').classList.remove('hidden');
+        // Set default date to today
+        document.getElementById('otherPaymentDate').value = new Date().toISOString().split('T')[0];
+    }
+}
+
+function closePaymentModal() {
+    document.getElementById('programPaymentModal').classList.add('hidden');
+    document.getElementById('otherPaymentModal').classList.add('hidden');
+    // Reset forms
+    document.getElementById('programPaymentForm').reset();
+    document.getElementById('otherPaymentForm').reset();
+}
+
+function editPayment(paymentID) {
+    // This would typically load payment data via AJAX
+    // For now, show modal - payment data would be loaded separately
+    document.getElementById('editPaymentModal').classList.remove('hidden');
+    document.getElementById('editPaymentID').value = paymentID;
+}
+
+function closeEditPaymentModal() {
+    document.getElementById('editPaymentModal').classList.add('hidden');
+    document.getElementById('editPaymentForm').reset();
+}
+
+// Employment Status Modal Functions
+function openEmploymentStatusModal() {
+    document.getElementById('employmentStatusModal').classList.remove('hidden');
+    // Initialize form based on current status
+    handleEmploymentStatusChange();
+}
+
+function closeEmploymentStatusModal() {
+    document.getElementById('employmentStatusModal').classList.add('hidden');
+    document.getElementById('employmentStatusForm').reset();
+}
+
+function handleEmploymentStatusChange() {
+    const status = document.getElementById('employmentStatus').value;
+    const employmentDetails = document.getElementById('employmentDetails');
+    const educationDetails = document.getElementById('educationDetails');
+
+    // Hide all conditional sections first
+    employmentDetails.classList.add('hidden');
+    educationDetails.classList.add('hidden');
+
+    // Show relevant sections based on status
+    if (status === 'employed_related' || status === 'employed_unrelated' ||
+        status === 'self_employed_related' || status === 'self_employed_unrelated') {
+        employmentDetails.classList.remove('hidden');
+    } else if (status === 'continuing_education') {
+        educationDetails.classList.remove('hidden');
+    }
+}
+
+function toggleFollowUpDate() {
+    const checkbox = document.getElementById('followUpRequired');
+    const dateField = document.getElementById('followUpDateField');
+
+    if (checkbox.checked) {
+        dateField.classList.remove('hidden');
+        // Set default to 30 days from now
+        const followUpDate = new Date();
+        followUpDate.setDate(followUpDate.getDate() + 30);
+        document.getElementById('followUpDate').value = followUpDate.toISOString().split('T')[0];
+    } else {
+        dateField.classList.add('hidden');
+        document.getElementById('followUpDate').value = '';
+    }
+}
+
+// Academic Modal Functions
+function openAcademicModal() {
+    document.getElementById('academicModal').classList.remove('hidden');
+}
+
+function closeAcademicModal() {
+    document.getElementById('academicModal').classList.add('hidden');
+}
+
+function toggleLastDayOfAttendance() {
+    const checkbox = document.getElementById('hasLastDayOfAttendance');
+    const dateDiv = document.getElementById('lastDayOfAttendanceDiv');
+    const noneDiv = document.getElementById('lastDayOfAttendanceNone');
+    const dateInput = document.getElementById('lastDayOfAttendance');
+
+    if (checkbox.checked) {
+        dateDiv.classList.remove('hidden');
+        noneDiv.classList.add('hidden');
+        dateInput.setAttribute('name', 'lastDayOfAttendance'); // Enable form submission
+    } else {
+        dateDiv.classList.add('hidden');
+        noneDiv.classList.remove('hidden');
+        dateInput.value = ''; // Clear the date when unchecked
+        dateInput.removeAttribute('name'); // Disable form submission
+    }
+}
+
+function toggleActualGraduationDate() {
+    const checkbox = document.getElementById('hasActualGraduationDate');
+    const dateDiv = document.getElementById('actualGraduationDateDiv');
+    const noneDiv = document.getElementById('actualGraduationDateNone');
+    const dateInput = document.getElementById('actualGraduationDate');
+
+    if (checkbox.checked) {
+        dateDiv.classList.remove('hidden');
+        noneDiv.classList.add('hidden');
+        dateInput.setAttribute('name', 'actualGraduationDate'); // Enable form submission
+    } else {
+        dateDiv.classList.add('hidden');
+        noneDiv.classList.remove('hidden');
+        dateInput.value = ''; // Clear the date when unchecked
+        dateInput.removeAttribute('name'); // Disable form submission
+    }
+}
+
+function toggleWithdrawnDate() {
+    const checkbox = document.getElementById('hasWithdrawnDate');
+    const dateDiv = document.getElementById('withdrawnDateDiv');
+    const noneDiv = document.getElementById('withdrawnDateNone');
+    const dateInput = document.getElementById('withdrawnDate');
+
+    if (checkbox.checked) {
+        dateDiv.classList.remove('hidden');
+        noneDiv.classList.add('hidden');
+        dateInput.setAttribute('name', 'withdrawnDate'); // Enable form submission
+    } else {
+        dateDiv.classList.add('hidden');
+        noneDiv.classList.remove('hidden');
+        dateInput.value = ''; // Clear the date when unchecked
+        dateInput.removeAttribute('name'); // Disable form submission
+    }
+}
+
+
+function toggleLicenseFields() {
+    const requiresLicense = document.getElementById('requiresLicense').value;
+    const licenseFields = document.getElementById('licenseFields');
+
+    if (requiresLicense === 'Y') {
+        licenseFields.classList.remove('hidden');
+    } else {
+        licenseFields.classList.add('hidden');
+        // Clear license fields when hidden
+        document.getElementById('licenseType').value = '';
+        document.getElementById('licenseObtained').value = '';
+        document.getElementById('licenseNumber').value = '';
+        document.getElementById('licenseNumberField').classList.add('hidden');
+    }
+}
+
+function toggleLicenseNumber() {
+    const licenseObtained = document.getElementById('licenseObtained').value;
+    const licenseNumberField = document.getElementById('licenseNumberField');
+
+    if (licenseObtained === 'Y') {
+        licenseNumberField.classList.remove('hidden');
+    } else {
+        licenseNumberField.classList.add('hidden');
+        document.getElementById('licenseNumber').value = '';
+    }
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const modals = ['programPaymentModal', 'otherPaymentModal', 'editPaymentModal', 'employmentStatusModal'];
+    modals.forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (event.target === modal) {
+            modal.classList.add('hidden');
+        }
+    });
+}
+
+// Success banner auto-hide and close functions
+function hideSuccessBanner() {
+    const banner = document.getElementById('successBanner');
+    if (banner) {
+        banner.style.display = 'none';
+    }
+}
+
+// Auto-hide success banner and handle tab activation
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-hide success banner
+    const successBanner = document.getElementById('successBanner');
+    if (successBanner) {
+        setTimeout(function() {
+            hideSuccessBanner();
+        }, 5000);
+    }
+
+    // Get tab parameter from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+
+    // Determine which tab to activate
+    let activeTab = 'information'; // default
+
+    if (tabParam) {
+        // If tab parameter is provided, use it
+        activeTab = tabParam;
+    } else if ({{ user.session.success is defined and user.session.success ? 'true' : 'false' }}) {
+        // For backward compatibility: if there's a success message but no tab param,
+        // assume it's a bursar operation (maintains existing behavior)
+        activeTab = 'bursar';
+    }
+
+    // Activate the determined tab
+    switchTab(activeTab);
+});
+
+// Faculty Notes System JavaScript Functions
+
+// Faculty Notes Functions
+function openAddNoteModal() {
+    document.getElementById('noteModalTitle').innerText = 'Add Faculty Note';
+    document.getElementById('noteID').value = '';
+    document.getElementById('facultyNoteForm').reset();
+    document.getElementById('facultyNoteModal').classList.remove('hidden');
+}
+
+function closeFacultyNoteModal() {
+    document.getElementById('facultyNoteModal').classList.add('hidden');
+    document.getElementById('facultyNoteForm').reset();
+}
+
+function editNote(noteID) {
+    // This would be populated with actual note data via AJAX
+    document.getElementById('noteModalTitle').innerText = 'Edit Faculty Note';
+    document.getElementById('noteID').value = noteID;
+    document.getElementById('facultyNoteModal').classList.remove('hidden');
+    // TODO: Load note data via AJAX and populate form
+}
+
+function deleteNote(noteID) {
+    if (confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
+        // TODO: Delete note via AJAX or form submission
+        window.location.href = 'index.php?q=/modules/Students/FacultyNotes/note_delete.php&noteID=' + noteID + '&studentID={{ student.studentID }}';
+    }
+}
+
+function filterNotes() {
+    const filter = document.getElementById('noteFilter').value;
+    const notes = document.querySelectorAll('.note-item');
+
+    notes.forEach(note => {
+        if (filter === '' || note.dataset.category === filter) {
+            note.style.display = 'block';
+        } else {
+            note.style.display = 'none';
+        }
+    });
+}
+
+// Meeting Functions
+function openScheduleMeetingModal() {
+    document.getElementById('meetingID').value = '';
+    document.getElementById('meetingForm').reset();
+    // Set default date to today
+    document.getElementById('meetingDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('meetingModal').classList.remove('hidden');
+}
+
+function closeMeetingModal() {
+    document.getElementById('meetingModal').classList.add('hidden');
+    document.getElementById('meetingForm').reset();
+}
+
+function editMeeting(meetingID) {
+    document.getElementById('meetingID').value = meetingID;
+    document.getElementById('meetingModal').classList.remove('hidden');
+    // TODO: Load meeting data via AJAX and populate form
+}
+
+// Support Session Functions
+function openSupportSessionModal() {
+    document.getElementById('sessionID').value = '';
+    document.getElementById('supportSessionForm').reset();
+    // Set default date to today
+    document.getElementById('sessionDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('supportSessionModal').classList.remove('hidden');
+}
+
+function closeSupportSessionModal() {
+    document.getElementById('supportSessionModal').classList.add('hidden');
+    document.getElementById('supportSessionForm').reset();
+    // Hide follow-up fields
+    document.getElementById('followUpDateField').classList.add('hidden');
+    document.getElementById('followUpNotesField').classList.add('hidden');
+}
+
+function toggleFollowUpField() {
+    const checkbox = document.getElementById('followUpRequired');
+    const dateField = document.getElementById('followUpDateField');
+    const notesField = document.getElementById('followUpNotesField');
+
+    if (checkbox.checked) {
+        dateField.classList.remove('hidden');
+        notesField.classList.remove('hidden');
+    } else {
+        dateField.classList.add('hidden');
+        notesField.classList.add('hidden');
+        document.getElementById('followUpDate').value = '';
+        document.getElementById('followUpNotes').value = '';
+    }
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const modals = ['programPaymentModal', 'otherPaymentModal', 'editPaymentModal', 'employmentStatusModal', 'academicModal', 'facultyNoteModal', 'meetingModal', 'supportSessionModal'];
+    modals.forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (event.target === modal) {
+            modal.classList.add('hidden');
+        }
+    });
+}
+</script>
+
+<!-- Payment Modals -->
+<!-- Program Payment Modal -->
+<div id="programPaymentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" style="z-index: 1000;">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Add Program Payment</h3>
+                <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="programPaymentForm" action="index.php?q=/modules/Students/payment_addProcess.php" method="POST" class="space-y-4">
+                <input type="hidden" name="studentID" value="{{ student.studentID }}">
+                <input type="hidden" name="paymentType" value="program">
+
+                <div>
+                    <label for="programAmount" class="block text-sm font-medium text-gray-700">Amount *</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input type="number" name="amount" id="programAmount" step="0.01" min="0.01" required
+                               class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                               placeholder="0.00">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="programPaymentDate" class="block text-sm font-medium text-gray-700">Payment Date *</label>
+                    <input type="date" name="paymentDate" id="programPaymentDate" required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                           max="{{ 'now'|date('Y-m-d') }}">
+                </div>
+
+                <div>
+                    <label for="programPaymentMethod" class="block text-sm font-medium text-gray-700">Payment Method *</label>
+                    <select name="paymentMethod" id="programPaymentMethod" required
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <option value="">Select method...</option>
+                        <option value="cash">Cash</option>
+                        <option value="check">Check</option>
+                        <option value="credit_card">Credit Card</option>
+                        <option value="ach">ACH/Bank Transfer</option>
+                        <option value="financial_aid">Financial Aid</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="programReferenceNumber" class="block text-sm font-medium text-gray-700">Reference Number</label>
+                    <input type="text" name="referenceNumber" id="programReferenceNumber"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                           placeholder="Check #, Transaction ID, etc.">
+                </div>
+
+                <div>
+                    <label for="programNotes" class="block text-sm font-medium text-gray-700">Notes</label>
+                    <textarea name="notes" id="programNotes" rows="2"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              placeholder="Additional notes about this payment..."></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closePaymentModal()"
+                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                        Add Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Other Payment Modal -->
+<div id="otherPaymentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" style="z-index: 1000;">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Add Other Payment</h3>
+                <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="otherPaymentForm" action="index.php?q=/modules/Students/payment_addProcess.php" method="POST" class="space-y-4">
+                <input type="hidden" name="studentID" value="{{ student.studentID }}">
+                <input type="hidden" name="paymentType" value="other">
+
+                <div>
+                    <label for="otherAmount" class="block text-sm font-medium text-gray-700">Amount *</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input type="number" name="amount" id="otherAmount" step="0.01" min="0.01" required
+                               class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                               placeholder="0.00">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="otherPaymentDate" class="block text-sm font-medium text-gray-700">Payment Date *</label>
+                    <input type="date" name="paymentDate" id="otherPaymentDate" required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                           max="{{ 'now'|date('Y-m-d') }}">
+                </div>
+
+                <div>
+                    <label for="otherPaymentMethod" class="block text-sm font-medium text-gray-700">Payment Method *</label>
+                    <select name="paymentMethod" id="otherPaymentMethod" required
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <option value="">Select method...</option>
+                        <option value="cash">Cash</option>
+                        <option value="check">Check</option>
+                        <option value="credit_card">Credit Card</option>
+                        <option value="ach">ACH/Bank Transfer</option>
+                        <option value="financial_aid">Financial Aid</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="otherReferenceNumber" class="block text-sm font-medium text-gray-700">Reference Number</label>
+                    <input type="text" name="referenceNumber" id="otherReferenceNumber"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                           placeholder="Check #, Transaction ID, etc.">
+                </div>
+
+                <div>
+                    <label for="otherNotes" class="block text-sm font-medium text-gray-700">Purpose/Notes *</label>
+                    <textarea name="notes" id="otherNotes" rows="2" required
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              placeholder="Graduation party, uniform replacement, ID replacement, etc."></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closePaymentModal()"
+                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                        Add Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Payment Modal -->
+<div id="editPaymentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" style="z-index: 1000;">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Edit Payment</h3>
+                <button onclick="closeEditPaymentModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="editPaymentForm" action="index.php?q=/modules/Students/payment_editProcess.php" method="POST" class="space-y-4">
+                <input type="hidden" name="paymentID" id="editPaymentID">
+                <input type="hidden" name="studentID" value="{{ student.studentID }}">
+
+                <div>
+                    <label for="editAmount" class="block text-sm font-medium text-gray-700">Amount *</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input type="number" name="amount" id="editAmount" step="0.01" min="0.01" required
+                               class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="editPaymentDate" class="block text-sm font-medium text-gray-700">Payment Date *</label>
+                    <input type="date" name="paymentDate" id="editPaymentDate" required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                           max="{{ 'now'|date('Y-m-d') }}">
+                </div>
+
+                <div>
+                    <label for="editPaymentMethod" class="block text-sm font-medium text-gray-700">Payment Method *</label>
+                    <select name="paymentMethod" id="editPaymentMethod" required
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <option value="cash">Cash</option>
+                        <option value="check">Check</option>
+                        <option value="credit_card">Credit Card</option>
+                        <option value="ach">ACH/Bank Transfer</option>
+                        <option value="financial_aid">Financial Aid</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="editReferenceNumber" class="block text-sm font-medium text-gray-700">Reference Number</label>
+                    <input type="text" name="referenceNumber" id="editReferenceNumber"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+
+                <div>
+                    <label for="editNotes" class="block text-sm font-medium text-gray-700">Notes</label>
+                    <textarea name="notes" id="editNotes" rows="2"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeEditPaymentModal()"
+                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                        Update Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Comprehensive Career Status Modal -->
+<div id="employmentStatusModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" style="z-index: 1000;">
+    <div class="relative top-10 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Update Career Status</h3>
+                <button onclick="closeEmploymentStatusModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="employmentStatusForm" action="index.php?q=/modules/Students/placement_record_process.php" method="POST" class="space-y-6">
+                <input type="hidden" name="studentID" value="{{ student.studentID }}">
+                <input type="hidden" name="placementID" id="placementID" value="{{ currentPlacement.placementID | default('') }}">
+
+                <!-- Employment Status -->
+                <div>
+                    <label for="employmentStatus" class="block text-sm font-medium text-gray-700">Employment Status</label>
+                    <select name="employmentStatus" id="employmentStatus" required
+                            onchange="handleEmploymentStatusChange()"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <option value="">Select Employment Status</option>
+                        <option value="not_graduated" {% if not currentPlacement or currentPlacement.employmentStatus == 'not_graduated' %}selected{% endif %}>None (Not Graduated)</option>
+                        <option value="employed_related" {% if currentPlacement and currentPlacement.employmentStatus == 'employed_related' %}selected{% endif %}>Employed in a field related to the program of study</option>
+                        <option value="employed_unrelated" {% if currentPlacement and currentPlacement.employmentStatus == 'employed_unrelated' %}selected{% endif %}>Employed in an unrelated field</option>
+                        <option value="self_employed_related" {% if currentPlacement and currentPlacement.employmentStatus == 'self_employed_related' %}selected{% endif %}>Self-employed in a field related to the program of study</option>
+                        <option value="self_employed_unrelated" {% if currentPlacement and currentPlacement.employmentStatus == 'self_employed_unrelated' %}selected{% endif %}>Self-employed in an unrelated field</option>
+                        <option value="not_employed_seeking" {% if currentPlacement and currentPlacement.employmentStatus == 'not_employed_seeking' %}selected{% endif %}>Not employed but seeking employment</option>
+                        <option value="not_employed_not_seeking" {% if currentPlacement and currentPlacement.employmentStatus == 'not_employed_not_seeking' %}selected{% endif %}>Not employed and not seeking employment</option>
+                        <option value="continuing_education" {% if currentPlacement and currentPlacement.employmentStatus == 'continuing_education' %}selected{% endif %}>Continuing education</option>
+                    </select>
+                </div>
+
+                <!-- Employment Details (shown for employed statuses) -->
+                <div id="employmentDetails" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="employmentDate" class="block text-sm font-medium text-gray-700">Date of Employment</label>
+                            <input type="date" name="employmentDate" id="employmentDate"
+                                   value="{{ currentPlacement.employmentDate | default('') }}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <div>
+                            <label for="jobTitle" class="block text-sm font-medium text-gray-700">Job Title</label>
+                            <input type="text" name="jobTitle" id="jobTitle"
+                                   value="{{ currentPlacement.jobTitle | default('') }}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <div>
+                            <label for="employerName" class="block text-sm font-medium text-gray-700">Company Name</label>
+                            <input type="text" name="employerName" id="employerName"
+                                   value="{{ currentPlacement.employerName | default('') }}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <div>
+                            <label for="employmentType" class="block text-sm font-medium text-gray-700">Employment Type</label>
+                            <select name="employmentType" id="employmentType"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="">Select Type</option>
+                                <option value="full_time" {% if currentPlacement and currentPlacement.employmentType == 'full_time' %}selected{% endif %}>Full-time</option>
+                                <option value="part_time" {% if currentPlacement and currentPlacement.employmentType == 'part_time' %}selected{% endif %}>Part-time</option>
+                                <option value="contract" {% if currentPlacement and currentPlacement.employmentType == 'contract' %}selected{% endif %}>Contract/Temporary</option>
+                                <option value="internship" {% if currentPlacement and currentPlacement.employmentType == 'internship' %}selected{% endif %}>Internship</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="employerAddress" class="block text-sm font-medium text-gray-700">Employer Address</label>
+                        <textarea name="employerAddress" id="employerAddress" rows="2"
+                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">{{ currentPlacement.employerAddress | default('') }}</textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                        <div>
+                            <label for="employerContactName" class="block text-sm font-medium text-gray-700">Employer Contact Name</label>
+                            <input type="text" name="employerContactName" id="employerContactName"
+                                   value="{{ currentPlacement.employerContactName | default('') }}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <div>
+                            <label for="employerContactPhone" class="block text-sm font-medium text-gray-700">Employer Contact Phone</label>
+                            <input type="tel" name="employerContactPhone" id="employerContactPhone"
+                                   value="{{ currentPlacement.employerContactPhone | default('') }}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <div>
+                            <label for="employerContactEmail" class="block text-sm font-medium text-gray-700">Employer Contact Email</label>
+                            <input type="email" name="employerContactEmail" id="employerContactEmail"
+                                   value="{{ currentPlacement.employerContactEmail | default('') }}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="isEntryLevel" class="block text-sm font-medium text-gray-700">Is the position entry-level?</label>
+                            <select name="isEntryLevel" id="isEntryLevel"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="">Select</option>
+                                <option value="Y" {% if currentPlacement and currentPlacement.isEntryLevel == 'Y' %}selected{% endif %}>Yes</option>
+                                <option value="N" {% if currentPlacement and currentPlacement.isEntryLevel == 'N' %}selected{% endif %}>No</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="salaryRange" class="block text-sm font-medium text-gray-700">Annual Salary Range</label>
+                            <select name="salaryRange" id="salaryRange"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="">Select Range</option>
+                                <option value="under_20k" {% if currentPlacement and currentPlacement.salaryRange == 'under_20k' %}selected{% endif %}>Less than $20,000</option>
+                                <option value="20k_30k" {% if currentPlacement and currentPlacement.salaryRange == '20k_30k' %}selected{% endif %}>$20,000 - $30,000</option>
+                                <option value="30k_40k" {% if currentPlacement and currentPlacement.salaryRange == '30k_40k' %}selected{% endif %}>$30,001 - $40,000</option>
+                                <option value="40k_50k" {% if currentPlacement and currentPlacement.salaryRange == '40k_50k' %}selected{% endif %}>$40,001 - $50,000</option>
+                                <option value="50k_60k" {% if currentPlacement and currentPlacement.salaryRange == '50k_60k' %}selected{% endif %}>$50,001 - $60,000</option>
+                                <option value="over_60k" {% if currentPlacement and currentPlacement.salaryRange == 'over_60k' %}selected{% endif %}>Over $60,000</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="salaryExact" class="block text-sm font-medium text-gray-700">Exact Salary (Optional)</label>
+                        <input type="number" name="salaryExact" id="salaryExact" step="0.01"
+                               value="{{ currentPlacement.salaryExact | default('') }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                               placeholder="Enter exact amount">
+                    </div>
+                </div>
+
+                <!-- Continuing Education Details (shown for continuing education status) -->
+                <div id="educationDetails" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="continuingEducationInstitution" class="block text-sm font-medium text-gray-700">Institution</label>
+                            <input type="text" name="continuingEducationInstitution" id="continuingEducationInstitution"
+                                   value="{{ currentPlacement.continuingEducationInstitution | default('') }}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <div>
+                            <label for="continuingEducationProgram" class="block text-sm font-medium text-gray-700">Program</label>
+                            <input type="text" name="continuingEducationProgram" id="continuingEducationProgram"
+                                   value="{{ currentPlacement.continuingEducationProgram | default('') }}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Verification Section -->
+                <div class="border-t pt-6">
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">Verification</h4>
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="verificationSource" class="block text-sm font-medium text-gray-700">Source of Verification</label>
+                            <select name="verificationSource" id="verificationSource"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="">Select Source</option>
+                                <option value="employer_confirmation" {% if currentPlacement and currentPlacement.verificationSource == 'employer_confirmation' %}selected{% endif %}>Employer confirmation</option>
+                                <option value="pay_stub" {% if currentPlacement and currentPlacement.verificationSource == 'pay_stub' %}selected{% endif %}>Pay stub or employment contract</option>
+                                <option value="student_self_report" {% if currentPlacement and currentPlacement.verificationSource == 'student_self_report' %}selected{% endif %}>Student self-report</option>
+                                <option value="other" {% if currentPlacement and currentPlacement.verificationSource == 'other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="verificationDate" class="block text-sm font-medium text-gray-700">Verification Date</label>
+                            <input type="date" name="verificationDate" id="verificationDate"
+                                   value="{{ currentPlacement.verificationDate | default('') }}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label for="verificationNotes" class="block text-sm font-medium text-gray-700">Verification Notes</label>
+                        <textarea name="verificationNotes" id="verificationNotes" rows="3"
+                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                  placeholder="Additional verification details...">{{ currentPlacement.verificationNotes | default('') }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Licensure Section -->
+                <div class="border-t pt-6">
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">Licensure/Certification</h4>
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="requiresLicense" class="block text-sm font-medium text-gray-700">Does employment require licensure/certification?</label>
+                            <select name="requiresLicense" id="requiresLicense" onchange="toggleLicenseFields()"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="N" {% if not currentPlacement or currentPlacement.requiresLicense == 'N' %}selected{% endif %}>No</option>
+                                <option value="Y" {% if currentPlacement and currentPlacement.requiresLicense == 'Y' %}selected{% endif %}>Yes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="licenseFields" class="{% if not currentPlacement or currentPlacement.requiresLicense != 'Y' %}hidden{% endif %} mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="licenseType" class="block text-sm font-medium text-gray-700">License/Certification Type</label>
+                            <input type="text" name="licenseType" id="licenseType"
+                                   value="{{ currentPlacement.licenseType | default('') }}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <div>
+                            <label for="licenseObtained" class="block text-sm font-medium text-gray-700">Has license been obtained?</label>
+                            <select name="licenseObtained" id="licenseObtained" onchange="toggleLicenseNumber()"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="">Select</option>
+                                <option value="Y" {% if currentPlacement and currentPlacement.licenseObtained == 'Y' %}selected{% endif %}>Yes</option>
+                                <option value="N" {% if currentPlacement and currentPlacement.licenseObtained == 'N' %}selected{% endif %}>No</option>
+                            </select>
+                        </div>
+
+                        <div id="licenseNumberField" class="{% if not currentPlacement or currentPlacement.licenseObtained != 'Y' %}hidden{% endif %}">
+                            <label for="licenseNumber" class="block text-sm font-medium text-gray-700">License/Certification Number</label>
+                            <input type="text" name="licenseNumber" id="licenseNumber"
+                                   value="{{ currentPlacement.licenseNumber | default('') }}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comments -->
+                <div>
+                    <label for="comments" class="block text-sm font-medium text-gray-700">Comments/Additional Notes</label>
+                    <textarea name="comments" id="comments" rows="4"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              placeholder="Additional information about this placement record...">{{ currentPlacement.comments | default('') }}</textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeEmploymentStatusModal()"
+                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                        Update Status
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Academic Information Modal -->
+<div id="academicModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" style="z-index: 1000;">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Edit Academic Information</h3>
+                <button onclick="closeAcademicModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="academicForm" action="index.php?q=/modules/Students/academic_info_updateProcess.php" method="POST" class="space-y-6">
+                <input type="hidden" name="studentID" value="{{ student.studentID }}">
+
+                <!-- Program Display (Read-only) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Program</label>
+                    <div class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm text-gray-900">
+                        {{ student.programName | default('No program assigned') }}
+                    </div>
+                    <input type="hidden" name="programID" value="{{ student.programID }}">
+                </div>
+
+                <!-- Required Academic Dates -->
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="enrollmentDate" class="block text-sm font-medium text-gray-700">Enrollment Start Date *</label>
+                        <input type="date" name="enrollmentDate" id="enrollmentDate" required
+                               value="{{ student.enrollmentDate | date('Y-m-d') }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="anticipatedGraduationDate" class="block text-sm font-medium text-gray-700">Anticipated Graduation Date</label>
+                        <input type="date" name="anticipatedGraduationDate" id="anticipatedGraduationDate"
+                               value="{{ student.anticipatedGraduationDate | date('Y-m-d') }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                </div>
+
+                <!-- Optional Date Fields -->
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <!-- Actual Graduation Date -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Actual Graduation Date</label>
+                            <div class="mt-1 space-y-2">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="hasActualGraduationDate" {% if student.actualGraduationDate %}checked{% endif %}
+                                           onchange="toggleActualGraduationDate()"
+                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="hasActualGraduationDate" class="ml-2 text-sm text-gray-600">Set actual graduation date</label>
+                                </div>
+                                <div id="actualGraduationDateDiv" class="{% if not student.actualGraduationDate %}hidden{% endif %}">
+                                    <input type="date" {% if student.actualGraduationDate %}name="actualGraduationDate"{% endif %} id="actualGraduationDate"
+                                           value="{{ student.actualGraduationDate | date('Y-m-d') }}"
+                                           class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
+                                <div id="actualGraduationDateNone" class="{% if student.actualGraduationDate %}hidden{% endif %} text-sm text-gray-500">
+                                    None
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Last Day of Attendance -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Last Day of Attendance</label>
+                            <div class="mt-1 space-y-2">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="hasLastDayOfAttendance" {% if student.lastDayOfAttendance %}checked{% endif %}
+                                           onchange="toggleLastDayOfAttendance()"
+                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="hasLastDayOfAttendance" class="ml-2 text-sm text-gray-600">Set last day of attendance</label>
+                                </div>
+                                <div id="lastDayOfAttendanceDiv" class="{% if not student.lastDayOfAttendance %}hidden{% endif %}">
+                                    <input type="date" {% if student.lastDayOfAttendance %}name="lastDayOfAttendance"{% endif %} id="lastDayOfAttendance"
+                                           value="{{ student.lastDayOfAttendance | date('Y-m-d') }}"
+                                           class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
+                                <div id="lastDayOfAttendanceNone" class="{% if student.lastDayOfAttendance %}hidden{% endif %} text-sm text-gray-500">
+                                    None
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <!-- Withdrawn Date -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Withdrawn Date</label>
+                            <div class="mt-1 space-y-2">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="hasWithdrawnDate" {% if student.withdrawnDate %}checked{% endif %}
+                                           onchange="toggleWithdrawnDate()"
+                                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="hasWithdrawnDate" class="ml-2 text-sm text-gray-600">Set withdrawn date</label>
+                                </div>
+                                <div id="withdrawnDateDiv" class="{% if not student.withdrawnDate %}hidden{% endif %}">
+                                    <input type="date" {% if student.withdrawnDate %}name="withdrawnDate"{% endif %} id="withdrawnDate"
+                                           value="{{ student.withdrawnDate | date('Y-m-d') }}"
+                                           class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
+                                <div id="withdrawnDateNone" class="{% if student.withdrawnDate %}hidden{% endif %} text-sm text-gray-500">
+                                    None
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Academic Status -->
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700">Academic Status *</label>
+                            <select name="status" id="status" required
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="prospective" {% if student.status == 'prospective' %}selected{% endif %}>Prospective</option>
+                                <option value="active" {% if student.status == 'active' %}selected{% endif %}>Active</option>
+                                <option value="graduated" {% if student.status == 'graduated' %}selected{% endif %}>Graduated</option>
+                                <option value="alumni" {% if student.status == 'alumni' %}selected{% endif %}>Alumni</option>
+                                <option value="withdrawn" {% if student.status == 'withdrawn' %}selected{% endif %}>Withdrawn</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeAcademicModal()"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Save Academic Information
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Faculty Notes Modals -->
+
+<!-- Add/Edit Faculty Note Modal -->
+<div id="facultyNoteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" style="z-index: 1000;">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900" id="noteModalTitle">Add Faculty Note</h3>
+                <button onclick="closeFacultyNoteModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="facultyNoteForm" action="index.php?q=/modules/Students/FacultyNotes/note_process.php" method="POST" class="space-y-4">
+                <input type="hidden" name="studentID" value="{{ student.studentID }}">
+                <input type="hidden" name="noteID" id="noteID" value="">
+
+                <div>
+                    <label for="noteCategory" class="block text-sm font-medium text-gray-700">Category</label>
+                    <select name="category" id="noteCategory" required
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <option value="">Select Category</option>
+                        <option value="positive">Positive</option>
+                        <option value="concern">Concern</option>
+                        <option value="neutral">Neutral</option>
+                        <option value="disciplinary">Disciplinary</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="noteContent" class="block text-sm font-medium text-gray-700">Note Content</label>
+                    <textarea name="content" id="noteContent" rows="4" required
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              placeholder="Enter your note about the student's progress, behavior, or academic performance..."></textarea>
+                    <p class="mt-1 text-sm text-gray-500">Example: "Student has F in Biology course, scheduled tutoring for Thursday quiz to help recovery"</p>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" name="isPrivate" id="noteIsPrivate" value="Y"
+                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <label for="noteIsPrivate" class="ml-2 block text-sm text-gray-700">
+                        Private note (visible only to you)
+                    </label>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeFacultyNoteModal()"
+                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                        Save Note
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Schedule Meeting Modal -->
+<div id="meetingModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" style="z-index: 1000;">
+    <div class="relative top-10 mx-auto p-5 border w-full max-w-3xl shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Schedule Student Meeting</h3>
+                <button onclick="closeMeetingModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="meetingForm" action="index.php?q=/modules/Students/FacultyNotes/meeting_process.php" method="POST" class="space-y-6">
+                <input type="hidden" name="studentID" value="{{ student.studentID }}">
+                <input type="hidden" name="meetingID" id="meetingID" value="">
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="meetingDate" class="block text-sm font-medium text-gray-700">Meeting Date</label>
+                        <input type="date" name="meetingDate" id="meetingDate" required
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+
+                    <div>
+                        <label for="meetingType" class="block text-sm font-medium text-gray-700">Meeting Type</label>
+                        <select name="meetingType" id="meetingType" required
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="">Select Type</option>
+                            <option value="concerned">Concerned (Academic Issues)</option>
+                            <option value="potential_failure">Potential Failure</option>
+                            <option value="normal">Normal Check-in</option>
+                            <option value="disciplinary">Disciplinary</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="topicsDiscussed" class="block text-sm font-medium text-gray-700">Topics Discussed</label>
+                    <textarea name="topicsDiscussed" id="topicsDiscussed" rows="3" required
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              placeholder="Main topics covered in the meeting..."></textarea>
+                </div>
+
+                <div>
+                    <label for="currentPerformance" class="block text-sm font-medium text-gray-700">Current Academic Performance</label>
+                    <textarea name="currentPerformance" id="currentPerformance" rows="2"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              placeholder="Example: Student has F in Biology, C+ in Math, struggling with attendance..."></textarea>
+                </div>
+
+                <div>
+                    <label for="upcomingAssessments" class="block text-sm font-medium text-gray-700">Upcoming Quizzes/Tests/Assignments</label>
+                    <textarea name="upcomingAssessments" id="upcomingAssessments" rows="2"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              placeholder="Biology quiz on Thursday, Math test next week..."></textarea>
+                </div>
+
+                <div>
+                    <label for="actionItems" class="block text-sm font-medium text-gray-700">Action Items & Next Steps</label>
+                    <textarea name="actionItems" id="actionItems" rows="3"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              placeholder="Schedule tutoring, contact parents, create study plan..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="nextMeetingDate" class="block text-sm font-medium text-gray-700">Next Meeting Date (Optional)</label>
+                        <input type="date" name="nextMeetingDate" id="nextMeetingDate"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox" name="parentNotified" id="parentNotified" value="Y"
+                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="parentNotified" class="ml-2 block text-sm text-gray-700">
+                            Parent/Guardian notified
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeMeetingModal()"
+                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                        Schedule Meeting
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Support Session Modal -->
+<div id="supportSessionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" style="z-index: 1000;">
+    <div class="relative top-10 mx-auto p-5 border w-full max-w-3xl shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Record Support Session</h3>
+                <button onclick="closeSupportSessionModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="supportSessionForm" action="index.php?q=/modules/Students/FacultyNotes/support_session_process.php" method="POST" class="space-y-6">
+                <input type="hidden" name="studentID" value="{{ student.studentID }}">
+                <input type="hidden" name="sessionID" id="sessionID" value="">
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                    <div>
+                        <label for="sessionType" class="block text-sm font-medium text-gray-700">Session Type</label>
+                        <select name="sessionType" id="sessionType" required
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="">Select Type</option>
+                            <option value="tutoring">Tutoring</option>
+                            <option value="study_group">Study Group</option>
+                            <option value="counseling">Academic Counseling</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="sessionDate" class="block text-sm font-medium text-gray-700">Session Date</label>
+                        <input type="date" name="sessionDate" id="sessionDate" required
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+
+                    <div>
+                        <label for="duration" class="block text-sm font-medium text-gray-700">Duration (minutes)</label>
+                        <input type="number" name="duration" id="duration" min="15" max="480"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                               placeholder="60">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="subject" class="block text-sm font-medium text-gray-700">Subject/Topic</label>
+                    <input type="text" name="subject" id="subject"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                           placeholder="Biology, Math, Study Skills, etc.">
+                </div>
+
+                <div>
+                    <label for="sessionDescription" class="block text-sm font-medium text-gray-700">Session Description</label>
+                    <textarea name="description" id="sessionDescription" rows="4" required
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              placeholder="Describe what was covered, topics discussed, techniques used, etc."></textarea>
+                </div>
+
+                <div>
+                    <label for="participants" class="block text-sm font-medium text-gray-700">Other Participants (if group session)</label>
+                    <textarea name="participants" id="participants" rows="2"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              placeholder="List other students or staff involved..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" name="followUpRequired" id="followUpRequired" value="Y"
+                               onchange="toggleFollowUpField()"
+                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="followUpRequired" class="ml-2 block text-sm text-gray-700">
+                            Follow-up session required
+                        </label>
+                    </div>
+
+                    <div id="followUpDateField" class="hidden">
+                        <label for="followUpDate" class="block text-sm font-medium text-gray-700">Follow-up Date</label>
+                        <input type="date" name="followUpDate" id="followUpDate"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                </div>
+
+                <div id="followUpNotesField" class="hidden">
+                    <label for="followUpNotes" class="block text-sm font-medium text-gray-700">Follow-up Notes</label>
+                    <textarea name="followUpNotes" id="followUpNotes" rows="2"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              placeholder="What should be covered in the follow-up session..."></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeSupportSessionModal()"
+                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                        Record Session
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

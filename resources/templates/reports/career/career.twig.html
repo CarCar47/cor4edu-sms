@@ -1,0 +1,216 @@
+{% extends 'reports/base.twig.html' %}
+
+{% block report_content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <!-- Filter Form -->
+    <div class="border-b border-gray-200 bg-gray-50 px-4 py-5 sm:px-6">
+        <form method="GET" action="{{ currentUrl }}" class="space-y-4">
+            <input type="hidden" name="q" value="{{ currentQuery }}">
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <!-- Report Type -->
+                {% if showReportTypeFilter %}
+                <div>
+                    <label for="reportType" class="block text-sm font-medium text-gray-700">Report Type</label>
+                    <select name="reportType" id="reportType"
+                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        {% for type in availableReportTypes %}
+                        <option value="{{ type.value }}" {% if type.value == selectedReportType %}selected{% endif %}>
+                            {{ type.label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                <!-- Program Filter -->
+                {% if showProgramFilter %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Program</label>
+                    <div class="space-y-2 border border-gray-300 rounded-md p-3 bg-gray-50 max-h-64 overflow-y-auto">
+                        <!-- Select/Remove All -->
+                        <label class="flex items-center font-medium border-b border-gray-300 pb-2 sticky top-0 bg-gray-50">
+                            <input type="checkbox" id="selectAllPrograms" onchange="toggleAllPrograms(this)" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-900">All Programs</span>
+                        </label>
+
+                        <!-- Individual checkboxes -->
+                        {% for program in availablePrograms %}
+                        <label class="flex items-center">
+                            <input type="checkbox" name="programID[]" value="{{ program.programID }}" class="program-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" onchange="updateSelectAllPrograms()" {% if program.programID in selectedPrograms %}checked{% endif %}>
+                            <span class="ml-2 text-sm text-gray-700">{{ program.name }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Student Status Filter -->
+                {% if showStudentStatusFilter %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Student Status</label>
+                    <div class="space-y-2 border border-gray-300 rounded-md p-3 bg-gray-50">
+                        <!-- Select/Remove All -->
+                        <label class="flex items-center font-medium border-b border-gray-300 pb-2">
+                            <input type="checkbox" id="selectAllStatuses" onchange="toggleAllStatuses(this)" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-900">All Statuses</span>
+                        </label>
+
+                        <!-- Individual checkboxes -->
+                        {% for status in availableStudentStatuses %}
+                        <label class="flex items-center">
+                            <input type="checkbox" name="studentStatus[]" value="{{ status.value }}" class="status-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" onchange="updateSelectAllStatuses()" {% if status.value in selectedStudentStatuses %}checked{% endif %}>
+                            <span class="ml-2 text-sm text-gray-700">{{ status.label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Employment Status Filter -->
+                {% if showEmploymentStatusFilter %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Employment Status</label>
+                    <div class="space-y-2 border border-gray-300 rounded-md p-3 bg-gray-50 max-h-64 overflow-y-auto">
+                        <!-- Select/Remove All -->
+                        <label class="flex items-center font-medium border-b border-gray-300 pb-2 sticky top-0 bg-gray-50">
+                            <input type="checkbox" id="selectAllEmploymentStatuses" onchange="toggleAllEmploymentStatuses(this)" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-900">All Employment Statuses</span>
+                        </label>
+
+                        <!-- Individual checkboxes -->
+                        {% for status in availableEmploymentStatuses %}
+                        <label class="flex items-center">
+                            <input type="checkbox" name="employmentStatus[]" value="{{ status.value }}" class="employment-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" onchange="updateSelectAllEmploymentStatuses()" {% if status.value in selectedEmploymentStatuses %}checked{% endif %}>
+                            <span class="ml-2 text-sm text-gray-700">{{ status.label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Verification Status Filter -->
+                {% if showVerificationStatusFilter %}
+                <div>
+                    <label for="verificationStatus" class="block text-sm font-medium text-gray-700">Verification Status</label>
+                    <select name="verificationStatus" id="verificationStatus"
+                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        {% for status in availableVerificationStatuses %}
+                        <option value="{{ status.value }}" {% if status.value == selectedVerificationStatus %}selected{% endif %}>
+                            {{ status.label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                <!-- Date Range -->
+                {% if showDateFilter %}
+                <div>
+                    <label for="graduationDateStart" class="block text-sm font-medium text-gray-700">{{ dateFilterLabel }} (Start)</label>
+                    <input type="date" name="graduationDateStart" id="graduationDateStart"
+                           value="{{ selectedGraduationDateStart }}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="graduationDateEnd" class="block text-sm font-medium text-gray-700">{{ dateFilterLabel }} (End)</label>
+                    <input type="date" name="graduationDateEnd" id="graduationDateEnd"
+                           value="{{ selectedGraduationDateEnd }}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="flex justify-between items-center pt-4">
+                <button type="submit"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Generate Report
+                </button>
+
+                {% if showExportButtons and reportData %}
+                <a href="{{ exportUrl }}&{{ exportParams }}"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Export CSV
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Report Display -->
+    <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">{{ reportTitle }}</h3>
+
+        {% if reportData %}
+            {% if reportType == 'placement_rate' %}
+                {% include 'reports/career/placement_rate_table.twig.html' %}
+            {% elseif reportType == 'verification_report' %}
+                {% include 'reports/career/verification_report_table.twig.html' %}
+            {% elseif reportType == 'outcomes_summary' %}
+                {% include 'reports/career/outcomes_summary_table.twig.html' %}
+            {% elseif reportType == 'unverified_placements' %}
+                {% include 'reports/career/unverified_placements_table.twig.html' %}
+            {% endif %}
+        {% else %}
+            <div class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No data available</h3>
+                <p class="mt-1 text-sm text-gray-500">Select filters and generate a report to view data.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Program checkboxes toggle functions
+function toggleAllPrograms(checkbox) {
+    const programCheckboxes = document.querySelectorAll('.program-checkbox');
+    programCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+}
+
+function updateSelectAllPrograms() {
+    const programCheckboxes = document.querySelectorAll('.program-checkbox');
+    const selectAll = document.getElementById('selectAllPrograms');
+    const allChecked = Array.from(programCheckboxes).every(cb => cb.checked);
+    selectAll.checked = allChecked;
+}
+
+// Student status checkboxes toggle functions
+function toggleAllStatuses(checkbox) {
+    const statusCheckboxes = document.querySelectorAll('.status-checkbox');
+    statusCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+}
+
+function updateSelectAllStatuses() {
+    const statusCheckboxes = document.querySelectorAll('.status-checkbox');
+    const selectAll = document.getElementById('selectAllStatuses');
+    const allChecked = Array.from(statusCheckboxes).every(cb => cb.checked);
+    selectAll.checked = allChecked;
+}
+
+// Employment status checkboxes toggle functions
+function toggleAllEmploymentStatuses(checkbox) {
+    const employmentCheckboxes = document.querySelectorAll('.employment-checkbox');
+    employmentCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+}
+
+function updateSelectAllEmploymentStatuses() {
+    const employmentCheckboxes = document.querySelectorAll('.employment-checkbox');
+    const selectAll = document.getElementById('selectAllEmploymentStatuses');
+    const allChecked = Array.from(employmentCheckboxes).every(cb => cb.checked);
+    selectAll.checked = allChecked;
+}
+
+// Initialize "All" checkboxes on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateSelectAllPrograms();
+    updateSelectAllStatuses();
+    updateSelectAllEmploymentStatuses();
+});
+</script>
+{% endblock %}

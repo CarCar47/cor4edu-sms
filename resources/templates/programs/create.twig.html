@@ -1,0 +1,325 @@
+{% extends "base.twig.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="md:flex md:items-center md:justify-between">
+        <div class="flex-1 min-w-0">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                Add New Program
+            </h2>
+        </div>
+        <div class="mt-4 flex md:mt-0 md:ml-4">
+            <a href="index.php?q=/modules/Programs/program_manage.php"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Back to Programs
+            </a>
+        </div>
+    </div>
+
+    <!-- Error Messages -->
+    {% if errors %}
+    <div class="rounded-md bg-red-50 p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">
+                    Please correct the following errors:
+                </h3>
+                <div class="mt-2 text-sm text-red-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        {% for error in errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Form -->
+    <div class="bg-white shadow rounded-lg">
+        <form action="index.php?q=/modules/Programs/program_manage_addProcess.php" method="POST" class="space-y-6 p-6">
+            <!-- Basic Information -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Program Information</h3>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">
+                            Program Name *
+                        </label>
+                        <input type="text" name="name" id="name" required
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                               value="{{ formData.name | default('') }}">
+                    </div>
+
+                    <div>
+                        <label for="programCode" class="block text-sm font-medium text-gray-700">
+                            Program Code
+                        </label>
+                        <input type="text" name="programCode" id="programCode"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                               value="{{ formData.programCode | default('') }}"
+                               placeholder="Leave blank to auto-generate">
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="description" class="block text-sm font-medium text-gray-700">
+                            Description
+                        </label>
+                        <textarea name="description" id="description" rows="3"
+                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                  placeholder="Brief description of the program">{{ formData.description | default('') }}</textarea>
+                    </div>
+
+                    <div>
+                        <label for="duration" class="block text-sm font-medium text-gray-700">
+                            Duration
+                        </label>
+                        <input type="text" name="duration" id="duration"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                               value="{{ formData.duration | default('') }}"
+                               placeholder="e.g., 4 years, 18 months">
+                    </div>
+
+                    <div>
+                        <label for="measurementType" class="block text-sm font-medium text-gray-700">
+                            Measurement Type
+                        </label>
+                        <select name="measurementType" id="measurementType" onchange="toggleMeasurementFields()"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="credits" {% if formData.measurementType | default('credits') == 'credits' %}selected{% endif %}>Credit Hours</option>
+                            <option value="hours" {% if formData.measurementType == 'hours' %}selected{% endif %}>Contact Hours</option>
+                            <option value="both" {% if formData.measurementType == 'both' %}selected{% endif %}>Credits and Hours</option>
+                            <option value="none" {% if formData.measurementType == 'none' %}selected{% endif %}>No Measurement</option>
+                        </select>
+                    </div>
+
+                    <div id="creditHoursField" class="measurement-field">
+                        <label for="creditHours" class="block text-sm font-medium text-gray-700">
+                            Credit Hours
+                        </label>
+                        <input type="number" name="creditHours" id="creditHours" min="0"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                               value="{{ formData.creditHours | default('') }}"
+                               placeholder="e.g., 120">
+                    </div>
+
+                    <div id="contactHoursField" class="measurement-field" style="display: none;">
+                        <label for="contactHours" class="block text-sm font-medium text-gray-700">
+                            Contact Hours
+                        </label>
+                        <input type="number" name="contactHours" id="contactHours" min="0"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                               value="{{ formData.contactHours | default('') }}"
+                               placeholder="e.g., 800">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Pricing Information -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Pricing Information</h3>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <div>
+                        <label for="tuitionAmount" class="block text-sm font-medium text-gray-700">
+                            Tuition Amount
+                        </label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            <input type="number" name="tuitionAmount" id="tuitionAmount" step="0.01" min="0"
+                                   class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   value="{{ formData.tuitionAmount | default('0.00') }}"
+                                   placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="fees" class="block text-sm font-medium text-gray-700">
+                            Fees
+                        </label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            <input type="number" name="fees" id="fees" step="0.01" min="0"
+                                   class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   value="{{ formData.fees | default('0.00') }}"
+                                   placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="booksAmount" class="block text-sm font-medium text-gray-700">
+                            Books Amount
+                        </label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            <input type="number" name="booksAmount" id="booksAmount" step="0.01" min="0"
+                                   class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   value="{{ formData.booksAmount | default('0.00') }}"
+                                   placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="materialsAmount" class="block text-sm font-medium text-gray-700">
+                            Materials Amount
+                        </label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            <input type="number" name="materialsAmount" id="materialsAmount" step="0.01" min="0"
+                                   class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   value="{{ formData.materialsAmount | default('0.00') }}"
+                                   placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="applicationFee" class="block text-sm font-medium text-gray-700">
+                            Application Fee
+                        </label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            <input type="number" name="applicationFee" id="applicationFee" step="0.01" min="0"
+                                   class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   value="{{ formData.applicationFee | default('0.00') }}"
+                                   placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="miscellaneousCosts" class="block text-sm font-medium text-gray-700">
+                            Miscellaneous Costs
+                        </label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            <input type="number" name="miscellaneousCosts" id="miscellaneousCosts" step="0.01" min="0"
+                                   class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   value="{{ formData.miscellaneousCosts | default('0.00') }}"
+                                   placeholder="0.00">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Cost Display -->
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-medium text-gray-900">Total Program Cost:</span>
+                        <span id="totalCost" class="text-xl font-bold text-indigo-600">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Program Status -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Program Status</h3>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="active" class="block text-sm font-medium text-gray-700">
+                            Status
+                        </label>
+                        <select name="active" id="active"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="Y" {% if formData.active | default('Y') == 'Y' %}selected{% endif %}>Active</option>
+                            <option value="N" {% if formData.active == 'N' %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="flex justify-end space-x-3">
+                <a href="index.php?q=/modules/Programs/program_manage.php"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Create Program
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleMeasurementFields() {
+    const measurementType = document.getElementById('measurementType').value;
+    const creditHoursField = document.getElementById('creditHoursField');
+    const contactHoursField = document.getElementById('contactHoursField');
+
+    // Hide all fields first
+    creditHoursField.style.display = 'none';
+    contactHoursField.style.display = 'none';
+
+    // Show appropriate fields based on selection
+    switch (measurementType) {
+        case 'credits':
+            creditHoursField.style.display = 'block';
+            break;
+        case 'hours':
+            contactHoursField.style.display = 'block';
+            break;
+        case 'both':
+            creditHoursField.style.display = 'block';
+            contactHoursField.style.display = 'block';
+            break;
+        case 'none':
+            // Both remain hidden
+            break;
+    }
+}
+
+function calculateTotalCost() {
+    const tuition = parseFloat(document.getElementById('tuitionAmount').value) || 0;
+    const fees = parseFloat(document.getElementById('fees').value) || 0;
+    const books = parseFloat(document.getElementById('booksAmount').value) || 0;
+    const materials = parseFloat(document.getElementById('materialsAmount').value) || 0;
+    const application = parseFloat(document.getElementById('applicationFee').value) || 0;
+    const miscellaneous = parseFloat(document.getElementById('miscellaneousCosts').value) || 0;
+
+    const total = tuition + fees + books + materials + application + miscellaneous;
+
+    document.getElementById('totalCost').textContent = '$' + total.toFixed(2);
+}
+
+// Initialize form on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleMeasurementFields();
+    calculateTotalCost();
+
+    // Add event listeners for pricing fields
+    const pricingFields = [
+        'tuitionAmount', 'fees', 'booksAmount',
+        'materialsAmount', 'applicationFee', 'miscellaneousCosts'
+    ];
+
+    pricingFields.forEach(function(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('input', calculateTotalCost);
+            field.addEventListener('change', calculateTotalCost);
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,440 @@
+# COR4EDU SMS — Google Cloud Migration & Deployment Plan
+
+## 1) Executive Summary
+
+**Recommended stack**
+
+* **Platform:** Google Cloud Run (not App Engine) — better value, flexibility, and cost efficiency
+* **Database:** Cloud SQL (MySQL 8.0)
+* **File Storage:** Cloud Storage
+* **Auth:** Google Identity Platform + existing password auth
+* **Repository:** GitHub (private)
+* **Image Strategy:** Docker container deployable to multiple schools
+
+---
+
+## 2) Current Stack Analysis
+
+### 2.1 What’s ready for cloud ✅
+
+* **PHP 8.1** — supported on Cloud Run
+* **MySQL/PDO** — compatible with Cloud SQL
+* **Composer dependencies** — cloud-compatible
+* **Environment variables (.env)** — map to Secret Manager
+* **File uploads (storage/)** — **migrate to Cloud Storage**
+* **Session management** — **use Redis/Memcache** for multi-instance
+
+### 2.2 Issues found ⚠️
+
+1. **No `.gitignore`** — risks committing secrets/vendor
+2. **No Dockerfile** — required for containerization
+3. **No deployment config** — add a Cloud Run `service.yaml` or use CLI flags (App Engine `app.yaml` is not used for Cloud Run)
+4. **Persistent sessions** — file-based won’t work across instances
+5. **Local file storage** — won’t persist across container restarts
+6. **No database migrations** — manual SQL setup doesn’t scale
+7. **Hardcoded `localhost`** — needs environment-based config
+
+---
+
+## 3) Architecture Comparison
+
+| Feature         | **Cloud Run (Recommended)**               | **App Engine**                |
+| --------------- | ----------------------------------------- | ----------------------------- |
+| **Cost**        | Pay per request; scales to zero           | Always running; baseline cost |
+| **Flexibility** | Any language; full control over container | Restricted runtime options    |
+| **Container**   | Required                                  | Optional                      |
+| **Scaling**     | Instant, fine-grained                     | Slower, more coarse           |
+| **PHP 8.1**     | ✓ Full support                            | ✓ Standard only               |
+| **Best for**    | Modern apps, cost-conscious               | Simple PaaS, Google-managed   |
+
+**Verdict:** Cloud Run saves money and offers more control.
+
+---
+
+## 4) Pre-Deployment Checklist
+
+### Phase 1 — Code Preparation (CRITICAL)
+
+#### 4.1 Create `.gitignore`
+
+```gitignore
+/vendor/
+/storage/uploads/
+/storage/documents/
+/.env
+.env.local
+.DS_Store
+composer.phar
+*.log
+*.cache
+/tests/_output/
+```
+
+#### 4.2 Create `Dockerfile`
+
+```dockerfile
+FROM php:8.1-apache
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libzip-dev \
+ && docker-php-ext-install pdo pdo_mysql zip
+
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
+
+# Copy application
+COPY . /var/www/html/
+WORKDIR /var/www/html
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Permissions
+RUN chown -R www-data:www-data /var/www/html
+
+EXPOSE 8080
+CMD ["apache2-foreground"]
+```
+
+#### 4.3 Create `.dockerignore`
+
+```dockerignore
+.git
+.env
+.env.local
+/vendor/
+/tests/
+*.md
+/storage/uploads/
+/storage/documents/
+```
+
+#### 4.4 Update DB connection (`config/database.php`) — add Cloud SQL Unix socket support
+
+```php
+// Detect Cloud SQL via Unix socket
+$isCloudSQL = !empty($_ENV['DB_SOCKET']);
+
+if ($isCloudSQL) {
+    $dsn = "mysql:unix_socket={$_ENV['DB_SOCKET']};dbname={$dbName};charset=utf8mb4";
+} else {
+    $dsn = "mysql:host={$host};port={$port};dbname={$dbName};charset=utf8mb4";
+}
+```
+
+#### 4.5 Add `cloudbuild.yaml`
+
+```yaml
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/cor4edu-sms:$SHORT_SHA', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/cor4edu-sms:$SHORT_SHA']
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'cor4edu-sms'
+      - '--image=gcr.io/$PROJECT_ID/cor4edu-sms:$SHORT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+```
+
+#### 4.6 Migrate file storage to Cloud Storage
+
+```php
+// composer require google/cloud-storage
+use Google\Cloud\Storage\StorageClient;
+
+$storage = new StorageClient();
+$bucket  = $storage->bucket('cor4edu-uploads');
+// Use $bucket->upload($stream, ['name' => 'path/in/bucket']);
+```
+
+#### 4.7 Add a session handler (Redis)
+
+```php
+// Use Cloud Memorystore for Redis; set PHP session.save_handler to redis
+// Example wrapper:
+session_set_save_handler(new RedisSessionHandler());
+```
+
+---
+
+## 5) Step-by-Step Deployment Process
+
+### Step 1 — GitHub repository setup
+
+```bash
+# Initialize Git
+cd C:\Users\c_clo\OneDrive\Personal\Coding\cor4edu-sms
+git init
+
+# Create .gitignore (use template above)
+
+# Initial commit
+git add .
+git commit -m "Initial commit - COR4EDU SMS"
+
+# Create GitHub repo (private) at github.com → New → "cor4edu-sms" → Private
+
+# Link and push
+git branch -M main
+git remote add origin https://github.com/YOUR_USERNAME/cor4edu-sms.git
+git push -u origin main
+```
+
+**Benefits:** version control, easy cloning per school, CI/CD integration, team collaboration.
+
+### Step 2 — Google Cloud project setup
+
+* Install Google Cloud CLI: [https://cloud.google.com/sdk/docs/install](https://cloud.google.com/sdk/docs/install)
+
+```bash
+gcloud init
+gcloud projects create cor4edu-sms-prod --name="COR4EDU SMS Production"
+gcloud config set project cor4edu-sms-prod
+
+# Enable required APIs
+gcloud services enable run.googleapis.com
+gcloud services enable sql-component.googleapis.com
+gcloud services enable sqladmin.googleapis.com
+gcloud services enable storage-api.googleapis.com
+gcloud services enable cloudbuild.googleapis.com
+gcloud services enable secretmanager.googleapis.com
+```
+
+### Step 3 — Cloud SQL (MySQL) setup
+
+```bash
+# Create MySQL instance
+gcloud sql instances create cor4edu-db \
+  --database-version=MYSQL_8_0 \
+  --tier=db-f1-micro \
+  --region=us-central1 \
+  --root-password=SECURE_PASSWORD_HERE \
+  --backup \
+  --backup-start-time=03:00
+
+# Create database
+gcloud sql databases create cor4edu_sms --instance=cor4edu-db
+
+# Create user
+gcloud sql users create cor4edu_user \
+  --instance=cor4edu-db \
+  --password=SECURE_APP_PASSWORD
+
+# Get connection name (save it)
+gcloud sql instances describe cor4edu-db \
+  --format='value(connectionName)'
+```
+
+### Step 4 — Cloud Storage setup
+
+```bash
+# Create bucket for uploads
+gsutil mb -l us-central1 gs://cor4edu-uploads/
+
+# Set permissions (public object read; only if intended)
+gsutil iam ch allUsers:objectViewer gs://cor4edu-uploads/
+
+# (Optional) Establish logical prefixes for organization:
+# students/, staff/, documents/
+```
+
+### Step 5 — Secret Manager setup
+
+```bash
+echo -n "your-32-char-app-secret" | gcloud secrets create APP_SECRET --data-file=-
+echo -n "cor4edu_user"           | gcloud secrets create DB_USERNAME --data-file=-
+echo -n "SECURE_APP_PASSWORD"    | gcloud secrets create DB_PASSWORD --data-file=-
+echo -n "cor4edu_sms"            | gcloud secrets create DB_NAME --data-file=-
+echo -n "/cloudsql/PROJECT_ID:REGION:cor4edu-db" | gcloud secrets create DB_SOCKET --data-file=-
+```
+
+### Step 6 — Build & deploy to Cloud Run
+
+```bash
+# Build image
+gcloud builds submit --tag gcr.io/cor4edu-sms-prod/cor4edu-sms
+
+# Deploy
+gcloud run deploy cor4edu-sms \
+  --image gcr.io/cor4edu-sms-prod/cor4edu-sms \
+  --platform managed \
+  --region us-central1 \
+  --add-cloudsql-instances PROJECT_ID:us-central1:cor4edu-db \
+  --set-env-vars DB_HOST=localhost \
+  --set-secrets=APP_SECRET=APP_SECRET:latest,DB_USERNAME=DB_USERNAME:latest,DB_PASSWORD=DB_PASSWORD:latest,DB_NAME=DB_NAME:latest,DB_SOCKET=DB_SOCKET:latest \
+  --allow-unauthenticated \
+  --memory 512Mi \
+  --cpu 1 \
+  --max-instances 10 \
+  --min-instances 0
+```
+
+### Step 7 — Database migration
+
+```bash
+# Connect to Cloud SQL
+gcloud sql connect cor4edu-db --user=root
+
+# Run migrations
+mysql> source /path/to/database_migrations/001_initial_schema.sql;
+mysql> source /path/to/database_migrations/002_career_services.sql;
+-- ...etc
+```
+
+### Step 8 — Google Identity Platform (optional)
+
+```bash
+# Enable Identity Platform
+gcloud services enable identitytoolkit.googleapis.com
+```
+
+* Create OAuth 2.0 client at: [https://console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
+* Authorized redirect: `https://YOUR_APP_URL/oauth2callback`
+
+**App updates**
+
+```json
+// composer.json
+"google/apiclient": "^2.0"
+```
+
+```html
+<!-- login.twig.html -->
+<div id="g_id_signin"></div>
+```
+
+---
+
+## 6) Multi-School Deployment Strategy
+
+### Option A — Separate projects (RECOMMENDED)
+
+* `cor4edu-school1-prod`
+* `cor4edu-school2-prod`
+* `cor4edu-school3-prod`
+
+**Pros:** complete isolation, separate billing, custom domains, independent scaling.
+
+### Option B — Multi-tenant single project
+
+* `school1.cor4edu.com`, `school2.cor4edu.com`, …
+
+**Pros:** shared infrastructure, lower ops overhead, centralized updates.
+
+---
+
+## 7) Cost Estimation
+
+**Low traffic (≈100 users)**
+
+| Service        | Tier             | Est. Monthly Cost |
+| -------------- | ---------------- | ----------------- |
+| Cloud Run      | 100k requests/mo | $0 (free tier)    |
+| Cloud SQL      | db-f1-micro      | $7.67             |
+| Cloud Storage  | 10 GB            | $0.26             |
+| Secret Manager | 3 secrets        | $0.18             |
+| **Total**      | —                | **~$8/month**     |
+
+**Medium traffic (≈500 users)**
+
+* Cloud Run: ~$5/mo
+* Cloud SQL: **db-g1-small** ~$25/mo
+* Storage: ~$1/mo
+* **Total:** ~$31/month
+
+---
+
+## 8) Security Enhancements (required before production)
+
+1. HTTPS (automatic on Cloud Run)
+2. Identity-Aware Proxy for admin pages
+3. CSRF tokens on forms
+4. Rate limiting (Cloud Armor)
+5. Cloud Audit Logging
+6. Automated backups (Cloud SQL)
+7. Secret Manager for all secrets (no `.env` in prod)
+
+---
+
+## 9) Deployment Workflow (per school)
+
+```bash
+# 1) Clone from GitHub
+git clone https://github.com/YOUR_USERNAME/cor4edu-sms.git school-name-sms
+cd school-name-sms
+
+# 2) Create new GCP project
+gcloud projects create cor4edu-SCHOOLNAME-prod
+
+# 3) Run automated setup
+./scripts/deploy-new-school.sh SCHOOLNAME
+
+# 4) Import school data
+gcloud sql import sql cor4edu-db gs://SCHOOLNAME-backup/initial_data.sql
+
+# 5) Configure custom domain
+gcloud run domain-mappings create --service cor4edu-sms --domain SCHOOLNAME.edu
+```
+
+---
+
+## 10) Critical Changes Before Migration
+
+### High priority
+
+1. ✅ Fix session variable mismatch (**done**)
+2. 🔴 Add `.gitignore` — avoid exposing secrets
+3. 🔴 Add **Dockerfile** — required for Cloud Run
+4. 🔴 Update `database.php` — Cloud SQL socket support
+5. 🔴 Migrate file storage — local storage won’t work
+6. 🟡 Add Redis sessions — file sessions won’t scale
+7. 🟡 Database migrations — consolidate SQL files
+8. 🟡 Remove test-db link — don’t expose in production
+
+### Medium priority
+
+9. 🟡 Health check endpoint (`/health`)
+10. 🟡 CSRF protection
+11. 🟡 Caching (Redis/Memcache)
+12. 🟡 Centralized logging (Cloud Logging)
+
+---
+
+## 11) Next Steps (in order)
+
+1. Create GitHub account (if needed) and private repo
+2. Add `.gitignore`, `Dockerfile`, `.dockerignore` locally
+3. Test Docker build locally: `docker build -t cor4edu-test .`
+4. Push to GitHub (first backup)
+5. Set up GCP project and enable APIs
+6. Create Cloud SQL DB; test connection
+7. Deploy to Cloud Run (test environment)
+8. Migrate data from local MySQL
+9. Full test in cloud
+10. Set up custom domain: `school.edu → Cloud Run`
+11. Go live (DNS switch)
+
+---
+
+## 12) Resources Needed
+
+* GitHub account (free private repos)
+* Google Cloud account (available)
+* Domain name (optional; Cloud Run provides a URL)
+* Docker Desktop (local testing)
+* Google Cloud SDK (`gcloud` CLI)
+
+---
+
+If you want, I can convert this into a project checklist (with owners/dates) or a `service.yaml` for Cloud Run so you can deploy with config instead of long CLI flags.

@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/c_clo/OneDrive/Personal/Coding/cor4edu-single/**)",
+      "Bash(tree:*)",
+      "Read(//c/Users/c_clo/OneDrive/Personal/Coding/Gibbon/**)",
+      "Bash(mkdir:*)",
+      "Bash(composer init:*)",
+      "Bash(php:*)",
+      "Read(//c/Users/c_clo/OneDrive/Personal/Coding/cor4edu-sms-information/**)",
+      "Bash(where php)",
+      "Bash(where php.exe)",
+      "Bash(chmod:*)",
+      "Bash(dir /s)",
+      "Bash(mysql:*)",
+      "Bash(dir:*)",
+      "Read(//c/Users/c_clo/OneDrive/Personal/Coding/**)",
+      "Bash(findstr:*)",
+      "Bash(where mysql)",
+      "Bash(composer:*)",
+      "Bash(find:*)",
+      "Read(//c/Users/c_clo/Downloads/**)",
+      "Bash(grep:*)",
+      "Bash(del test_faculty_permissions.php debug_graduation_permission.php check_table_structure.php fix_faculty_graduation_permission.php test_data_protection.php)",
+      "Bash(wc:*)",
+      "Bash(test:*)",
+      "WebSearch",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

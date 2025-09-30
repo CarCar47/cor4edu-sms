@@ -1,0 +1,294 @@
+<!-- At-Risk Students Table -->
+<div class="overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Student
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Program
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Risk Score
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Concerns
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Disciplinary
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Failure Meetings
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Pending Follow-Ups
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Last Intervention
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for student in reportData %}
+                <tr class="hover:bg-gray-50 {% if student.riskScore >= 10 %}bg-red-50{% elseif student.riskScore >= 5 %}bg-yellow-50{% endif %}">
+                    <!-- Student Information -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <div class="h-10 w-10 rounded-full {% if student.riskScore >= 10 %}bg-red-100{% elseif student.riskScore >= 5 %}bg-yellow-100{% else %}bg-blue-100{% endif %} flex items-center justify-center">
+                                    <span class="text-sm font-medium {% if student.riskScore >= 10 %}text-red-600{% elseif student.riskScore >= 5 %}text-yellow-600{% else %}text-blue-600{% endif %}">
+                                        {{ student.firstName[:1] }}{{ student.lastName[:1] }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ student.firstName }} {{ student.lastName }}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {{ student.email }}
+                                </div>
+                                {% if student.phone %}
+                                <div class="text-sm text-gray-500">
+                                    {{ student.phone }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Program -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">
+                            {{ student.programName }}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            {{ student.programCode }}
+                        </div>
+                        <div class="mt-1">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                {% if student.status == 'Active' %}bg-green-100 text-green-800
+                                {% elseif student.status == 'Graduated' %}bg-blue-100 text-blue-800
+                                {% elseif student.status == 'Prospective' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ student.status }}
+                            </span>
+                        </div>
+                    </td>
+
+                    <!-- Risk Score -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold
+                            {% if student.riskScore >= 10 %}bg-red-600 text-white
+                            {% elseif student.riskScore >= 5 %}bg-yellow-500 text-white
+                            {% else %}bg-green-500 text-white{% endif %}">
+                            {{ student.riskScore }}
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            {% if student.riskScore >= 10 %}
+                                Critical
+                            {% elseif student.riskScore >= 5 %}
+                                Elevated
+                            {% else %}
+                                Low
+                            {% endif %}
+                        </div>
+                    </td>
+
+                    <!-- Concern Count -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-lg font-semibold text-yellow-600">
+                            {{ student.concernCount }}
+                        </div>
+                    </td>
+
+                    <!-- Disciplinary Count -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-lg font-semibold text-red-600">
+                            {{ student.disciplinaryCount }}
+                        </div>
+                    </td>
+
+                    <!-- Potential Failure Meetings -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="text-lg font-semibold text-orange-600">
+                            {{ student.potentialFailureMeetings }}
+                        </div>
+                    </td>
+
+                    <!-- Pending Follow-Ups -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% if student.pendingFollowUps > 0 %}
+                        <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            {{ student.pendingFollowUps }} pending
+                        </div>
+                        {% else %}
+                        <span class="text-gray-400">—</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Last Intervention -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% if student.lastInterventionDate %}
+                        <div class="text-sm text-gray-900">
+                            {{ student.lastInterventionDate | date('M j, Y') }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            {% if student.lastInterventionType %}
+                                {{ student.lastInterventionType | capitalize }}
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <span class="text-gray-400">No interventions</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                        No at-risk students found. All students are performing well!
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- At-Risk Summary -->
+{% if reportData | length > 0 %}
+<div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    {% set criticalRisk = 0 %}
+    {% set elevatedRisk = 0 %}
+    {% set totalPendingFollowUps = 0 %}
+    {% set noInterventions = 0 %}
+
+    {% for student in reportData %}
+        {% if student.riskScore >= 10 %}
+            {% set criticalRisk = criticalRisk + 1 %}
+        {% elseif student.riskScore >= 5 %}
+            {% set elevatedRisk = elevatedRisk + 1 %}
+        {% endif %}
+        {% set totalPendingFollowUps = totalPendingFollowUps + student.pendingFollowUps %}
+        {% if not student.lastInterventionDate %}
+            {% set noInterventions = noInterventions + 1 %}
+        {% endif %}
+    {% endfor %}
+
+    <!-- Critical Risk -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-red-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Critical Risk</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ criticalRisk }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    Score ≥10, immediate action
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Elevated Risk -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-yellow-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Elevated Risk</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ elevatedRisk }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    Score 5-9, monitor closely
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Follow-Ups -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-orange-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Pending Actions</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ totalPendingFollowUps }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    Outstanding follow-ups
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- No Interventions -->
+    <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-purple-500">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">No Interventions</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ noInterventions }}</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-sm text-gray-600">
+                    Students needing outreach
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Risk Scoring Methodology -->
+<div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <h4 class="text-sm font-medium text-blue-900 mb-2">Risk Score Calculation</h4>
+    <div class="text-sm text-blue-700 space-y-1">
+        <div><strong>Disciplinary Notes:</strong> 3 points each (highest weight)</div>
+        <div><strong>Concern Notes:</strong> 2 points each</div>
+        <div><strong>Potential Failure Meetings:</strong> 2 points each</div>
+        <div class="pt-2 border-t border-blue-300">
+            <strong>Risk Levels:</strong>
+            <ul class="list-disc list-inside ml-2 mt-1">
+                <li><span class="font-semibold text-red-700">Critical (≥10):</span> Immediate intervention required</li>
+                <li><span class="font-semibold text-yellow-700">Elevated (5-9):</span> Close monitoring and support needed</li>
+                <li><span class="font-semibold text-green-700">Low (&lt;5):</span> Standard support sufficient</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}

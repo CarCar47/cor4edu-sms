@@ -1,0 +1,184 @@
+{% extends "reports/base.twig.html" %}
+
+{% set activeTab = 'admissions' %}
+
+{% block report_content %}
+
+<!-- Filter Form -->
+{% include "reports/components/filter_form.twig.html" %}
+
+<!-- Report Content -->
+<div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                {{ reportTitle }}
+            </h3>
+            <div class="text-sm text-gray-500">
+                {% if selectedStartDate and selectedEndDate %}
+                {{ selectedStartDate | date('M j, Y') }} - {{ selectedEndDate | date('M j, Y') }}
+                {% else %}
+                Generated {{ 'now' | date('M j, Y g:i A') }}
+                {% endif %}
+            </div>
+        </div>
+
+        {% if reportData %}
+            {% if reportType == 'enrollment_summary' or reportType == 'program_analysis' %}
+                <!-- Program Enrollment Summary -->
+                {% include "reports/admissions/enrollment_summary.twig.html" %}
+
+            {% elseif reportType == 'student_list' %}
+                <!-- Individual Student List -->
+                {% include "reports/admissions/student_list.twig.html" %}
+
+            {% elseif reportType == 'demographics' %}
+                <!-- Demographics Analysis -->
+                {% include "reports/admissions/demographics.twig.html" %}
+
+            {% elseif reportType == 'trends' %}
+                <!-- Enrollment Trends -->
+                {% include "reports/admissions/trends.twig.html" %}
+
+            {% endif %}
+        {% else %}
+            <!-- No Data Message -->
+            <div class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No Enrollment Data</h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    No students found matching your filter criteria. Try adjusting your filters.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Report Metadata -->
+    {% if reportData %}
+    <div class="bg-gray-50 px-4 py-3">
+        <div class="flex items-center justify-between text-sm text-gray-600">
+            <div>
+                {% if reportType == 'student_list' or reportType == 'demographics' %}
+                    {{ reportData | length }} student records found
+                {% elseif reportType == 'trends' %}
+                    {{ reportData | length }} enrollment periods analyzed
+                {% else %}
+                    {{ reportData | length }} programs analyzed
+                {% endif %}
+            </div>
+            <div class="flex items-center space-x-4">
+                {% if selectedPrograms | length > 0 %}
+                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                    {{ selectedPrograms | length }} program(s) filtered
+                </span>
+                {% endif %}
+                {% if selectedStatuses | length > 0 %}
+                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                    {{ selectedStatuses | length }} status(es) filtered
+                </span>
+                {% endif %}
+                <span class="text-gray-500">
+                    Generated {{ 'now' | date('g:i A') }}
+                </span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Report Insights -->
+{% if reportData and (reportType == 'enrollment_summary' or reportType == 'program_analysis') %}
+<div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-blue-800">
+                Key Insights
+            </h3>
+            <div class="mt-2 text-sm text-blue-700">
+                {% set totalEnrollments = 0 %}
+                {% set totalActive = 0 %}
+                {% set totalGraduated = 0 %}
+                {% for program in reportData %}
+                    {% set totalEnrollments = totalEnrollments + program.totalEnrollments %}
+                    {% set totalActive = totalActive + program.activeStudents %}
+                    {% set totalGraduated = totalGraduated + program.graduatedStudents %}
+                {% endfor %}
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <div class="text-lg font-semibold text-blue-900">{{ totalEnrollments | number_format }}</div>
+                        <div class="text-xs">Total Enrollments</div>
+                    </div>
+                    <div>
+                        <div class="text-lg font-semibold text-blue-900">{{ totalActive | number_format }}</div>
+                        <div class="text-xs">Active Students</div>
+                    </div>
+                    <div>
+                        <div class="text-lg font-semibold text-blue-900">{{ totalGraduated | number_format }}</div>
+                        <div class="text-xs">Graduates</div>
+                    </div>
+                </div>
+
+                {% if totalEnrollments > 0 %}
+                <div class="mt-3 space-y-1">
+                    <div>
+                        <strong>Retention Rate:</strong>
+                        {{ ((totalActive / totalEnrollments) * 100) | number_format(1) }}% of enrolled students are currently active
+                    </div>
+                    <div>
+                        <strong>Completion Rate:</strong>
+                        {{ ((totalGraduated / totalEnrollments) * 100) | number_format(1) }}% of enrolled students have graduated
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Actions -->
+<div class="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-green-800">
+                Available Report Types
+            </h3>
+            <div class="mt-2 text-sm text-green-700">
+                <ul class="space-y-1">
+                    <li><strong>Enrollment Summary:</strong> Program-level enrollment statistics and performance metrics</li>
+                    <li><strong>Student List:</strong> Individual student records with customizable fields for detailed analysis</li>
+                    <li><strong>Demographics:</strong> Student demographic breakdown and diversity analysis</li>
+                    <li><strong>Trends:</strong> Monthly enrollment patterns and growth trends over time</li>
+                    <li><strong>Program Analysis:</strong> Detailed program performance with enrollment health indicators</li>
+                </ul>
+            </div>
+            <div class="mt-4 space-x-3">
+                {% if user.permissions.generate_financial_reports %}
+                <a href="index.php?q=/modules/Reports/reports_financial.php" class="text-sm font-medium text-green-600 hover:text-green-500">
+                    View Financial Reports →
+                </a>
+                {% endif %}
+
+                {% if user.permissions.generate_career_reports %}
+                <a href="index.php?q=/modules/Reports/reports_career.php" class="text-sm font-medium text-green-600 hover:text-green-500">
+                    View Career Reports →
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

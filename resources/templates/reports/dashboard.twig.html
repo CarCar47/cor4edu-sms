@@ -1,0 +1,358 @@
+{% extends "reports/base.twig.html" %}
+
+{% set activeTab = 'overview' %}
+
+{% block report_content %}
+<!-- Welcome Section -->
+<div class="bg-white overflow-hidden shadow rounded-lg mb-6">
+    <div class="px-4 py-5 sm:p-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <svg class="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+                <dl>
+                    <dt class="text-sm font-medium text-gray-500 truncate">
+                        Welcome to Reports Dashboard
+                    </dt>
+                    <dd class="text-lg font-medium text-gray-900">
+                        Access comprehensive institutional analytics and export capabilities
+                    </dd>
+                </dl>
+            </div>
+        </div>
+        <div class="mt-5">
+            <div class="rounded-md bg-blue-50 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-blue-800">
+                            Getting Started
+                        </h3>
+                        <div class="mt-2 text-sm text-blue-700">
+                            <p>Use the tabs above to access different report categories. All reports include filtering options and export capabilities based on your permissions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats Overview -->
+{% if overviewData %}
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+    <!-- Total Students -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Students</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ overviewData.students.totalStudents | number_format }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-3">
+            <div class="text-sm">
+                <span class="text-green-600 font-medium">{{ overviewData.students.activeStudents | number_format }}</span>
+                <span class="text-gray-500"> active</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Programs -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Active Programs</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ overviewData.programs.activePrograms | number_format }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-3">
+            <div class="text-sm">
+                <span class="text-gray-600">{{ overviewData.programs.totalPrograms | number_format }}</span>
+                <span class="text-gray-500"> total</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Revenue -->
+    {% if user.permissions.view_financial_details %}
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
+                        <dd class="text-lg font-medium text-gray-900">${{ overviewData.financial.totalRevenue | number_format(2) }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-3">
+            <div class="text-sm">
+                <span class="text-gray-600">${{ overviewData.financial.averagePayment | number_format(2) }}</span>
+                <span class="text-gray-500"> avg payment</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Placement Rate -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 00-2 2H10a2 2 0 00-2-2V6m8 0h2a2 2 0 012 2v6a2 2 0 01-2 2h-2"/>
+                    </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Graduates Employed</dt>
+                        <dd class="text-lg font-medium text-gray-900">{{ overviewData.career.employedGraduates | number_format }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-5 py-3">
+            <div class="text-sm">
+                {% set placementRate = overviewData.career.totalPlacements > 0 ? (overviewData.career.employedGraduates / overviewData.career.totalPlacements * 100) : 0 %}
+                <span class="{% if placementRate >= 70 %}text-green-600{% elseif placementRate >= 50 %}text-yellow-600{% else %}text-red-600{% endif %} font-medium">
+                    {{ placementRate | number_format(1) }}%
+                </span>
+                <span class="text-gray-500"> placement rate</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Access Report Categories -->
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- Overview Reports -->
+    <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-200">
+        <div class="p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center h-8 w-8 rounded-md bg-indigo-500 text-white">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Overview Reports</h3>
+                    <p class="text-sm text-gray-500">Institution-wide statistics and summaries</p>
+                </div>
+            </div>
+            <div class="mt-6">
+                <div class="text-sm text-gray-600 space-y-1">
+                    <div>• Enrollment trends and demographics</div>
+                    <div>• Financial performance overview</div>
+                    <div>• Quick institutional metrics</div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-6 py-3">
+            <a href="index.php?q=/modules/Reports/reports_overview.php" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                View Overview Reports →
+            </a>
+        </div>
+    </div>
+
+    <!-- Admissions & Enrollment -->
+    {% if user.permissions.generate_admissions_reports %}
+    <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-200">
+        <div class="p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center h-8 w-8 rounded-md bg-green-500 text-white">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Admissions & Enrollment</h3>
+                    <p class="text-sm text-gray-500">Student enrollment tracking and analytics</p>
+                </div>
+            </div>
+            <div class="mt-6">
+                <div class="text-sm text-gray-600 space-y-1">
+                    <div>• Enrollment by program and status</div>
+                    <div>• Student demographic analysis</div>
+                    <div>• Application and admission trends</div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-6 py-3">
+            <a href="index.php?q=/modules/Reports/reports_admissions.php" class="text-sm font-medium text-green-600 hover:text-green-500">
+                View Admissions Reports →
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Financial Reports -->
+    {% if user.permissions.generate_financial_reports %}
+    <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-200">
+        <div class="p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center h-8 w-8 rounded-md bg-yellow-500 text-white">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Financial Reports</h3>
+                    <p class="text-sm text-gray-500">Revenue tracking and payment analytics</p>
+                </div>
+            </div>
+            <div class="mt-6">
+                <div class="text-sm text-gray-600 space-y-1">
+                    <div>• Payment tracking by program</div>
+                    <div>• Outstanding balance reports</div>
+                    <div>• Financial performance metrics</div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-6 py-3">
+            <a href="index.php?q=/modules/Reports/reports_financial.php" class="text-sm font-medium text-yellow-600 hover:text-yellow-500">
+                View Financial Reports →
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Career Services -->
+    {% if user.permissions.generate_career_reports %}
+    <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-200">
+        <div class="p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center h-8 w-8 rounded-md bg-purple-500 text-white">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 00-2 2H10a2 2 0 00-2-2V6m8 0h2a2 2 0 012 2v6a2 2 0 01-2 2h-2"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Career Services</h3>
+                    <p class="text-sm text-gray-500">Job placement and employment tracking</p>
+                </div>
+            </div>
+            <div class="mt-6">
+                <div class="text-sm text-gray-600 space-y-1">
+                    <div>• Employment placement rates</div>
+                    <div>• Job application tracking</div>
+                    <div>• Career outcome compliance</div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-6 py-3">
+            <a href="index.php?q=/modules/Reports/reports_career.php" class="text-sm font-medium text-purple-600 hover:text-purple-500">
+                View Career Reports →
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Academic Performance -->
+    {% if user.permissions.generate_academic_reports %}
+    <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-200">
+        <div class="p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center h-8 w-8 rounded-md bg-red-500 text-white">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Academic Performance</h3>
+                    <p class="text-sm text-gray-500">Faculty notes and support tracking</p>
+                </div>
+            </div>
+            <div class="mt-6">
+                <div class="text-sm text-gray-600 space-y-1">
+                    <div>• Faculty notes analysis</div>
+                    <div>• Academic support utilization</div>
+                    <div>• Student intervention tracking</div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-6 py-3">
+            <a href="index.php?q=/modules/Reports/reports_academic.php" class="text-sm font-medium text-red-600 hover:text-red-500">
+                View Academic Reports →
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- General Information Card (if limited permissions) -->
+    {% if not user.permissions.generate_admissions_reports and not user.permissions.generate_financial_reports and not user.permissions.generate_career_reports and not user.permissions.generate_academic_reports %}
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center h-8 w-8 rounded-md bg-gray-500 text-white">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Limited Access</h3>
+                    <p class="text-sm text-gray-500">Contact administrator for additional report permissions</p>
+                </div>
+            </div>
+            <div class="mt-6">
+                <div class="text-sm text-gray-600">
+                    <p>You currently have access to overview reports only. Additional report categories require specific permissions.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Last Updated Information -->
+{% if overviewData and overviewData.lastUpdated %}
+<div class="mt-8 text-center">
+    <p class="text-sm text-gray-500">
+        Data last updated: {{ overviewData.lastUpdated | date('F j, Y g:i A') }}
+    </p>
+</div>
+{% endif %}
+{% endblock %}

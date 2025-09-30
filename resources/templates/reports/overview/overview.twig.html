@@ -1,0 +1,112 @@
+{% extends "reports/base.twig.html" %}
+
+{% set activeTab = 'overview' %}
+
+{% block report_content %}
+
+<!-- Filter Form -->
+{% include "reports/components/filter_form.twig.html" %}
+
+<!-- Report Content -->
+<div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                {{ reportTitle }}
+            </h3>
+            <div class="text-sm text-gray-500">
+                {% if selectedStartDate and selectedEndDate %}
+                {{ selectedStartDate | date('M j, Y') }} - {{ selectedEndDate | date('M j, Y') }}
+                {% else %}
+                Generated {{ 'now' | date('M j, Y g:i A') }}
+                {% endif %}
+            </div>
+        </div>
+
+        {% if reportData %}
+            {% if reportType == 'summary' or reportType == 'dashboard' %}
+                <!-- Institution Summary -->
+                {% include "reports/overview/summary_cards.twig.html" %}
+
+            {% elseif reportType == 'trends' %}
+                <!-- Enrollment Trends -->
+                {% include "reports/overview/trends_display.twig.html" %}
+
+            {% elseif reportType == 'programs' %}
+                <!-- Program Summary -->
+                {% include "reports/overview/programs_summary.twig.html" %}
+
+            {% endif %}
+        {% else %}
+            <!-- No Data Message -->
+            <div class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No Report Data</h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    Unable to generate report data. Please check your filters and try again.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Report Metadata -->
+    {% if reportData %}
+    <div class="bg-gray-50 px-4 py-3">
+        <div class="flex items-center justify-between text-sm text-gray-600">
+            <div>
+                {% if reportType == 'trends' %}
+                    {{ reportData | length }} enrollment records found
+                {% elseif reportType == 'programs' %}
+                    {{ reportData | length }} programs analyzed
+                {% else %}
+                    Report generated successfully
+                {% endif %}
+            </div>
+            <div>
+                Last updated: {{ reportData.lastUpdated ?? 'now' | date('g:i A') }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Quick Actions -->
+<div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-blue-800">
+                Quick Actions
+            </h3>
+            <div class="mt-2 text-sm text-blue-700">
+                <p>Use the report type selector above to switch between different overview reports. Each report type provides different insights:</p>
+                <ul class="mt-2 list-disc list-inside space-y-1">
+                    <li><strong>Institution Summary:</strong> Overall statistics and key metrics</li>
+                    <li><strong>Enrollment Trends:</strong> Monthly enrollment patterns over time</li>
+                    <li><strong>Program Summary:</strong> Enrollment breakdown by academic program</li>
+                    <li><strong>Dashboard Metrics:</strong> Key performance indicators</li>
+                </ul>
+            </div>
+            <div class="mt-4 space-x-3">
+                {% if user.permissions.generate_admissions_reports %}
+                <a href="index.php?q=/modules/Reports/reports_admissions.php" class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                    View Detailed Admissions Reports →
+                </a>
+                {% endif %}
+
+                {% if user.permissions.generate_financial_reports %}
+                <a href="index.php?q=/modules/Reports/reports_financial.php" class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                    View Financial Reports →
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
