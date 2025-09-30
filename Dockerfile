@@ -38,7 +38,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 RUN a2enmod rewrite headers
 
 # Configure Apache for Cloud Run
-RUN sed -i 's/80/8080/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
+RUN sed -i 's/80/8080/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf \
+    && echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Set Apache document root
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
@@ -54,8 +55,13 @@ COPY . /var/www/html/
 # Install PHP dependencies (production mode)
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html \
+# Create storage directories and set proper permissions
+RUN mkdir -p /var/www/html/storage/cache/twig \
+    /var/www/html/storage/logs \
+    /var/www/html/storage/sessions \
+    /var/www/html/storage/uploads \
+    /var/www/html/storage/documents \
+    && chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
     && chmod -R 775 /var/www/html/storage
 
@@ -63,25 +69,23 @@ RUN chown -R www-data:www-data /var/www/html \
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 # Copy custom PHP configuration
-COPY <<EOF /usr/local/etc/php/conf.d/cor4edu.ini
-; COR4EDU SMS PHP Configuration
-memory_limit = 256M
-upload_max_filesize = 10M
-post_max_size = 10M
-max_execution_time = 30
-date.timezone = America/New_York
-display_errors = Off
-log_errors = On
-error_log = /var/log/apache2/php_errors.log
-
-; OPcache settings for performance
-opcache.enable=1
-opcache.memory_consumption=128
-opcache.interned_strings_buffer=8
-opcache.max_accelerated_files=10000
-opcache.revalidate_freq=2
-opcache.fast_shutdown=1
-EOF
+RUN echo "; COR4EDU SMS PHP Configuration" > /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "upload_max_filesize = 10M" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "post_max_size = 10M" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "max_execution_time = 30" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "date.timezone = America/New_York" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "display_errors = Off" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "log_errors = On" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "error_log = /var/log/apache2/php_errors.log" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "; OPcache settings for performance" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "opcache.interned_strings_buffer=8" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "opcache.max_accelerated_files=10000" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "opcache.revalidate_freq=2" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "opcache.fast_shutdown=1" >> /usr/local/etc/php/conf.d/cor4edu.ini
 
 # Expose port 8080 (Cloud Run requirement)
 EXPOSE 8080

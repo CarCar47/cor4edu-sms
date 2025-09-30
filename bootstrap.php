@@ -7,9 +7,11 @@
 // Composer autoloader
 require_once __DIR__ . '/vendor/autoload.php';
 
-// Load environment variables
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+// Load environment variables (optional - Cloud Run uses $_ENV directly)
+if (file_exists(__DIR__ . '/.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
+}
 
 // Database configuration
 require_once __DIR__ . '/config/database.php';
