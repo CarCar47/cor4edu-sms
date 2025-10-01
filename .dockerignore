@@ -67,11 +67,11 @@ ehthumbs.db
 *.bak
 *.backup
 
-# Database
+# Database - INCLUDE schema file FIRST before exclusions
+!database_complete_schema.sql
+# Then exclude other database files
 *.sqlite
 *.db
-# But INCLUDE the complete schema (needed for migration)
-!database_complete_schema.sql
 
 # Cloud Build (will be handled separately)
 cloudbuild.yaml
