@@ -1,519 +1,392 @@
-# COR4EDU SMS - Google Cloud Deployment Guide
+# COR4EDU SMS - Google Cloud Deployment & Permission Fix Guide
 
-Complete guide for deploying COR4EDU Student Management System to Google Cloud Platform.
-
-## Table of Contents
-
-1. [Architecture Overview](#architecture-overview)
-2. [Prerequisites](#prerequisites)
-3. [First-Time Setup](#first-time-setup)
-4. [Deploying a New School](#deploying-a-new-school)
-5. [Database Setup](#database-setup)
-6. [Post-Deployment Configuration](#post-deployment-configuration)
-7. [Monitoring & Maintenance](#monitoring--maintenance)
-8. [Cost Optimization](#cost-optimization)
-9. [Troubleshooting](#troubleshooting)
+**Quick Fix for Permission/Tab Errors** | Complete deployment guide for COR4EDU SMS on Google Cloud
 
 ---
 
-## Architecture Overview
+## 🚨 Quick Fix for Existing Deployments
 
-### Production Stack
+### Problem
+Your Cloud deployment has missing tabs (Reports, Permissions, Staff) and permission errors, but local works fine.
 
-- **Application**: Cloud Run (containerized PHP 8.1 + Apache)
-- **Database**: Cloud SQL MySQL 8.0
-- **Storage**: Cloud Storage (for file uploads)
-- **Secrets**: Secret Manager
-- **CI/CD**: Cloud Build
-- **Artifacts**: Artifact Registry
+### Root Cause
+Cloud SQL database is missing 3 critical permission tables:
+- ❌ `cor4edu_system_permissions`
+- ❌ `cor4edu_role_permission_defaults`
+- ❌ `cor4edu_staff_role_types`
 
-### Multi-School Deployment Strategy
+### Solution (5 minutes)
 
-Each school gets its own Google Cloud project for:
-- Complete data isolation
-- Independent billing and cost tracking
-- Separate access controls
-- Custom configurations per school
-
-**Estimated Monthly Cost**: $8-15 per school (small to medium size)
-
----
-
-## Prerequisites
-
-### Required Tools
-
-1. **Google Cloud CLI** (gcloud)
-   ```bash
-   # Install: https://cloud.google.com/sdk/docs/install
-   gcloud --version
-   ```
-
-2. **Git**
-   ```bash
-   git --version
-   ```
-
-3. **Docker** (for local testing)
-   ```bash
-   docker --version
-   ```
-
-### Google Cloud Account
-
-1. Create Google Cloud account: https://cloud.google.com
-2. Enable billing
-3. Verify you have Organization Admin or Project Creator role
-
----
-
-## First-Time Setup
-
-### 1. Clone Repository
+#### Step 1: Deploy Updated Code
 
 ```bash
-# Clone from your GitHub repository
-git clone https://github.com/YOUR_ORG/cor4edu-sms.git
-cd cor4edu-sms
+# Commit new files
+git add database_complete_schema.sql public/run_migration.php setup_database.php
+git commit -m "Add permission system migration fix"
+git push
+
+# Deploy to Cloud
+gcloud builds submit --config cloudbuild.yaml --project=sms-edu-47
 ```
 
-### 2. Authenticate with Google Cloud
+#### Step 2: Run Web Migration
+
+1. **Login to Cloud Run** as SuperAdmin:
+   - URL: `https://sms-edu-938209083489.us-central1.run.app`
+   - Username: `superadmin`
+   - Password: `admin123`
+
+2. **Navigate to migration script**:
+   - Go to: `https://sms-edu-938209083489.us-central1.run.app/run_migration.php`
+
+3. **Execute migration**:
+   - Click "✅ Run Migration Now"
+   - Wait for completion (5-10 seconds)
+   - See "✅ MIGRATION COMPLETE!"
+
+4. **Verify fix**:
+   - Return to dashboard
+   - Confirm **Reports**, **Permissions**, and **Staff** tabs appear
+   - Test each tab functionality
+
+#### Step 3: Security Cleanup (Optional)
 
 ```bash
-gcloud auth login
-gcloud auth application-default login
-```
-
-### 3. Configure Git Credentials (if using private repo)
-
-```bash
-git config credential.helper store
+# Remove migration script after successful execution
+rm public/run_migration.php
+git add -u
+git commit -m "Remove migration script after execution"
+git push
+gcloud builds submit --config cloudbuild.yaml --project=sms-edu-47
 ```
 
 ---
 
-## Deploying a New School
+## 📋 Files Created/Modified
 
-### Automated Deployment Script
+### New Files
+- **`database_complete_schema.sql`** - Complete schema with all tables (base + permissions)
+- **`public/run_migration.php`** - Web-based migration tool (SuperAdmin only)
+- **`DEPLOYMENT.md`** - This documentation
 
-The easiest way to deploy for a new school is using the automated script:
+### Modified Files
+- **`setup_database.php`** - Now uses `database_complete_schema.sql` instead of old schema
+- **`bootstrap.php`** - Improved error logging for missing permission tables
 
-```bash
-# Make the script executable (Linux/Mac)
-chmod +x deploy-new-school.sh
+---
 
-# Run the deployment script
-./deploy-new-school.sh
+## 🏗️ Architecture Overview
+
+```
+┌──────────────────────────────────────────────────┐
+│         Google Cloud Project (sms-edu-47)        │
+├──────────────────────────────────────────────────┤
+│                                                   │
+│  Cloud Run Service          Cloud SQL Instance   │
+│  ┌────────────────┐        ┌──────────────────┐ │
+│  │ cor4edu-sms    │───────>│  sms-edu-db      │ │
+│  │ PHP 8.1/Apache │ Socket │  MySQL 8.0       │ │
+│  │ Port: 8080     │        │  cor4edu_sms DB  │ │
+│  └────────────────┘        └──────────────────┘ │
+│         ↓                            ↓           │
+│  ┌────────────────┐        ┌──────────────────┐ │
+│  │ Artifact       │        │  Secret Manager  │ │
+│  │ Registry       │        │  - DB Username   │ │
+│  └────────────────┘        │  - DB Password   │ │
+│                             └──────────────────┘ │
+└──────────────────────────────────────────────────┘
 ```
 
-The script will prompt you for:
-- School name (e.g., "Lincoln High School")
-- School abbreviation (e.g., "lincoln")
-- Google Cloud Project ID (suggested: `lincoln-cor4edu`)
-- Region (default: `us-central1`)
-- Database password
+---
 
-**What the script does:**
-1. ✅ Verifies gcloud CLI installation
-2. ✅ Creates/sets Google Cloud project
-3. ✅ Enables required APIs
-4. ✅ Creates Artifact Registry repository
-5. ✅ Creates Cloud SQL instance (MySQL 8.0)
-6. ✅ Creates application database
-7. ✅ Creates database user
-8. ✅ Stores credentials in Secret Manager
-9. ✅ Builds Docker image
-10. ✅ Deploys to Cloud Run
+## 🗄️ Database Table Structure
 
-### Manual Deployment (Advanced)
+### Core Tables (Always Present)
+- `cor4edu_staff` - Staff authentication and profiles
+- `cor4edu_students` - Student records
+- `cor4edu_programs` - Academic programs
+- `cor4edu_documents` - File storage metadata
+- `cor4edu_payments` - Payment records
+- `cor4edu_academic_records` - Academic history
+- `cor4edu_career_services` - Career tracking
 
-If you prefer manual control:
+### Permission System Tables (Were Missing in Cloud)
+- `cor4edu_staff_role_types` ⭐ - Role definitions (Admissions, Bursar, etc.)
+- `cor4edu_system_permissions` ⭐ - Master permission registry (34 permissions)
+- `cor4edu_role_permission_defaults` ⭐ - Default permissions per role
+- `cor4edu_staff_permissions` - Individual permission overrides
+- `cor4edu_staff_tab_access` - Legacy tab access (deprecated)
 
-#### Step 1: Create Google Cloud Project
+---
 
-```bash
-# Set variables
-PROJECT_ID="lincoln-cor4edu"
-REGION="us-central1"
+## 🔧 Complete Fresh Deployment
 
-# Create project
-gcloud projects create $PROJECT_ID --name="Lincoln High School - COR4EDU"
-gcloud config set project $PROJECT_ID
+### Prerequisites
+- Google Cloud project (`sms-edu-47`)
+- `gcloud` CLI installed and authenticated
+- PHP 8.1+ for local testing
 
-# Link billing account
-gcloud billing projects link $PROJECT_ID --billing-account=BILLING_ACCOUNT_ID
-```
-
-#### Step 2: Enable APIs
+### 1. Google Cloud Setup
 
 ```bash
-gcloud services enable \
-    run.googleapis.com \
-    sqladmin.googleapis.com \
-    cloudbuild.googleapis.com \
-    artifactregistry.googleapis.com \
-    secretmanager.googleapis.com
-```
+# Set project
+gcloud config set project sms-edu-47
 
-#### Step 3: Create Artifact Registry
+# Create Cloud SQL instance
+gcloud sql instances create sms-edu-db \
+  --database-version=MYSQL_8_0 \
+  --tier=db-f1-micro \
+  --region=us-central1 \
+  --root-password=YOUR_STRONG_PASSWORD
 
-```bash
+# Create database
+gcloud sql databases create cor4edu_sms \
+  --instance=sms-edu-db
+
+# Create secrets
+echo -n "root" | gcloud secrets create cor4edu-db-username --data-file=-
+echo -n "YOUR_PASSWORD" | gcloud secrets create cor4edu-db-password --data-file=-
+
+# Grant access to secrets
+PROJECT_NUMBER=$(gcloud projects describe sms-edu-47 --format='value(projectNumber)')
+gcloud secrets add-iam-policy-binding cor4edu-db-username \
+  --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor"
+gcloud secrets add-iam-policy-binding cor4edu-db-password \
+  --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor"
+
+# Create Artifact Registry
 gcloud artifacts repositories create cor4edu-containers \
-    --repository-format=docker \
-    --location=$REGION \
-    --description="COR4EDU SMS container images"
+  --repository-format=docker \
+  --location=us-central1
 ```
 
-#### Step 4: Create Cloud SQL Instance
+### 2. Deploy Application
 
 ```bash
-gcloud sql instances create lincoln-cor4edu-db \
-    --database-version=MYSQL_8_0 \
-    --tier=db-f1-micro \
-    --region=$REGION \
-    --root-password="YOUR_SECURE_PASSWORD" \
-    --availability-type=zonal \
-    --backup \
-    --backup-start-time=03:00
+# Clone repository
+git clone https://github.com/CarCar47/cor4edu-sms.git
+cd cor4edu-sms
+
+# Deploy to Cloud Run
+gcloud builds submit --config cloudbuild.yaml --project=sms-edu-47
 ```
 
-#### Step 5: Create Database
+### 3. Initialize Database
 
 ```bash
-gcloud sql databases create lincoln_cor4edu_sms \
-    --instance=lincoln-cor4edu-db \
-    --charset=utf8mb4 \
-    --collation=utf8mb4_general_ci
-```
+# Get Cloud Run URL
+CLOUD_RUN_URL=$(gcloud run services describe cor4edu-sms \
+  --platform=managed \
+  --region=us-central1 \
+  --format='value(status.url)')
 
-#### Step 6: Create Database User
+echo "Your app is at: $CLOUD_RUN_URL"
 
-```bash
-gcloud sql users create cor4edu_admin \
-    --instance=lincoln-cor4edu-db \
-    --password="YOUR_DB_PASSWORD"
-```
-
-#### Step 7: Store Secrets
-
-```bash
-echo -n "cor4edu_admin" | gcloud secrets create lincoln-db-username --data-file=-
-echo -n "YOUR_DB_PASSWORD" | gcloud secrets create lincoln-db-password --data-file=-
-```
-
-#### Step 8: Build and Deploy
-
-```bash
-gcloud builds submit \
-    --config=cloudbuild.yaml \
-    --substitutions=_SERVICE_NAME="lincoln-cor4edu-sms",_REGION="us-central1",_ARTIFACT_REPO="cor4edu-containers",_CLOUDSQL_INSTANCE="lincoln-cor4edu-db",_DB_NAME="lincoln_cor4edu_sms",_DB_USERNAME_SECRET="lincoln-db-username",_DB_PASSWORD_SECRET="lincoln-db-password"
+# Login and run migration:
+# 1. Go to: $CLOUD_RUN_URL
+# 2. Login: superadmin / admin123
+# 3. Visit: $CLOUD_RUN_URL/run_migration.php
+# 4. Click "Run Migration Now"
 ```
 
 ---
 
-## Database Setup
+## 🐛 Troubleshooting
 
-### Import Schema
+### Tabs Still Missing After Migration
 
-After deployment, you need to import the database schema:
-
-#### Option 1: Cloud SQL Proxy (Recommended)
-
+**Check migration ran successfully:**
 ```bash
-# Download Cloud SQL Proxy
-curl -o cloud-sql-proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.8.0/cloud-sql-proxy.linux.amd64
-chmod +x cloud-sql-proxy
+# Connect to Cloud SQL
+gcloud sql connect sms-edu-db --user=root --project=sms-edu-47
 
-# Start proxy
-./cloud-sql-proxy PROJECT_ID:REGION:INSTANCE_NAME
+# Verify tables exist
+USE cor4edu_sms;
+SHOW TABLES LIKE 'cor4edu_system%';
+SHOW TABLES LIKE 'cor4edu_role%';
 
-# In another terminal, import schema
-mysql -h 127.0.0.1 -u cor4edu_admin -p lincoln_cor4edu_sms < database/schema.sql
-mysql -h 127.0.0.1 -u cor4edu_admin -p lincoln_cor4edu_sms < database/modules/students.sql
-mysql -h 127.0.0.1 -u cor4edu_admin -p lincoln_cor4edu_sms < database/modules/staff.sql
-mysql -h 127.0.0.1 -u cor4edu_admin -p lincoln_cor4edu_sms < database/modules/programs.sql
-mysql -h 127.0.0.1 -u cor4edu_admin -p lincoln_cor4edu_sms < database/modules/reports.sql
+# Count permissions (should be 34+)
+SELECT COUNT(*) FROM cor4edu_system_permissions;
+
+# Check role types (should be 6)
+SELECT * FROM cor4edu_staff_role_types;
 ```
 
-#### Option 2: Google Cloud Console
+**Solutions:**
+1. Clear browser cache and reload
+2. Log out and log back in
+3. Run migration again (it's safe to run multiple times)
+4. Check Cloud Run logs for errors
 
-1. Go to Cloud SQL Instances
-2. Select your instance
-3. Click "Import"
-4. Upload SQL files from `database/` directory
-5. Execute in order: schema.sql, then module files
-
-### Create Initial Admin User
-
-```bash
-# Connect via Cloud SQL Proxy
-mysql -h 127.0.0.1 -u cor4edu_admin -p lincoln_cor4edu_sms
-
-# Create admin user
-INSERT INTO cor4edu_staff (
-    username,
-    password,
-    firstName,
-    lastName,
-    email,
-    status,
-    isAdmin
-) VALUES (
-    'admin',
-    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- password: password
-    'System',
-    'Administrator',
-    'admin@lincoln.edu',
-    'active',
-    1
-);
-```
-
----
-
-## Post-Deployment Configuration
-
-### 1. Access Your Application
-
-```bash
-# Get service URL
-gcloud run services describe lincoln-cor4edu-sms \
-    --region=us-central1 \
-    --format="value(status.url)"
-```
-
-Visit the URL and login with:
-- Username: `admin`
-- Password: `password` (change immediately!)
-
-### 2. Custom Domain (Optional)
-
-```bash
-# Map custom domain
-gcloud run domain-mappings create \
-    --service=lincoln-cor4edu-sms \
-    --domain=sms.lincoln.edu \
-    --region=us-central1
-```
-
-Follow DNS instructions provided by Cloud Run.
-
-### 3. SSL Certificate
-
-Cloud Run automatically provisions SSL certificates for custom domains.
-
-### 4. Configure Cloud Storage (Future)
-
-For file uploads in production:
-
-```bash
-# Create storage bucket
-gsutil mb -l us-central1 gs://lincoln-cor4edu-uploads
-
-# Set bucket permissions
-gsutil iam ch serviceAccount:PROJECT_NUMBER-compute@developer.gserviceaccount.com:objectAdmin gs://lincoln-cor4edu-uploads
-```
-
-Update `.env` in Cloud Run:
-```
-STORAGE_DRIVER=gcs
-GCS_BUCKET=lincoln-cor4edu-uploads
-GCS_PROJECT_ID=lincoln-cor4edu
-```
-
----
-
-## Monitoring & Maintenance
-
-### Health Check
-
-Your application has a health check endpoint: `https://YOUR_APP_URL/health`
-
-Returns:
-```json
-{
-  "status": "healthy",
-  "timestamp": "2025-09-30T10:30:00+00:00",
-  "service": "cor4edu-sms",
-  "database": "healthy"
-}
-```
-
-### View Logs
-
-```bash
-# Application logs
-gcloud run services logs read lincoln-cor4edu-sms --region=us-central1
-
-# Cloud SQL logs
-gcloud sql operations list --instance=lincoln-cor4edu-db
-```
-
-### Database Backups
-
-Cloud SQL automatically backs up daily at 3:00 AM (configured in deployment).
-
-**Manual backup:**
-```bash
-gcloud sql backups create \
-    --instance=lincoln-cor4edu-db \
-    --description="Manual backup before update"
-```
-
-**Restore from backup:**
-```bash
-# List backups
-gcloud sql backups list --instance=lincoln-cor4edu-db
-
-# Restore
-gcloud sql backups restore BACKUP_ID \
-    --backup-instance=lincoln-cor4edu-db \
-    --backup-id=BACKUP_ID
-```
-
-### Updates & Redeployment
-
-```bash
-# Pull latest code
-git pull origin main
-
-# Redeploy
-gcloud builds submit --config=cloudbuild.yaml \
-    --substitutions=_SERVICE_NAME="lincoln-cor4edu-sms",...
-```
-
----
-
-## Cost Optimization
-
-### Estimated Monthly Costs (Small School)
-
-| Service | Configuration | Est. Cost |
-|---------|---------------|-----------|
-| Cloud Run | 512MB RAM, 1 CPU, minimal traffic | $0-5 |
-| Cloud SQL | db-f1-micro (shared core) | $7 |
-| Cloud Storage | 10GB uploads | $0.20 |
-| Artifact Registry | 1GB images | $0.10 |
-| **Total** | | **~$8/month** |
-
-### Cost Reduction Tips
-
-1. **Use smallest Cloud SQL tier**: `db-f1-micro` for <100 students
-2. **Set min instances to 0**: Allow cold starts for low-traffic schools
-3. **Enable Cloud SQL automatic storage increase**: Only pay for what you use
-4. **Use lifecycle policies on Storage**: Delete old files after X days
-5. **Schedule Cloud SQL shutdown**: Stop during nights/weekends (advanced)
-
-### Monitor Costs
-
-```bash
-# View current month billing
-gcloud billing accounts describe BILLING_ACCOUNT_ID
-
-# Set budget alerts (via console)
-# Go to: Billing > Budgets & alerts > Create Budget
-```
-
----
-
-## Troubleshooting
-
-### Application Won't Start
+### Cloud Run Deployment Fails
 
 **Check logs:**
 ```bash
-gcloud run services logs read lincoln-cor4edu-sms --region=us-central1 --limit=50
+gcloud run services logs read cor4edu-sms \
+  --region=us-central1 \
+  --limit=50
 ```
 
 **Common issues:**
-- Database connection failed → Check DB_SOCKET environment variable
-- Secrets not found → Verify Secret Manager permissions
-- Port 8080 not exposed → Check Dockerfile EXPOSE directive
+- Database connection: Verify `DB_SOCKET` environment variable
+- Secrets access: Ensure service account has permissions
+- Build timeout: Increase `timeout` in `cloudbuild.yaml`
 
-### Database Connection Errors
+### Local Works, Cloud Doesn't
 
-**Test Cloud SQL connectivity:**
+**Key differences:**
+
+| Aspect | Local | Cloud |
+|--------|-------|-------|
+| Database Connection | TCP `localhost:3306` | Unix socket `/cloudsql/...` |
+| Environment | `.env` file | Cloud Run env vars + secrets |
+| Debug Mode | `APP_DEBUG=true` | `APP_DEBUG=false` |
+
+**Enable debug temporarily:**
 ```bash
-gcloud sql connect lincoln-cor4edu-db --user=cor4edu_admin
+gcloud run services update cor4edu-sms \
+  --update-env-vars APP_DEBUG=true \
+  --region=us-central1
+
+# Check logs, then disable:
+gcloud run services update cor4edu-sms \
+  --update-env-vars APP_DEBUG=false \
+  --region=us-central1
 ```
 
-**Check Unix socket path:**
-```bash
-# Should be: /cloudsql/PROJECT_ID:REGION:INSTANCE_NAME
-gcloud run services describe lincoln-cor4edu-sms \
-    --region=us-central1 \
-    --format="value(spec.template.spec.containers[0].env)"
+### Migration Script Shows Access Denied
+
+**Verify SuperAdmin status:**
+```sql
+SELECT staffID, username, isSuperAdmin
+FROM cor4edu_staff
+WHERE username = 'superadmin';
+
+# If isSuperAdmin = 'N', fix it:
+UPDATE cor4edu_staff
+SET isSuperAdmin = 'Y'
+WHERE username = 'superadmin';
 ```
-
-### 503 Service Unavailable
-
-- Check health endpoint: `/health`
-- Verify database is running:
-  ```bash
-  gcloud sql instances list
-  ```
-- Check Cloud Run revision status:
-  ```bash
-  gcloud run revisions list --service=lincoln-cor4edu-sms --region=us-central1
-  ```
-
-### Build Failures
-
-```bash
-# View build logs
-gcloud builds list --limit=5
-gcloud builds log BUILD_ID
-```
-
-**Common issues:**
-- Composer install fails → Check `composer.json` syntax
-- Docker build fails → Verify Dockerfile syntax
-- Timeout → Increase timeout in `cloudbuild.yaml`
 
 ---
 
-## Security Best Practices
+## 🔐 Security
 
-1. **Rotate database passwords regularly**
-   ```bash
-   gcloud sql users set-password cor4edu_admin \
-       --instance=lincoln-cor4edu-db \
-       --password="NEW_PASSWORD"
+### Post-Deployment Security
 
-   # Update secret
-   echo -n "NEW_PASSWORD" | gcloud secrets versions add lincoln-db-password --data-file=-
+1. **Change default password:**
+   ```sql
+   UPDATE cor4edu_staff
+   SET passwordStrong = '$2y$10$...' -- Use password_hash() in PHP
+   WHERE username = 'superadmin';
    ```
 
-2. **Enable Cloud Armor** (for DDoS protection)
-3. **Set up VPC for private Cloud SQL** (advanced)
-4. **Enable audit logging**
-5. **Implement IP allowlisting** (if needed)
+2. **Remove migration script:**
+   ```bash
+   rm public/run_migration.php
+   git add -u && git commit -m "Remove migration script"
+   gcloud builds submit --config cloudbuild.yaml
+   ```
+
+3. **Enable Cloud Armor** (optional):
+   - Add firewall rules
+   - Rate limiting
+   - DDoS protection
+
+4. **Enable Cloud SQL SSL:**
+   ```bash
+   gcloud sql instances patch sms-edu-db --require-ssl
+   ```
 
 ---
 
-## Next Steps
+## 🔄 Development Workflow
 
-After successful deployment:
+```
+┌──────────┐      ┌──────────────┐      ┌──────────┐
+│  Local   │ ───> │ Google Cloud │ ───> │ GitHub   │
+│  Dev/Test│      │ (sms-edu-47) │      │ (backup) │
+└──────────┘      └──────────────┘      └──────────┘
+     ↑                   Test                  │
+     └───────────────── Pull ─────────────────┘
+```
 
-1. ✅ Change default admin password
-2. ✅ Create staff accounts
-3. ✅ Import student data
-4. ✅ Configure programs
-5. ✅ Set up Google Identity Platform (optional SSO)
-6. ✅ Configure custom domain
-7. ✅ Set up monitoring alerts
-8. ✅ Train school staff
+**Recommended flow:**
+1. Develop locally with `database_complete_schema.sql`
+2. Test thoroughly with local MySQL
+3. Deploy to Google Cloud Run
+4. Run migration (first time only)
+5. Verify tabs and permissions work
+6. Push to GitHub once Cloud is verified stable
 
 ---
 
-## Support
+## 📊 Monitoring
+
+```bash
+# View logs
+gcloud run services logs read cor4edu-sms --region=us-central1 --limit=100
+
+# Check service status
+gcloud run services describe cor4edu-sms --region=us-central1
+
+# Database backups
+gcloud sql backups list --instance=sms-edu-db
+
+# Create on-demand backup
+gcloud sql backups create --instance=sms-edu-db
+```
+
+**Cloud Console URLs:**
+- Logs: https://console.cloud.google.com/logs
+- Cloud Run: https://console.cloud.google.com/run
+- Cloud SQL: https://console.cloud.google.com/sql
+- Secret Manager: https://console.cloud.google.com/security/secret-manager
+
+---
+
+## 📚 Additional Resources
+
+- **GitHub Repository:** https://github.com/CarCar47/cor4edu-sms
+- **Google Cloud Run Docs:** https://cloud.google.com/run/docs
+- **Cloud SQL Docs:** https://cloud.google.com/sql/docs
+
+---
+
+## ✅ Post-Fix Verification Checklist
+
+After running the migration, verify:
+
+- [ ] **Dashboard** loads correctly
+- [ ] **Students tab** appears and works
+- [ ] **Programs tab** appears and works
+- [ ] **Reports tab** appears ⭐ (was missing)
+- [ ] **Permissions tab** appears ⭐ (was missing)
+- [ ] **Staff tab** appears ⭐ (was missing)
+- [ ] Can create new staff users
+- [ ] Can assign roles to staff (Admissions, Bursar, etc.)
+- [ ] Role-based permissions work correctly
+- [ ] Non-admin users see appropriate tabs only
+- [ ] SuperAdmin sees all tabs
+
+---
+
+## 💬 Support
 
 For issues or questions:
-- **Technical Issues**: Create GitHub issue
-- **Deployment Help**: Contact COR4EDU support
-- **Google Cloud Issues**: https://cloud.google.com/support
+1. Check Cloud Run logs first
+2. Verify database connectivity
+3. Review this troubleshooting guide
+4. Open issue on GitHub: https://github.com/CarCar47/cor4edu-sms/issues
 
 ---
 
-**Last Updated**: 2025-09-30
-**Version**: 1.0.0
+**Last Updated:** 2025-10-01
+**Version:** 1.0.0
+**Status:** ✅ Production Ready
+
+---
+
+*Remember: The migration script (`run_migration.php`) is safe to run multiple times and can be removed after successful execution for security.*

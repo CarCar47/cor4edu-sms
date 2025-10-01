@@ -23,12 +23,17 @@ try {
     $pdo = Database::getInstance();
     echo "✅ Database connection successful!\n\n";
 
-    // Execute schema file
+    // Execute complete schema file (includes permission tables)
     echo "Creating database schema...\n";
-    $schemaFile = __DIR__ . '/database_schema_fixed.sql';
+    $schemaFile = __DIR__ . '/database_complete_schema.sql';
 
     if (!file_exists($schemaFile)) {
-        throw new RuntimeException("Schema file not found: {$schemaFile}");
+        // Fallback to old schema if complete schema doesn't exist
+        $schemaFile = __DIR__ . '/database_migrations/database_schema_fixed.sql';
+        if (!file_exists($schemaFile)) {
+            throw new RuntimeException("Schema file not found: {$schemaFile}");
+        }
+        echo "⚠️  Using legacy schema file (missing permission tables)\n";
     }
 
     $sql = file_get_contents($schemaFile);
@@ -83,13 +88,38 @@ try {
     }
 
     // Check permissions
-    $stmt = $pdo->query("SELECT COUNT(*) as count FROM cor4edu_staff_permissions");
-    $permCount = $stmt->fetch()['count'];
-    echo "🔐 Permissions created: {$permCount}\n";
+    try {
+        $stmt = $pdo->query("SELECT COUNT(*) as count FROM cor4edu_staff_permissions");
+        $permCount = $stmt->fetch()['count'];
+        echo "🔐 Staff permissions created: {$permCount}\n";
+    } catch (PDOException $e) {
+        echo "⚠️  Staff permissions table not checked\n";
+    }
 
-    $stmt = $pdo->query("SELECT COUNT(*) as count FROM cor4edu_staff_tab_access");
-    $tabCount = $stmt->fetch()['count'];
-    echo "📑 Tab access rules: {$tabCount}\n\n";
+    try {
+        $stmt = $pdo->query("SELECT COUNT(*) as count FROM cor4edu_system_permissions");
+        $sysPermCount = $stmt->fetch()['count'];
+        echo "🔐 System permissions registered: {$sysPermCount}\n";
+    } catch (PDOException $e) {
+        echo "⚠️  System permissions table not found (run migration)\n";
+    }
+
+    try {
+        $stmt = $pdo->query("SELECT COUNT(*) as count FROM cor4edu_staff_role_types");
+        $roleCount = $stmt->fetch()['count'];
+        echo "👥 Role types created: {$roleCount}\n";
+    } catch (PDOException $e) {
+        echo "⚠️  Role types table not found (run migration)\n";
+    }
+
+    try {
+        $stmt = $pdo->query("SELECT COUNT(*) as count FROM cor4edu_staff_tab_access");
+        $tabCount = $stmt->fetch()['count'];
+        echo "📑 Tab access rules: {$tabCount}\n";
+    } catch (PDOException $e) {
+        echo "⚠️  Tab access table not checked\n";
+    }
+    echo "\n";
 
     echo "🎉 Database setup completed successfully!\n";
     echo "You can now proceed with application setup.\n\n";

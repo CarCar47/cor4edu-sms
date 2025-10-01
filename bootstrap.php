@@ -147,6 +147,11 @@ function getAllSystemPermissions() {
         $permissions['view_financial_details'] = true;
         return $permissions;
     } catch (PDOException $e) {
+        // Log warning about missing permission tables
+        error_log("⚠️ Warning: cor4edu_system_permissions table not found. This means the permission system migration has not been run yet.");
+        error_log("Run the web migration at: /run_migration.php (SuperAdmin access required)");
+        error_log("Error details: " . $e->getMessage());
+
         // Fallback to existing permissions if new tables don't exist yet
         return [
             'view_reports_tab' => true,
@@ -197,18 +202,27 @@ function resolveUserPermissions($staffID, $staff) {
         }
 
     } catch (PDOException $e) {
-        // Fallback to existing logic if new tables don't exist yet
-        $staffGateway = getGateway('Cor4Edu\Domain\Staff\StaffGateway');
-        $userPermissions = $staffGateway->getStaffPermissionsDetailed($staffID);
+        // Log detailed error about missing permission tables
+        error_log("⚠️ Warning: Permission tables not found in database. Error code: " . $e->getCode());
+        error_log("This is expected if the permission system migration hasn't been run yet.");
+        error_log("To fix: Run /run_migration.php as SuperAdmin or execute database_complete_schema.sql");
 
-        foreach ($userPermissions as $permission) {
-            if (is_array($permission) &&
-                isset($permission['module']) &&
-                isset($permission['allowed']) &&
-                isset($permission['action']) &&
-                $permission['allowed'] === 'Y') {
-                $permissions[$permission['action']] = true;
+        // Fallback to existing logic if new tables don't exist yet
+        try {
+            $staffGateway = getGateway('Cor4Edu\Domain\Staff\StaffGateway');
+            $userPermissions = $staffGateway->getStaffPermissionsDetailed($staffID);
+
+            foreach ($userPermissions as $permission) {
+                if (is_array($permission) &&
+                    isset($permission['module']) &&
+                    isset($permission['allowed']) &&
+                    isset($permission['action']) &&
+                    $permission['allowed'] === 'Y') {
+                    $permissions[$permission['action']] = true;
+                }
             }
+        } catch (Exception $fallbackError) {
+            error_log("❌ Fatal: Could not resolve permissions using fallback method: " . $fallbackError->getMessage());
         }
     }
 
@@ -253,6 +267,10 @@ function hasPermission($staffID, $module, $action) {
             }
         }
     } catch (PDOException $e) {
+        // Log warning about missing system permissions table
+        if (strpos($e->getMessage(), 'cor4edu_system_permissions') !== false) {
+            error_log("⚠️ hasPermission(): cor4edu_system_permissions table not found for {$module}.{$action}");
+        }
         // Continue with permission check if system permissions table doesn't exist
     }
 
@@ -270,6 +288,10 @@ function hasPermission($staffID, $module, $action) {
             return ($individual['allowed'] === 'Y');
         }
     } catch (PDOException $e) {
+        // Log warning about missing staff permissions table
+        if (strpos($e->getMessage(), 'cor4edu_staff_permissions') !== false) {
+            error_log("⚠️ hasPermission(): cor4edu_staff_permissions table not found for staff {$staffID}");
+        }
         // Continue to role default check
     }
 
@@ -287,9 +309,15 @@ function hasPermission($staffID, $module, $action) {
             return ($roleDefault['allowed'] === 'Y');
         }
     } catch (PDOException $e) {
+        // Log warning about missing role permission defaults table
+        if (strpos($e->getMessage(), 'cor4edu_role_permission_defaults') !== false) {
+            error_log("⚠️ hasPermission(): cor4edu_role_permission_defaults table not found for staff {$staffID}");
+            error_log("To fix: Run /run_migration.php or execute database_complete_schema.sql");
+        }
         // Fallback to false if tables don't exist
     }
 
+    // Permission denied - no match found in any permission table
     return false;
 }
 
