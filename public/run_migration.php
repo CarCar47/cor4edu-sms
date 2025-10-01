@@ -67,7 +67,7 @@ if ($confirm !== 'YES_RUN_MIGRATION') {
 
 // Run the migration
 echo "<!DOCTYPE html><html><head><title>Migration Running...</title>";
-echo "<style>body { font-family: monospace; padding: 20px; } .success { color: green; } .error { color: red; }</style>";
+echo "<style>body { font-family: monospace; padding: 20px; } .success { color: green; } .error { color: red; } .info { color: blue; }</style>";
 echo "</head><body>";
 echo "<h1>Database Migration in Progress...</h1><pre>\n";
 
@@ -76,30 +76,81 @@ try {
 
     echo "✅ Connected to database\n\n";
 
-    // Read the migration SQL file
-    $migrationFile = __DIR__ . '/../database_complete_schema.sql';
+    // Step 1: Create migration tracking table if it doesn't exist
+    echo "📋 Setting up migration tracking...\n";
+    $trackingTableFile = __DIR__ . '/../database_migrations/00000000_000000_create_migrations_table.sql';
 
-    if (!file_exists($migrationFile)) {
-        throw new Exception("Migration file not found: {$migrationFile}");
+    if (file_exists($trackingTableFile)) {
+        $sql = file_get_contents($trackingTableFile);
+        $pdo->exec($sql);
+        echo "✅ Migration tracking table ready\n\n";
+    } else {
+        // Create tracking table inline if file doesn't exist
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `schema_migrations` (
+                `version` VARCHAR(255) NOT NULL,
+                `migration_name` VARCHAR(255) NOT NULL,
+                `applied_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                `batch` INT(11) DEFAULT 1,
+                PRIMARY KEY (`version`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ");
+        echo "✅ Migration tracking table created (inline)\n\n";
     }
 
-    echo "📄 Reading migration file...\n";
-    $sql = file_get_contents($migrationFile);
+    // Step 2: Check if complete schema has been applied
+    echo "🔍 Checking migration status...\n";
+    $stmt = $pdo->query("SELECT version, migration_name, applied_at FROM schema_migrations ORDER BY version");
+    $appliedMigrations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if ($sql === false) {
-        throw new Exception("Could not read migration file");
+    if (count($appliedMigrations) > 0) {
+        echo "📝 Previously applied migrations:\n";
+        foreach ($appliedMigrations as $migration) {
+            echo "   • {$migration['version']} - {$migration['migration_name']} ({$migration['applied_at']})\n";
+        }
+        echo "\n";
+    } else {
+        echo "⚠️  No migrations applied yet\n\n";
     }
 
-    echo "✅ Migration file loaded (" . number_format(strlen($sql)) . " bytes)\n\n";
+    // Step 3: Check if we need to run the complete schema
+    $schemaApplied = false;
+    foreach ($appliedMigrations as $migration) {
+        if (strpos($migration['version'], '20251001_120000') !== false) {
+            $schemaApplied = true;
+            break;
+        }
+    }
 
-    // Split SQL into individual statements and execute
-    echo "🔧 Executing migration statements...\n";
-    echo "=====================================\n\n";
+    if (!$schemaApplied) {
+        // Read the migration SQL file
+        $migrationFile = __DIR__ . '/../database_complete_schema.sql';
 
-    // Execute the entire SQL at once (since it uses transactions)
-    $pdo->exec($sql);
+        if (!file_exists($migrationFile)) {
+            throw new Exception("Migration file not found: {$migrationFile}");
+        }
 
-    echo "\n✅ Migration completed successfully!\n\n";
+        echo "📄 Running complete schema migration...\n";
+        $sql = file_get_contents($migrationFile);
+
+        if ($sql === false) {
+            throw new Exception("Could not read migration file");
+        }
+
+        echo "✅ Schema file loaded (" . number_format(strlen($sql)) . " bytes)\n";
+
+        // Execute the entire SQL at once (since it uses transactions)
+        echo "🔧 Executing migration...\n";
+        $pdo->exec($sql);
+
+        // Record the migration
+        $stmt = $pdo->prepare("INSERT INTO schema_migrations (version, migration_name, batch) VALUES (?, ?, ?)");
+        $stmt->execute(['20251001_120000', 'database_complete_schema - Baseline with permission system', 1]);
+
+        echo "✅ Complete schema migration applied!\n\n";
+    } else {
+        echo "<span class='info'>ℹ️  Complete schema already applied (skipping)</span>\n\n";
+    }
 
     // Verify the tables were created
     echo "🔍 Verifying tables...\n";
@@ -139,12 +190,26 @@ try {
         echo "⚠️  Could not count role types (table may not exist yet)\n";
     }
 
+    // Show migration tracking summary
+    echo "\n📊 Migration Summary:\n";
+    echo "=====================================\n";
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM schema_migrations");
+    $migrationCount = $stmt->fetch()['count'];
+    echo "Total migrations applied: {$migrationCount}\n";
+
+    $stmt = $pdo->query("SELECT version, migration_name FROM schema_migrations ORDER BY version DESC LIMIT 3");
+    echo "\nRecent migrations:\n";
+    while ($row = $stmt->fetch()) {
+        echo "   • {$row['version']} - {$row['migration_name']}\n";
+    }
+
     echo "\n";
     echo "<span class='success'>✅ MIGRATION COMPLETE!</span>\n\n";
     echo "You can now:\n";
     echo "1. Return to the dashboard and verify tabs appear correctly\n";
     echo "2. Check the Permissions tab to manage permissions\n";
-    echo "3. Verify the Staff tab is visible\n\n";
+    echo "3. Verify the Staff tab is visible\n";
+    echo "4. View migration history in the schema_migrations table\n\n";
 
     echo "<a href='../index.php?q=/dashboard'>← Return to Dashboard</a>\n";
 

@@ -68,10 +68,16 @@ Thumbs.db
 service-account.json
 credentials.json
 
-# Database
-*.sql
+# Database - REVISED to follow industry standards
+# Exclude database dumps and local databases
 *.sqlite
 *.db
+
+# IMPORTANT: Allow schema and migration files (critical for version control)
+# This follows Laravel/Django/Rails/Phinx best practices
+!database_complete_schema.sql
+!database_migrations/*.sql
+!database_migrations/**/*.sql
 
 # Backup files
 *.bak
@@ -79,3 +85,7 @@ credentials.json
 
 # Session files
 /storage/sessions/*
+
+# Local development tools
+cloud-sql-proxy.exe
+cloud-sql-proxy
