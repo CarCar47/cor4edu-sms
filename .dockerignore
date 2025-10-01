@@ -68,10 +68,24 @@ ehthumbs.db
 *.backup
 
 # Database
-*.sql
 *.sqlite
 *.db
+# But INCLUDE the complete schema (needed for migration)
+!database_complete_schema.sql
 
 # Cloud Build (will be handled separately)
 cloudbuild.yaml
 .gcloudignore
+
+# Windows/OneDrive specific files that cause build issues
+desktop.ini
+*.lnk
+~$*
+cloud-sql-proxy.exe
+cookies.txt
+check_cloud_tables.php
+DEPLOYMENT_old.md
+NUL
+
+# Claude Code settings (local only)
+.claude/
