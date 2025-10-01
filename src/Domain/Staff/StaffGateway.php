@@ -115,7 +115,7 @@ class StaffGateway
     public function getStaffById(int $staffID): ?array
     {
         $sql = "SELECT staffID, username, email, firstName, lastName,
-                       isSuperAdmin, active, position, roleTypeID, isAdminRole
+                       isSuperAdmin, canCreateAdmins, active, position
                 FROM cor4edu_staff
                 WHERE staffID = :staffID AND active = 'Y'";
 
@@ -124,6 +124,13 @@ class StaffGateway
         $stmt->execute();
 
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        // Add default values for columns that don't exist yet
+        if ($result) {
+            $result['roleTypeID'] = 1; // Default role
+            $result['isAdminRole'] = $result['isSuperAdmin']; // SuperAdmin counts as admin
+        }
+
         return $result ?: null;
     }
 

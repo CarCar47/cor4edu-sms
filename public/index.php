@@ -8,7 +8,12 @@
 session_start();
 
 // Bootstrap - Gibbon-style service container
-$container = require_once __DIR__ . '/../bootstrap.php';
+try {
+    $container = require_once __DIR__ . '/../bootstrap.php';
+} catch (Exception $e) {
+    // Show detailed bootstrap error
+    die('Bootstrap failed: ' . $e->getMessage());
+}
 
 // Error reporting for development
 if ($_ENV['APP_DEBUG'] === 'true') {
@@ -25,8 +30,8 @@ $twig = new \Twig\Environment($loader, [
 ]);
 
 // Add global variables to Twig
-$twig->addGlobal('app_name', $_ENV['APP_NAME']);
-$twig->addGlobal('app_url', $_ENV['APP_URL']);
+$twig->addGlobal('app_name', $_ENV['APP_NAME'] ?? getenv('APP_NAME') ?: 'COR4EDU SMS');
+$twig->addGlobal('app_url', $_ENV['APP_URL'] ?? getenv('APP_URL') ?: 'https://sms-edu-938209083489.us-central1.run.app');
 
 // Get the current page - Gibbon style routing
 $q = $_GET['q'] ?? '';

@@ -41,12 +41,13 @@ class Database
      */
     private static function createConnection(): void
     {
-        $dbName = $_ENV['DB_NAME'] ?? 'cor4edu_sms';
-        $username = $_ENV['DB_USERNAME'] ?? 'root';
-        $password = $_ENV['DB_PASSWORD'] ?? '';
+        // Use getenv() as fallback for Cloud Run environment variables
+        $dbName = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'cor4edu_sms';
+        $username = $_ENV['DB_USERNAME'] ?? getenv('DB_USERNAME') ?: 'root';
+        $password = $_ENV['DB_PASSWORD'] ?? getenv('DB_PASSWORD') ?: '';
 
         // Detect Google Cloud SQL connection via Unix socket
-        $cloudSqlSocket = $_ENV['DB_SOCKET'] ?? null;
+        $cloudSqlSocket = $_ENV['DB_SOCKET'] ?? getenv('DB_SOCKET') ?: null;
 
         if ($cloudSqlSocket) {
             // Google Cloud SQL Unix socket connection
@@ -54,8 +55,8 @@ class Database
             $dsn = "mysql:unix_socket={$cloudSqlSocket};dbname={$dbName};charset=utf8mb4";
         } else {
             // Standard TCP connection (localhost/development)
-            $host = $_ENV['DB_HOST'] ?? 'localhost';
-            $port = $_ENV['DB_PORT'] ?? '3306';
+            $host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
+            $port = $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?: '3306';
             $dsn = "mysql:host={$host};port={$port};dbname={$dbName};charset=utf8mb4";
         }
 
@@ -75,7 +76,7 @@ class Database
 
         } catch (PDOException $e) {
             throw new RuntimeException(
-                'Database connection failed: ' . $e->getMessage(),
+                'Database connection failed: ' . $e->getMessage() . ' | DSN: ' . $dsn . ' | User: ' . $username,
                 $e->getCode(),
                 $e
             );

@@ -7,6 +7,13 @@
 // Composer autoloader
 require_once __DIR__ . '/vendor/autoload.php';
 
+// Enable error display for debugging (before any errors can occur)
+if (isset($_ENV['APP_DEBUG']) && $_ENV['APP_DEBUG'] === 'true') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+}
+
 // Load environment variables (optional - Cloud Run uses $_ENV directly)
 if (file_exists(__DIR__ . '/.env')) {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -21,8 +28,34 @@ $container = [];
 
 // Database Connection
 use Cor4Edu\Config\Database;
-$pdo = Database::getInstance();
-$container['db'] = $pdo;
+try {
+    $pdo = Database::getInstance();
+    $container['db'] = $pdo;
+} catch (Exception $e) {
+    // Always log the error
+    error_log('Database connection failed: ' . $e->getMessage());
+
+    // Check PHP PDO drivers
+    $pdoDrivers = 'PDO not available';
+    if (class_exists('PDO')) {
+        $pdoDrivers = implode(', ', PDO::getAvailableDrivers());
+    }
+
+    // Check what's in /cloudsql directory
+    $cloudsqlContents = 'not accessible';
+    if (is_dir('/cloudsql')) {
+        $files = scandir('/cloudsql');
+        $cloudsqlContents = implode(', ', $files);
+    }
+
+    // Get actual database config being used
+    $dbHost = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'not set';
+    $dbPort = $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?: 'not set';
+    $dbSocket = $_ENV['DB_SOCKET'] ?? getenv('DB_SOCKET') ?: 'not set';
+
+    // Always display full error in Cloud Run for debugging
+    die('Database connection failed: ' . $e->getMessage() . "\n\nEnvironment:\nDB_HOST: " . $dbHost . "\nDB_PORT: " . $dbPort . "\nDB_SOCKET: " . $dbSocket . "\nDB_NAME: " . ($_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'not set') . "\nDB_USERNAME: " . (isset($_ENV['DB_USERNAME']) || getenv('DB_USERNAME') ? 'SET' : 'not set') . "\nDB_PASSWORD: " . (isset($_ENV['DB_PASSWORD']) || getenv('DB_PASSWORD') ? 'SET' : 'not set') . "\n\nPDO Drivers: " . $pdoDrivers . "\n/cloudsql directory: " . $cloudsqlContents);
+}
 
 // Create gateway factory function that matches Gibbon's container->get() pattern
 function getGateway($className) {
