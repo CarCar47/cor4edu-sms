@@ -7,8 +7,8 @@ RewriteBase /
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 
-# Route everything through index.php
-RewriteRule ^(.*)$ index.php [QSA,L]
+# Route everything through index.php with q parameter (Gibbon-style)
+RewriteRule ^(.*)$ index.php?q=/$1 [QSA,L]
 
 # Security headers
 <IfModule mod_headers.c>
