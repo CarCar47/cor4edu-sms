@@ -4,11 +4,6 @@
  * Following Gibbon's simple pattern - NO complex frameworks
  */
 
-// ULTRA DEBUG - FIRST THING
-if (isset($_GET['xdebug'])) {
-    die("XDEBUG WORKS - GET xdebug parameter received");
-}
-
 // Start session first
 session_start();
 
@@ -40,14 +35,6 @@ $twig->addGlobal('app_url', $_ENV['APP_URL'] ?? getenv('APP_URL') ?: 'https://sm
 
 // Get the current page - Gibbon style routing
 $q = $_GET['q'] ?? '';
-
-// TEMPORARY DEBUG - Show what $q contains
-if (isset($_GET['debug'])) {
-    echo "<pre>DEBUG: \$q = '" . htmlspecialchars($q) . "'\n";
-    echo "DEBUG: \$_GET = " . print_r($_GET, true) . "\n";
-    echo "DEBUG: \$_SERVER['REQUEST_URI'] = " . ($_SERVER['REQUEST_URI'] ?? 'not set') . "</pre>";
-    exit;
-}
 
 // Simple routing based on Gibbon patterns
 switch ($q) {
@@ -490,6 +477,17 @@ switch ($q) {
 
         // Include the program edit process module
         require_once __DIR__ . '/../modules/Programs/program_manage_editProcess.php';
+        break;
+
+    case '/modules/Programs/program_manage_delete.php':
+        // Check if logged in
+        if (!isset($_SESSION['cor4edu'])) {
+            header('Location: index.php?q=/login');
+            exit;
+        }
+
+        // Include the program delete module
+        require_once __DIR__ . '/../modules/Programs/program_manage_delete.php';
         break;
 
     case '/modules/Students/Documents/document_upload.php':

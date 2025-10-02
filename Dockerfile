@@ -79,13 +79,8 @@ RUN echo "; COR4EDU SMS PHP Configuration" > /usr/local/etc/php/conf.d/cor4edu.i
     echo "log_errors = On" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
     echo "error_log = /var/log/apache2/php_errors.log" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
     echo "" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
-    echo "; OPcache settings for performance" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
-    echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
-    echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
-    echo "opcache.interned_strings_buffer=8" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
-    echo "opcache.max_accelerated_files=10000" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
-    echo "opcache.revalidate_freq=2" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
-    echo "opcache.fast_shutdown=1" >> /usr/local/etc/php/conf.d/cor4edu.ini
+    echo "; OPcache settings - DISABLED for Cloud Run to ensure fresh code" >> /usr/local/etc/php/conf.d/cor4edu.ini && \
+    echo "opcache.enable=0" >> /usr/local/etc/php/conf.d/cor4edu.ini
 
 # Expose port 8080 (Cloud Run requirement)
 EXPOSE 8080
