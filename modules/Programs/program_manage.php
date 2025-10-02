@@ -25,18 +25,29 @@ $programGateway = getGateway('Cor4Edu\Domain\Program\ProgramGateway');
 // Load user permissions for navigation consistency
 $reportPermissions = getUserPermissionsForNavigation($_SESSION['cor4edu']['staffID']);
 
-// Get search and filter parameters
-$search = $_GET['search'] ?? '';
-$active = $_GET['active'] ?? '';
+// Get tab parameter (default to 'active')
+$tab = $_GET['tab'] ?? 'active';
 
-// Get programs based on filters
-if (!empty($search) || !empty($active)) {
-    $programs = $programGateway->searchPrograms($search, $active);
+// Get search parameter
+$search = $_GET['search'] ?? '';
+
+// Get programs based on tab
+if ($tab === 'inactive') {
+    if (!empty($search)) {
+        $programs = $programGateway->searchPrograms($search, 'N');
+    } else {
+        $programs = $programGateway->selectInactivePrograms();
+    }
 } else {
-    $programs = $programGateway->selectAllPrograms();
+    // Active tab (default)
+    if (!empty($search)) {
+        $programs = $programGateway->searchPrograms($search, 'Y');
+    } else {
+        $programs = $programGateway->selectActivePrograms();
+    }
 }
 
-// Get status counts for filter buttons
+// Get status counts for tabs
 $statusCounts = $programGateway->getStatusCounts();
 
 // Get session messages
@@ -54,6 +65,6 @@ echo $twig->render('programs/index.twig.html', [
     'programs' => $programs,
     'statusCounts' => $statusCounts,
     'currentSearch' => $search,
-    'currentActive' => $active,
+    'currentTab' => $tab,
     'user' => array_merge($sessionData, ['permissions' => $reportPermissions])
 ]);

@@ -631,6 +631,7 @@ class DocumentGateway extends QueryableGateway
         ];
 
         // Check which requirements have submitted documents
+        // TEMP FIX: Cloud SQL missing linkedRequirementCode column - simplified query
         foreach ($requiredDocuments as &$requirement) {
             $sql = "SELECT d.documentID, d.fileName, d.filePath, d.uploadedOn,
                            uploader.firstName as uploaderFirstName,
@@ -639,14 +640,12 @@ class DocumentGateway extends QueryableGateway
                     LEFT JOIN cor4edu_staff uploader ON d.uploadedBy = uploader.staffID
                     WHERE d.entityType = 'staff'
                       AND d.entityID = :staffID
-                      AND d.linkedRequirementCode = :requirementCode
                       AND d.isArchived = 'N'
                     ORDER BY d.uploadedOn DESC
                     LIMIT 1";
 
             $document = $this->selectOne($sql, [
-                'staffID' => $staffID,
-                'requirementCode' => $requirement['requirementCode']
+                'staffID' => $staffID
             ]);
 
             if ($document) {

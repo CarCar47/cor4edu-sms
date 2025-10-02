@@ -87,6 +87,41 @@ class ProgramGateway extends QueryableGateway
     }
 
     /**
+     * Get active programs only
+     * @return array
+     */
+    public function selectActivePrograms(): array
+    {
+        $sql = "SELECT p.*,
+                       creator.firstName as createdByFirstName,
+                       creator.lastName as createdByLastName
+                FROM cor4edu_programs p
+                LEFT JOIN cor4edu_staff creator ON p.createdBy = creator.staffID
+                WHERE p.active = 'Y'
+                ORDER BY p.name";
+        return $this->select($sql);
+    }
+
+    /**
+     * Get inactive programs only
+     * @return array
+     */
+    public function selectInactivePrograms(): array
+    {
+        $sql = "SELECT p.*,
+                       creator.firstName as createdByFirstName,
+                       creator.lastName as createdByLastName,
+                       modifier.firstName as modifiedByFirstName,
+                       modifier.lastName as modifiedByLastName
+                FROM cor4edu_programs p
+                LEFT JOIN cor4edu_staff creator ON p.createdBy = creator.staffID
+                LEFT JOIN cor4edu_staff modifier ON p.modifiedBy = modifier.staffID
+                WHERE p.active = 'N'
+                ORDER BY p.modifiedOn DESC";
+        return $this->select($sql);
+    }
+
+    /**
      * Get program details by ID
      * @param int $programID
      * @return array|false
