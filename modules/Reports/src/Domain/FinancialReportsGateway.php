@@ -143,18 +143,19 @@ class FinancialReportsGateway
             $params = array_merge($params, $filters['status']);
         }
 
-        if (!empty($filters['outstandingOnly']) && $filters['outstandingOnly']) {
-            $conditions[] = "(p.totalCost - COALESCE(SUM(pay.amount), 0)) > 0";
-        }
-
         if (!empty($conditions)) {
             $sql .= " WHERE " . implode(' AND ', $conditions);
         }
 
         $sql .= " GROUP BY s.studentID, s.firstName, s.lastName, s.email, s.status, s.enrollmentDate,
                           p.name, p.programCode, p.tuitionAmount, p.fees, p.booksAmount, p.materialsAmount,
-                          p.applicationFee, p.miscellaneousCosts, p.totalCost
-                  ORDER BY outstandingBalance DESC, s.lastName, s.firstName";
+                          p.applicationFee, p.miscellaneousCosts, p.totalCost";
+
+        if (!empty($filters['outstandingOnly']) && $filters['outstandingOnly']) {
+            $sql .= " HAVING (p.totalCost - COALESCE(SUM(pay.amount), 0)) > 0";
+        }
+
+        $sql .= " ORDER BY outstandingBalance DESC, s.lastName, s.firstName";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);

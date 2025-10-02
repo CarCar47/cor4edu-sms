@@ -262,6 +262,7 @@ class AcademicReportsGateway
         }
 
         $sql .= " GROUP BY s.studentID, s.firstName, s.lastName, s.email, s.phone, s.status, p.name, p.programCode
+                  HAVING (totalSupportSessions > 0 OR totalNotes > 0 OR totalMeetings > 0)
                   ORDER BY totalSupportSessions DESC, totalNotes DESC";
 
         $stmt = $this->pdo->prepare($sql);

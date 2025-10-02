@@ -106,14 +106,14 @@ class ReportsGateway
     public function getEnrollmentTrends(string $startDate, string $endDate): array
     {
         $sql = "SELECT
-                    DATE_FORMAT(enrollmentDate, '%Y-%m') as month,
+                    DATE_FORMAT(s.enrollmentDate, '%Y-%m') as month,
                     COUNT(*) as enrollments,
-                    programID,
+                    p.programID,
                     p.name as programName
                 FROM cor4edu_students s
                 JOIN cor4edu_programs p ON s.programID = p.programID
-                WHERE enrollmentDate BETWEEN :startDate AND :endDate
-                GROUP BY DATE_FORMAT(enrollmentDate, '%Y-%m'), programID
+                WHERE s.enrollmentDate BETWEEN :startDate AND :endDate
+                GROUP BY DATE_FORMAT(s.enrollmentDate, '%Y-%m'), p.programID
                 ORDER BY month, programName";
 
         $stmt = $this->pdo->prepare($sql);
@@ -196,7 +196,7 @@ class ReportsGateway
             's.phone',
             's.status',
             's.enrollmentDate',
-            's.expectedGraduationDate',
+            's.anticipatedGraduationDate',
             's.actualGraduationDate',
             'p.name as programName',
             'p.programCode'

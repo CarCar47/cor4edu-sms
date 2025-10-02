@@ -104,8 +104,8 @@
 
                     <!-- Expected Graduation -->
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                        {% if student.expectedGraduationDate %}
-                            {{ student.expectedGraduationDate | date('M j, Y') }}
+                        {% if student.anticipatedGraduationDate %}
+                            {{ student.anticipatedGraduationDate | date('M j, Y') }}
                         {% elseif student.actualGraduationDate %}
                             <div class="text-blue-600 font-medium">
                                 {{ student.actualGraduationDate | date('M j, Y') }}
