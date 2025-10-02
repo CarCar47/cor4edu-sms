@@ -36,6 +36,14 @@ $twig->addGlobal('app_url', $_ENV['APP_URL'] ?? getenv('APP_URL') ?: 'https://sm
 // Get the current page - Gibbon style routing
 $q = $_GET['q'] ?? '';
 
+// TEMPORARY DEBUG - Show what $q contains
+if (isset($_GET['debug'])) {
+    echo "<pre>DEBUG: \$q = '" . htmlspecialchars($q) . "'\n";
+    echo "DEBUG: \$_GET = " . print_r($_GET, true) . "\n";
+    echo "DEBUG: \$_SERVER['REQUEST_URI'] = " . ($_SERVER['REQUEST_URI'] ?? 'not set') . "</pre>";
+    exit;
+}
+
 // Simple routing based on Gibbon patterns
 switch ($q) {
     case '':
