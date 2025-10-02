@@ -10,6 +10,20 @@ if (!isset($_SESSION['cor4edu'])) {
     exit;
 }
 
+// DEBUG OUTPUT - TEMPORARY
+echo "<div style='background: #ff0; padding: 20px; border: 3px solid red; margin: 20px;'>";
+echo "<h2>DEBUG SESSION INFO:</h2>";
+echo "<pre>";
+echo "SESSION DATA:\n";
+print_r($_SESSION['cor4edu']);
+echo "\n\nKEY VALUES:\n";
+echo "is_super_admin isset: " . (isset($_SESSION['cor4edu']['is_super_admin']) ? 'YES' : 'NO') . "\n";
+echo "is_super_admin value: " . (isset($_SESSION['cor4edu']['is_super_admin']) ? var_export($_SESSION['cor4edu']['is_super_admin'], true) : 'NOT SET') . "\n";
+echo "is_super_admin type: " . (isset($_SESSION['cor4edu']['is_super_admin']) ? gettype($_SESSION['cor4edu']['is_super_admin']) : 'N/A') . "\n";
+echo "</pre>";
+echo "</div>";
+// END DEBUG
+
 // SuperAdmin bypass - always allow SuperAdmin access
 if (!$_SESSION['cor4edu']['is_super_admin']) {
     // Check if user has permission to view programs

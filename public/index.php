@@ -25,7 +25,7 @@ if ($_ENV['APP_DEBUG'] === 'true') {
 // Simple Twig setup (no complex middleware)
 $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../resources/templates');
 $twig = new \Twig\Environment($loader, [
-    'cache' => $_ENV['APP_ENV'] === 'production' ? __DIR__ . '/../storage/cache/twig' : false,
+    'cache' => false,  // Temporarily disabled to force template recompilation
     'debug' => $_ENV['APP_DEBUG'] === 'true',
 ]);
 
@@ -68,6 +68,55 @@ switch ($q) {
             'service' => 'cor4edu-sms',
             'database' => $dbStatus
         ]);
+        exit;
+
+    case '/check-files':
+        // DIAGNOSTIC: Check if files exist in container
+        echo "<!DOCTYPE html><html><head><title>File Check</title></head><body>";
+        echo "<h1>🔍 Container File Existence Check</h1>";
+        echo "<p><strong>Active Revision:</strong> " . ($_ENV['K_REVISION'] ?? 'Unknown') . "</p>";
+
+        $filesToCheck = [
+            '/var/www/html/modules/Programs/program_manage.php' => 'Programs Main',
+            '/var/www/html/modules/Programs/program_manage_delete.php' => 'Delete Handler (NEW FILE)',
+            '/var/www/html/resources/templates/programs/index.twig.html' => 'Programs Template',
+            '/var/www/html/resources/templates/programs/delete_confirm.twig.html' => 'Delete Confirm (NEW)',
+            '/var/www/html/modules/Admin/Staff/staff_manage_view.php' => 'Staff View',
+        ];
+
+        echo "<table border='1' cellpadding='10' style='border-collapse: collapse; width: 100%;'>";
+        echo "<tr style='background: #333; color: white;'><th>Description</th><th>Path</th><th>Status</th><th>Size</th></tr>";
+
+        foreach ($filesToCheck as $file => $desc) {
+            $exists = file_exists($file);
+            $size = $exists ? filesize($file) : 0;
+            $status = $exists ? '✅ EXISTS' : '❌ MISSING';
+            $bg = $exists ? '#d4f4dd' : '#f4d4d4';
+
+            echo "<tr style='background: {$bg};'>";
+            echo "<td><strong>{$desc}</strong></td>";
+            echo "<td><code>{$file}</code></td>";
+            echo "<td style='font-size: 20px;'>{$status}</td>";
+            echo "<td>" . ($exists ? number_format($size) . ' bytes' : 'N/A') . "</td>";
+            echo "</tr>";
+        }
+        echo "</table>";
+
+        echo "<h2>📁 Directory Listing: /var/www/html/modules/Programs/</h2>";
+        $dir = '/var/www/html/modules/Programs/';
+        if (is_dir($dir)) {
+            $files = array_diff(scandir($dir), ['.', '..']);
+            echo "<ul>";
+            foreach ($files as $file) {
+                echo "<li>{$file}</li>";
+            }
+            echo "</ul>";
+        } else {
+            echo "<p style='color: red; font-weight: bold;'>❌ DIRECTORY NOT FOUND!</p>";
+        }
+
+        echo "<p><a href='/'>← Back to Home</a></p>";
+        echo "</body></html>";
         exit;
 
     case '/login':
@@ -825,6 +874,57 @@ switch ($q) {
             echo "<p>❌ Database connection failed: " . $e->getMessage() . "</p>";
             echo "<p><a href='index.php?q=/dashboard'>Back to Dashboard</a></p>";
         }
+        break;
+
+    case '/debug-session':
+        // Debug endpoint to check session and database values
+        echo "<h1>Debug Session & Database</h1>";
+
+        echo "<h2>Session Data:</h2>";
+        if (isset($_SESSION['cor4edu'])) {
+            echo "<pre>" . htmlspecialchars(print_r($_SESSION['cor4edu'], true)) . "</pre>";
+
+            echo "<h3>Key Values:</h3>";
+            echo "<ul>";
+            echo "<li>is_super_admin: " . (isset($_SESSION['cor4edu']['is_super_admin']) ?
+                ($_SESSION['cor4edu']['is_super_admin'] ? 'TRUE' : 'FALSE') : 'NOT SET') . "</li>";
+            echo "<li>staffID: " . ($_SESSION['cor4edu']['staffID'] ?? 'NOT SET') . "</li>";
+            echo "<li>username: " . ($_SESSION['cor4edu']['username'] ?? 'NOT SET') . "</li>";
+            echo "</ul>";
+        } else {
+            echo "<p>❌ No session found - user not logged in</p>";
+        }
+
+        echo "<h2>Database - Superadmin User:</h2>";
+        try {
+            $pdo = $container['db'];
+            $stmt = $pdo->query("SELECT staffID, username, email, isSuperAdmin, active FROM cor4edu_staff WHERE username = 'superadmin'");
+            $user = $stmt->fetch();
+            if ($user) {
+                echo "<pre>" . htmlspecialchars(print_r($user, true)) . "</pre>";
+                echo "<p><strong>isSuperAdmin value: '" . $user['isSuperAdmin'] . "'</strong></p>";
+            } else {
+                echo "<p>❌ Superadmin user not found in database</p>";
+            }
+        } catch (Exception $e) {
+            echo "<p>❌ Database error: " . $e->getMessage() . "</p>";
+        }
+
+        echo "<h2>File Checks:</h2>";
+        $filesToCheck = [
+            '/var/www/html/modules/Programs/program_manage_delete.php',
+            '/var/www/html/modules/Admin/Staff/staff_manage_view.php',
+            '/var/www/html/resources/templates/programs/index.twig.html',
+            '/var/www/html/resources/templates/programs/delete_confirm.twig.html'
+        ];
+        echo "<ul>";
+        foreach ($filesToCheck as $file) {
+            $exists = file_exists($file) ? '✅ EXISTS' : '❌ MISSING';
+            echo "<li>{$file}: {$exists}</li>";
+        }
+        echo "</ul>";
+
+        echo "<p><a href='index.php?q=/dashboard'>Back to Dashboard</a></p>";
         break;
 
     // Staff Management Routes
