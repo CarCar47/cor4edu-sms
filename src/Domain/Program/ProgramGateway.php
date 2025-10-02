@@ -71,19 +71,12 @@ class ProgramGateway extends QueryableGateway
     }
 
     /**
-     * Get all programs (for management interface)
+     * Get all programs (defaults to active only)
      * @return array
      */
     public function selectAllPrograms(): array
     {
-        $sql = "SELECT p.*,
-                       creator.firstName as createdByFirstName,
-                       creator.lastName as createdByLastName
-                FROM cor4edu_programs p
-                LEFT JOIN cor4edu_staff creator ON p.createdBy = creator.staffID
-                WHERE p.active = 'Y'
-                ORDER BY p.name";
-        return $this->select($sql);
+        return $this->selectActivePrograms();
     }
 
     /**
