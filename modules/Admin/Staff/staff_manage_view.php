@@ -33,7 +33,7 @@ $stmt = $pdo->prepare("
     FROM cor4edu_staff s
     LEFT JOIN cor4edu_staff_role_types rt ON s.roleTypeID = rt.roleTypeID
     LEFT JOIN cor4edu_staff creator ON s.createdBy = creator.staffID
-    LEFT JOIN cor4edu_staff modifier ON s.lastModifiedBy = modifier.staffID
+    LEFT JOIN cor4edu_staff modifier ON s.modifiedBy = modifier.staffID
     WHERE s.staffID = ?
 ");
 $stmt->execute([$staffID]);

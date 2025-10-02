@@ -81,6 +81,7 @@ class ProgramGateway extends QueryableGateway
                        creator.lastName as createdByLastName
                 FROM cor4edu_programs p
                 LEFT JOIN cor4edu_staff creator ON p.createdBy = creator.staffID
+                WHERE p.active = 'Y'
                 ORDER BY p.name";
         return $this->select($sql);
     }

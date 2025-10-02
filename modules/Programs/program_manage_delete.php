@@ -48,30 +48,22 @@ if (!$programToDelete) {
 // Security checks
 $errors = [];
 
-// 1. Check if program is already inactive
-if ($programToDelete['active'] === 'N') {
-    $errors[] = 'This program is already marked as inactive';
-}
-
-// 2. Check permission - SuperAdmin only
+// 1. Check permission - SuperAdmin only
 if (!$isSuperAdmin) {
     if (!hasPermission($currentStaffID, 'programs', 'delete')) {
         $errors[] = 'You do not have permission to delete programs (SuperAdmin only)';
     }
 }
 
-// 3. Check if program has enrolled students
+// 2. Check total student count (ALL students - active, graduated, withdrawn)
 $stmt = $pdo->prepare("
     SELECT COUNT(*) as studentCount
     FROM cor4edu_students
-    WHERE programID = ? AND status NOT IN ('withdrawn', 'graduated')
+    WHERE programID = ?
 ");
 $stmt->execute([$programIDToDelete]);
 $studentCheck = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if ($studentCheck['studentCount'] > 0) {
-    $errors[] = "Cannot delete program: {$studentCheck['studentCount']} active student(s) are enrolled";
-}
+$totalStudents = (int)$studentCheck['studentCount'];
 
 // If errors, redirect back
 if (!empty($errors)) {
@@ -80,10 +72,8 @@ if (!empty($errors)) {
     exit;
 }
 
-// Handle confirmation
-$confirmed = $_GET['confirm'] ?? 'no';
-
-if ($confirmed !== 'yes') {
+// Handle POST (confirmation form submission)
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     // Show confirmation page
     $sessionData = $_SESSION['cor4edu'];
     $reportPermissions = getUserPermissionsForNavigation($currentStaffID);
@@ -91,32 +81,49 @@ if ($confirmed !== 'yes') {
     echo $twig->render('programs/delete_confirm.twig.html', [
         'title' => 'Delete Program - Confirmation',
         'program' => $programToDelete,
+        'studentCount' => $totalStudents,
         'user' => array_merge($sessionData, ['permissions' => $reportPermissions])
     ]);
     exit;
 }
 
-// Perform soft delete
+// Check if permanent delete requested
+$permanentDelete = ($_POST['permanent_delete'] ?? '0') === '1';
+
+// Validate permanent delete: only allowed if zero students
+if ($permanentDelete && $totalStudents > 0) {
+    $_SESSION['flash_errors'] = ["Cannot permanently delete: {$totalStudents} student(s) have been enrolled in this program"];
+    header('Location: index.php?q=/modules/Programs/program_manage.php');
+    exit;
+}
+
+// Perform delete (permanent or soft)
 try {
     $pdo->beginTransaction();
 
-    // Soft delete: Set active to 'N'
-    $stmt = $pdo->prepare("
-        UPDATE cor4edu_programs
-        SET active = 'N',
-            modifiedBy = ?,
-            modifiedOn = NOW()
-        WHERE programID = ?
-    ");
+    if ($permanentDelete && $totalStudents === 0) {
+        // PERMANENT DELETE: Remove from database completely
+        $stmt = $pdo->prepare("DELETE FROM cor4edu_programs WHERE programID = ?");
+        $stmt->execute([$programIDToDelete]);
 
-    $stmt->execute([$currentStaffID, $programIDToDelete]);
+        $successMessage = "Program '{$programToDelete['name']}' ({$programToDelete['programCode']}) has been permanently deleted";
+    } else {
+        // SOFT DELETE: Set active to 'N'
+        $stmt = $pdo->prepare("
+            UPDATE cor4edu_programs
+            SET active = 'N',
+                modifiedBy = ?,
+                modifiedOn = NOW()
+            WHERE programID = ?
+        ");
+        $stmt->execute([$currentStaffID, $programIDToDelete]);
+
+        $successMessage = "Program '{$programToDelete['name']}' ({$programToDelete['programCode']}) has been deactivated successfully";
+    }
 
     $pdo->commit();
 
-    $_SESSION['flash_success'] = [
-        "Program '{$programToDelete['name']}' ({$programToDelete['programCode']}) has been deactivated successfully"
-    ];
-
+    $_SESSION['flash_success'] = [$successMessage];
     header('Location: index.php?q=/modules/Programs/program_manage.php');
     exit;
 
@@ -124,7 +131,7 @@ try {
     $pdo->rollBack();
     error_log("Program deletion failed: " . $e->getMessage());
 
-    $_SESSION['flash_errors'] = ['Failed to deactivate program. Please try again.'];
+    $_SESSION['flash_errors'] = ['Failed to delete program. Please try again.'];
     header('Location: index.php?q=/modules/Programs/program_manage.php');
     exit;
 }
