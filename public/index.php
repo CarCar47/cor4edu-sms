@@ -4,6 +4,11 @@
  * Following Gibbon's simple pattern - NO complex frameworks
  */
 
+// ULTRA DEBUG - FIRST THING
+if (isset($_GET['xdebug'])) {
+    die("XDEBUG WORKS - GET xdebug parameter received");
+}
+
 // Start session first
 session_start();
 
