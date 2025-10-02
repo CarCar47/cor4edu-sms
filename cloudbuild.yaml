@@ -59,7 +59,7 @@ steps:
 
 # Substitution variables (configure per school)
 substitutions:
-  _SERVICE_NAME: 'cor4edu-sms'
+  _SERVICE_NAME: 'sms-edu'
   _REGION: 'us-central1'
   _ARTIFACT_REPO: 'cor4edu-containers'
   _CLOUDSQL_INSTANCE: 'sms-edu-db'
