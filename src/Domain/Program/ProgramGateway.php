@@ -15,18 +15,6 @@ class ProgramGateway extends QueryableGateway
     protected static $searchableColumns = ['name', 'programCode', 'description'];
 
     /**
-     * Get all active programs
-     * @return array
-     */
-    public function selectActivePrograms(): array
-    {
-        $sql = "SELECT * FROM cor4edu_programs
-                WHERE active = 'Y'
-                ORDER BY name";
-        return $this->select($sql);
-    }
-
-    /**
      * Get program with pricing information
      * @param int $programID
      * @return array|false
