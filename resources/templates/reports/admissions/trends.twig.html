@@ -15,11 +15,7 @@
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Total Enrollments</dt>
                             <dd class="text-lg font-semibold text-gray-900">
-                                {% set total = 0 %}
-                                {% for row in reportData %}
-                                    {% set total = total + row.enrollments %}
-                                {% endfor %}
-                                {{ total }}
+                                {{ summaryStats.totalEnrollments|default(0) }}
                             </dd>
                         </dl>
                     </div>
@@ -39,11 +35,7 @@
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Months in Period</dt>
                             <dd class="text-lg font-semibold text-gray-900">
-                                {% set months = [] %}
-                                {% for row in reportData %}
-                                    {% set months = months|merge([row.month]) %}
-                                {% endfor %}
-                                {{ months|unique|length }}
+                                {{ summaryStats.uniqueMonths|default(0) }}
                             </dd>
                         </dl>
                     </div>
@@ -63,11 +55,7 @@
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Programs</dt>
                             <dd class="text-lg font-semibold text-gray-900">
-                                {% set programs = [] %}
-                                {% for row in reportData %}
-                                    {% set programs = programs|merge([row.programID]) %}
-                                {% endfor %}
-                                {{ programs|unique|length }}
+                                {{ summaryStats.uniquePrograms|default(0) }}
                             </dd>
                         </dl>
                     </div>

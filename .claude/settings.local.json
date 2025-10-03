@@ -45,7 +45,16 @@
       "Bash(gcloud run services describe:*)",
       "Bash(gcloud run revisions:*)",
       "WebFetch(domain:sms-edu-938209083489.us-central1.run.app)",
-      "Bash(gcloud builds list:*)"
+      "Bash(gcloud builds list:*)",
+      "Bash(gcloud run services list:*)",
+      "Bash(gcloud sql instances describe:*)",
+      "Bash(gcloud artifacts docker images list:*)",
+      "Bash(gcloud sql backups list:*)",
+      "Bash(del nul)",
+      "Bash(gcloud sql databases:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(gcloud builds describe:*)",
+      "Bash(timeout 60 gcloud run services logs tail sms-edu --region=us-central1 --project=sms-edu-47)"
     ],
     "deny": [],
     "ask": []

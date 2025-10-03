@@ -51,6 +51,7 @@ try {
 
     $reportData = null;
     $reportTitle = '';
+    $summaryStats = null;
 
     switch ($reportType) {
         case 'summary':
@@ -59,7 +60,9 @@ try {
             break;
 
         case 'trends':
-            $reportData = $reportsGateway->getEnrollmentTrends($startDate, $endDate);
+            $trendsData = $reportsGateway->getEnrollmentTrends($startDate, $endDate);
+            $reportData = $trendsData['details'];
+            $summaryStats = $trendsData['summary'];
             $reportTitle = 'Enrollment Trends';
             break;
 
@@ -102,6 +105,7 @@ $templateData = [
     'reportType' => $reportType,
     'reportTitle' => $reportTitle,
     'reportData' => $reportData,
+    'summaryStats' => $summaryStats,
     'selectedStartDate' => $startDate,
     'selectedEndDate' => $endDate,
     'availableReportTypes' => $availableReportTypes,

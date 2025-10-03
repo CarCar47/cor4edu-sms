@@ -1,0 +1,7 @@
+Data from [gs://sms-edu-47_cloudbuild/migrations/check_all_missing_tables.sql] 
+will be imported to [sms-edu-db].
+
+Do you want to continue (Y/n)?  
+Importing data into Cloud SQL instance...
+....done.
+Imported data from [gs://sms-edu-47_cloudbuild/migrations/check_all_missing_tables.sql] into [https://sqladmin.googleapis.com/sql/v1beta4/projects/sms-edu-47/instances/sms-edu-db].

@@ -98,14 +98,15 @@ class ReportsGateway
     }
 
     /**
-     * Get enrollment trends over time
+     * Get enrollment trends over time with summary statistics
      * @param string $startDate
      * @param string $endDate
-     * @return array Enrollment data by month
+     * @return array Enrollment data by month with summary stats
      */
     public function getEnrollmentTrends(string $startDate, string $endDate): array
     {
-        $sql = "SELECT
+        // Get detail data
+        $detailSql = "SELECT
                     DATE_FORMAT(s.enrollmentDate, '%Y-%m') as month,
                     COUNT(*) as enrollments,
                     p.programID,
@@ -116,11 +117,31 @@ class ReportsGateway
                 GROUP BY 1, 3, 4
                 ORDER BY month, programName";
 
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $this->pdo->prepare($detailSql);
         $stmt->bindParam(':startDate', $startDate);
         $stmt->bindParam(':endDate', $endDate);
         $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $details = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Calculate summary statistics in SQL (industry standard approach)
+        $summarySql = "SELECT
+                    COUNT(*) as totalEnrollments,
+                    COUNT(DISTINCT DATE_FORMAT(s.enrollmentDate, '%Y-%m')) as uniqueMonths,
+                    COUNT(DISTINCT p.programID) as uniquePrograms
+                FROM cor4edu_students s
+                JOIN cor4edu_programs p ON s.programID = p.programID
+                WHERE s.enrollmentDate BETWEEN :startDate AND :endDate";
+
+        $summaryStmt = $this->pdo->prepare($summarySql);
+        $summaryStmt->bindParam(':startDate', $startDate);
+        $summaryStmt->bindParam(':endDate', $endDate);
+        $summaryStmt->execute();
+        $summary = $summaryStmt->fetch(\PDO::FETCH_ASSOC);
+
+        return [
+            'details' => $details,
+            'summary' => $summary
+        ];
     }
 
     /**

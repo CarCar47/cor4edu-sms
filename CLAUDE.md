@@ -1,0 +1,1 @@
+- Remember to follow the correction plan, understand the current issues and how they were fixed, and ultimately get the system working on the google cloud project as described in the files found in c:\Users\c_clo\OneDrive\Personal\Coding\cor4edu-sms\.claude
