@@ -29,11 +29,6 @@
                         Demographics
                     </th>
                     {% endif %}
-                    {% if 'emergency' in selectedOptionalFields %}
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Emergency Contact
-                    </th>
-                    {% endif %}
                     {% if 'financial' in selectedOptionalFields %}
                     <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Total Paid
@@ -146,20 +141,6 @@
                         <div class="text-xs text-gray-500 mt-1">
                             {{ student.gender }}
                         </div>
-                        {% endif %}
-                    </td>
-                    {% endif %}
-
-                    <!-- Optional: Emergency Contact -->
-                    {% if 'emergency' in selectedOptionalFields %}
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        {% if student.emergencyContactName %}
-                        <div class="text-sm text-gray-900">{{ student.emergencyContactName }}</div>
-                        {% if student.emergencyContactPhone %}
-                        <div class="text-sm text-gray-500">{{ student.emergencyContactPhone }}</div>
-                        {% endif %}
-                        {% else %}
-                        <span class="text-gray-400">—</span>
                         {% endif %}
                     </td>
                     {% endif %}

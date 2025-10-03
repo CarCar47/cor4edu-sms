@@ -27,8 +27,8 @@ if (!$hasAccess) {
 $reportType = $_GET['reportType'] ?? 'financial_summary';
 $programID = $_GET['programID'] ?? [];
 $status = $_GET['status'] ?? [];
-$paymentDateStart = $_GET['paymentDateStart'] ?? '';
-$paymentDateEnd = $_GET['paymentDateEnd'] ?? '';
+$enrollmentDateStart = $_GET['enrollmentDateStart'] ?? '';
+$enrollmentDateEnd = $_GET['enrollmentDateEnd'] ?? '';
 $outstandingOnly = isset($_GET['outstandingOnly']) ? $_GET['outstandingOnly'] : false;
 
 // Ensure arrays
@@ -42,10 +42,10 @@ if (empty($status)) {
     $status = ['Prospective', 'Active', 'Graduated', 'Alumni', 'Withdrawn'];
 }
 
-// Default date range (last 12 months for payment dates)
-if (empty($paymentDateStart) || empty($paymentDateEnd)) {
-    $paymentDateEnd = date('Y-m-d');
-    $paymentDateStart = date('Y-m-d', strtotime('-12 months'));
+// Default date range (last 12 months for student enrollment period)
+if (empty($enrollmentDateStart) || empty($enrollmentDateEnd)) {
+    $enrollmentDateEnd = date('Y-m-d');
+    $enrollmentDateStart = date('Y-m-d', strtotime('-12 months'));
 }
 
 // Available report types
@@ -79,8 +79,8 @@ try {
     $filters = [];
     if (!empty($programID)) $filters['programID'] = $programID;
     if (!empty($status)) $filters['status'] = $status;
-    if (!empty($paymentDateStart)) $filters['paymentDateStart'] = $paymentDateStart;
-    if (!empty($paymentDateEnd)) $filters['paymentDateEnd'] = $paymentDateEnd;
+    if (!empty($enrollmentDateStart)) $filters['enrollmentDateStart'] = $enrollmentDateStart;
+    if (!empty($enrollmentDateEnd)) $filters['enrollmentDateEnd'] = $enrollmentDateEnd;
     if ($outstandingOnly) $filters['outstandingOnly'] = true;
 
     $reportData = null;
@@ -140,8 +140,8 @@ $templateData = [
     'reportType' => $reportType,
     'reportTitle' => $reportTitle,
     'reportData' => $reportData,
-    'selectedPaymentDateStart' => $paymentDateStart,
-    'selectedPaymentDateEnd' => $paymentDateEnd,
+    'selectedEnrollmentDateStart' => $enrollmentDateStart,
+    'selectedEnrollmentDateEnd' => $enrollmentDateEnd,
     'selectedPrograms' => $programID,
     'selectedStatuses' => $status,
     'outstandingOnly' => $outstandingOnly,
@@ -161,11 +161,11 @@ $templateData = [
     'showSpecialFilters' => true,
     'specialFilters' => $specialFilters,
     'showExportButtons' => true,
-    'dateFilterLabel' => 'Payment Date',
+    'dateFilterLabel' => 'Student Enrollment Period',
 
-    // Map payment date to startDate/endDate for filter form
-    'selectedStartDate' => $paymentDateStart,
-    'selectedEndDate' => $paymentDateEnd
+    // Map enrollment date to startDate/endDate for filter form
+    'selectedStartDate' => $enrollmentDateStart,
+    'selectedEndDate' => $enrollmentDateEnd
 ];
 
 // Render the template

@@ -206,7 +206,6 @@ class ReportsGateway
         $optionalFieldMap = [
             'address' => 's.address, s.city, s.state, s.zipCode',
             'demographics' => 's.dateOfBirth, s.gender',
-            'emergency' => 's.emergencyContactName, s.emergencyContactPhone',
             'financial' => '(SELECT SUM(amount) FROM cor4edu_payments WHERE studentID = s.studentID) as totalPaid',
             'employment' => 'cp.employmentStatus, cp.employerName, cp.employmentDate'
         ];

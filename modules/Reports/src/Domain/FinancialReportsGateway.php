@@ -63,14 +63,14 @@ class FinancialReportsGateway
             $params = array_merge($params, $filters['programID']);
         }
 
-        if (!empty($filters['paymentDateStart'])) {
-            $conditions[] = "pay.paymentDate >= ?";
-            $params[] = $filters['paymentDateStart'];
+        if (!empty($filters['enrollmentDateStart'])) {
+            $conditions[] = "s.enrollmentDate >= ?";
+            $params[] = $filters['enrollmentDateStart'];
         }
 
-        if (!empty($filters['paymentDateEnd'])) {
-            $conditions[] = "pay.paymentDate <= ?";
-            $params[] = $filters['paymentDateEnd'];
+        if (!empty($filters['enrollmentDateEnd'])) {
+            $conditions[] = "s.enrollmentDate <= ?";
+            $params[] = $filters['enrollmentDateEnd'];
         }
 
         if (!empty($conditions)) {

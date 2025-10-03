@@ -168,7 +168,7 @@ $templateData = [
     'showVerificationStatusFilter' => true,
     'showDateFilter' => true,
     'showExportButtons' => true,
-    'dateFilterLabel' => 'Graduation Date',
+    'dateFilterLabel' => 'Student Date Range (Enrollment/Graduation)',
     'exportUrl' => 'index.php?q=/modules/Reports/reports_career_export.php',
     'exportParams' => $exportParams
 ];

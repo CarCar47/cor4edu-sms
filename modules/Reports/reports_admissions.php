@@ -57,7 +57,6 @@ $availableReportTypes = [
 $availableOptionalFields = [
     ['value' => 'address', 'label' => 'Address Information'],
     ['value' => 'demographics', 'label' => 'Demographics (DOB, Gender)'],
-    ['value' => 'emergency', 'label' => 'Emergency Contact'],
     ['value' => 'financial', 'label' => 'Financial Summary'],
     ['value' => 'employment', 'label' => 'Employment Status']
 ];
