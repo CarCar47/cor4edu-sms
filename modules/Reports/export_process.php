@@ -122,6 +122,12 @@ try {
             }
             break;
 
+        case 'student_list':
+            $data = $reportsGateway->getStudentDetailReport($filters, $optionalFields);
+            $filename = 'student_enrollment_list_' . date('Y-m-d');
+            $sheetName = 'Student List';
+            break;
+
         // Financial report sub-types
         case 'financial':
         case 'financial_summary':
