@@ -37,11 +37,9 @@ if (empty($startDate) || empty($endDate)) {
     $startDate = date('Y-m-d', strtotime("-{$dateRange} days"));
 }
 
-// Available report types
+// Available report types (Overview = Dashboard only, detailed reports in sub-modules)
 $availableReportTypes = [
     ['value' => 'summary', 'label' => 'Institution Summary'],
-    ['value' => 'trends', 'label' => 'Enrollment Trends'],
-    ['value' => 'programs', 'label' => 'Program Summary'],
     ['value' => 'dashboard', 'label' => 'Dashboard Metrics']
 ];
 
@@ -55,28 +53,9 @@ try {
 
     switch ($reportType) {
         case 'summary':
-            $reportData = $reportsGateway->getInstitutionOverview();
-            $reportTitle = 'Institution Overview Summary';
-            break;
-
-        case 'trends':
-            $trendsData = $reportsGateway->getEnrollmentTrends($startDate, $endDate);
-            $reportData = $trendsData['details'];
-            $summaryStats = $trendsData['summary'];
-            $reportTitle = 'Enrollment Trends';
-            break;
-
-        case 'programs':
-            $reportData = $reportsGateway->getProgramEnrollmentSummary([
-                'startDate' => $startDate,
-                'endDate' => $endDate
-            ]);
-            $reportTitle = 'Program Enrollment Summary';
-            break;
-
         case 'dashboard':
             $reportData = $reportsGateway->getInstitutionOverview();
-            $reportTitle = 'Dashboard Metrics';
+            $reportTitle = $reportType === 'dashboard' ? 'Dashboard Metrics' : 'Institution Overview Summary';
             break;
 
         default:

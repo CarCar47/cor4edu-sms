@@ -24,19 +24,8 @@
         </div>
 
         {% if reportData %}
-            {% if reportType == 'summary' or reportType == 'dashboard' %}
-                <!-- Institution Summary -->
-                {% include "reports/overview/summary_cards.twig.html" %}
-
-            {% elseif reportType == 'trends' %}
-                <!-- Enrollment Trends -->
-                {% include "reports/overview/trends_display.twig.html" %}
-
-            {% elseif reportType == 'programs' %}
-                <!-- Program Summary -->
-                {% include "reports/overview/programs_summary.twig.html" %}
-
-            {% endif %}
+            <!-- Institution Summary / Dashboard -->
+            {% include "reports/overview/summary_cards.twig.html" %}
         {% else %}
             <!-- No Data Message -->
             <div class="text-center py-12">
@@ -56,13 +45,7 @@
     <div class="bg-gray-50 px-4 py-3">
         <div class="flex items-center justify-between text-sm text-gray-600">
             <div>
-                {% if reportType == 'trends' %}
-                    {{ reportData | length }} enrollment records found
-                {% elseif reportType == 'programs' %}
-                    {{ reportData | length }} programs analyzed
-                {% else %}
-                    Report generated successfully
-                {% endif %}
+                Report generated successfully
             </div>
             <div>
                 Last updated: {{ reportData.lastUpdated ?? 'now' | date('g:i A') }}
@@ -72,39 +55,69 @@
     {% endif %}
 </div>
 
-<!-- Quick Actions -->
+<!-- Detailed Reports - Quick Links -->
 <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
     <div class="flex">
         <div class="flex-shrink-0">
             <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
             </svg>
         </div>
         <div class="ml-3">
             <h3 class="text-sm font-medium text-blue-800">
-                Quick Actions
+                Need Detailed Reports?
             </h3>
             <div class="mt-2 text-sm text-blue-700">
-                <p>Use the report type selector above to switch between different overview reports. Each report type provides different insights:</p>
-                <ul class="mt-2 list-disc list-inside space-y-1">
-                    <li><strong>Institution Summary:</strong> Overall statistics and key metrics</li>
-                    <li><strong>Enrollment Trends:</strong> Monthly enrollment patterns over time</li>
-                    <li><strong>Program Summary:</strong> Enrollment breakdown by academic program</li>
-                    <li><strong>Dashboard Metrics:</strong> Key performance indicators</li>
-                </ul>
-            </div>
-            <div class="mt-4 space-x-3">
-                {% if user.permissions.generate_admissions_reports %}
-                <a href="index.php?q=/modules/Reports/reports_admissions.php" class="text-sm font-medium text-blue-600 hover:text-blue-500">
-                    View Detailed Admissions Reports →
-                </a>
-                {% endif %}
+                <p>The Overview section shows high-level dashboard metrics. For detailed analysis, visit the specialized report modules:</p>
+                <ul class="mt-2 space-y-2">
+                    {% if user.permissions.generate_admissions_reports %}
+                    <li>
+                        <a href="index.php?q=/modules/Reports/reports_admissions.php&reportType=trends" class="font-medium text-blue-600 hover:text-blue-500">
+                            → Enrollment Trends Report
+                        </a>
+                        <span class="text-gray-600"> - Monthly enrollment patterns and analysis</span>
+                    </li>
+                    <li>
+                        <a href="index.php?q=/modules/Reports/reports_admissions.php&reportType=enrollment_summary" class="font-medium text-blue-600 hover:text-blue-500">
+                            → Program Enrollment Summary
+                        </a>
+                        <span class="text-gray-600"> - Detailed breakdown by program</span>
+                    </li>
+                    <li>
+                        <a href="index.php?q=/modules/Reports/reports_admissions.php&reportType=student_list" class="font-medium text-blue-600 hover:text-blue-500">
+                            → Student List Report
+                        </a>
+                        <span class="text-gray-600"> - Individual student enrollment details</span>
+                    </li>
+                    {% endif %}
 
-                {% if user.permissions.generate_financial_reports %}
-                <a href="index.php?q=/modules/Reports/reports_financial.php" class="text-sm font-medium text-blue-600 hover:text-blue-500">
-                    View Financial Reports →
-                </a>
-                {% endif %}
+                    {% if user.permissions.generate_financial_reports %}
+                    <li>
+                        <a href="index.php?q=/modules/Reports/reports_financial.php" class="font-medium text-blue-600 hover:text-blue-500">
+                            → Financial Reports
+                        </a>
+                        <span class="text-gray-600"> - Revenue analysis, payments, balances</span>
+                    </li>
+                    {% endif %}
+
+                    {% if user.permissions.generate_career_reports %}
+                    <li>
+                        <a href="index.php?q=/modules/Reports/reports_career.php" class="font-medium text-blue-600 hover:text-blue-500">
+                            → Career Services Reports
+                        </a>
+                        <span class="text-gray-600"> - Placement rates, employment outcomes</span>
+                    </li>
+                    {% endif %}
+
+                    {% if user.permissions.generate_academic_reports %}
+                    <li>
+                        <a href="index.php?q=/modules/Reports/reports_academic.php" class="font-medium text-blue-600 hover:text-blue-500">
+                            → Academic Reports
+                        </a>
+                        <span class="text-gray-600"> - Faculty notes, at-risk students, engagement</span>
+                    </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
     </div>

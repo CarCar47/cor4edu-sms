@@ -54,7 +54,8 @@
       "Bash(gcloud sql databases:*)",
       "Bash(git ls-tree:*)",
       "Bash(gcloud builds describe:*)",
-      "Bash(timeout 60 gcloud run services logs tail sms-edu --region=us-central1 --project=sms-edu-47)"
+      "Bash(timeout 60 gcloud run services logs tail sms-edu --region=us-central1 --project=sms-edu-47)",
+      "Bash(For NACE-compliant reporting, select Graduated/Alumni only.\"\n\n**NACE Standards Compliance:**\n- Placement rates apply to GRADUATES only (within 6 months of graduation)\n- Active students = pre-graduation career prep (resumes, job readiness)\n- Clear visual distinction prevents compliance issues\n\nUse Cases Supported:\n✓ State audit compliance reports (Graduated/Alumni default)\n✓ Pre-graduation job preparation (manually select Active)\n✓ User always knows which type of report they''re viewing\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []
