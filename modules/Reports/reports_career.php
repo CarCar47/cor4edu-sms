@@ -38,7 +38,7 @@ if (!is_array($studentStatus)) $studentStatus = $studentStatus ? [$studentStatus
 if (!is_array($employmentStatus)) $employmentStatus = $employmentStatus ? [$employmentStatus] : [];
 $programID = array_filter($programID); // Remove empty values
 $studentStatus = array_filter($studentStatus); // Remove empty values
-$employmentStatus = array_filter($employmentStatus); // Remove empty values
+// Don't filter employmentStatus - empty string '' is valid for "No Status Set" (NULL filter)
 
 // Default student status (all career-relevant statuses)
 if (empty($studentStatus)) {
