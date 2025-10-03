@@ -40,9 +40,10 @@ $programID = array_filter($programID); // Remove empty values
 $studentStatus = array_filter($studentStatus); // Remove empty values
 // Don't filter employmentStatus - empty string '' is valid for "No Status Set" (NULL filter)
 
-// Default student status (all career-relevant statuses)
+// Default student status (graduates only for NACE compliance)
+// Users can manually select 'Active' for pre-graduation job readiness reports
 if (empty($studentStatus)) {
-    $studentStatus = ['Active', 'Graduated', 'Alumni'];
+    $studentStatus = ['Graduated', 'Alumni'];
 }
 
 // Default date range (last 12 months)
