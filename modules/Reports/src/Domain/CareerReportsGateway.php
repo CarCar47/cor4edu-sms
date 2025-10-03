@@ -170,8 +170,22 @@ class CareerReportsGateway
         }
 
         if (!empty($filters['employmentStatus'])) {
-            $conditions[] = "cp.employmentStatus IN (" . implode(',', array_fill(0, count($filters['employmentStatus']), '?')) . ")";
-            $params = array_merge($params, $filters['employmentStatus']);
+            // Handle empty string as NULL filter
+            $hasNullFilter = in_array('', $filters['employmentStatus'], true);
+            $nonNullStatuses = array_filter($filters['employmentStatus'], function($val) { return $val !== ''; });
+
+            if ($hasNullFilter && !empty($nonNullStatuses)) {
+                // Both NULL and specific statuses
+                $conditions[] = "(cp.employmentStatus IS NULL OR cp.employmentStatus IN (" . implode(',', array_fill(0, count($nonNullStatuses), '?')) . "))";
+                $params = array_merge($params, array_values($nonNullStatuses));
+            } elseif ($hasNullFilter) {
+                // Only NULL
+                $conditions[] = "cp.employmentStatus IS NULL";
+            } else {
+                // Only specific statuses
+                $conditions[] = "cp.employmentStatus IN (" . implode(',', array_fill(0, count($nonNullStatuses), '?')) . ")";
+                $params = array_merge($params, array_values($nonNullStatuses));
+            }
         }
 
         if (!empty($filters['graduationDateStart'])) {
@@ -366,6 +380,7 @@ class CareerReportsGateway
     public function getAvailableEmploymentStatuses(): array
     {
         return [
+            ['value' => '', 'label' => 'No Status Set'],
             ['value' => 'employed_related', 'label' => 'Employed (Field-Related)'],
             ['value' => 'employed_unrelated', 'label' => 'Employed (Unrelated)'],
             ['value' => 'self_employed_related', 'label' => 'Self-Employed (Field-Related)'],
@@ -445,8 +460,22 @@ class CareerReportsGateway
         }
 
         if (!empty($filters['employmentStatus'])) {
-            $conditions[] = "cp.employmentStatus IN (" . implode(',', array_fill(0, count($filters['employmentStatus']), '?')) . ")";
-            $params = array_merge($params, $filters['employmentStatus']);
+            // Handle empty string as NULL filter
+            $hasNullFilter = in_array('', $filters['employmentStatus'], true);
+            $nonNullStatuses = array_filter($filters['employmentStatus'], function($val) { return $val !== ''; });
+
+            if ($hasNullFilter && !empty($nonNullStatuses)) {
+                // Both NULL and specific statuses
+                $conditions[] = "(cp.employmentStatus IS NULL OR cp.employmentStatus IN (" . implode(',', array_fill(0, count($nonNullStatuses), '?')) . "))";
+                $params = array_merge($params, array_values($nonNullStatuses));
+            } elseif ($hasNullFilter) {
+                // Only NULL
+                $conditions[] = "cp.employmentStatus IS NULL";
+            } else {
+                // Only specific statuses
+                $conditions[] = "cp.employmentStatus IN (" . implode(',', array_fill(0, count($nonNullStatuses), '?')) . ")";
+                $params = array_merge($params, array_values($nonNullStatuses));
+            }
         }
 
         if (!empty($filters['verificationStatus'])) {

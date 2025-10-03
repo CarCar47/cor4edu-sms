@@ -123,6 +123,16 @@ try {
     $_SESSION['cor4edu']['flash_errors'] = ['Error loading report data: ' . $e->getMessage()];
 }
 
+// Build export URL with all current filters
+$exportParams = http_build_query([
+    'reportType' => $reportType,
+    'programID' => $programID,
+    'status' => $status,
+    'startDate' => $startDate,
+    'endDate' => $endDate,
+    'optionalFields' => $optionalFields
+]);
+
 // Prepare template data
 $templateData = [
     'title' => 'Admissions & Enrollment Reports - COR4EDU SMS',
@@ -152,7 +162,9 @@ $templateData = [
     'showDateFilter' => true,
     'showOptionalFieldsFilter' => ($reportType === 'student_list'),
     'showExportButtons' => true,
-    'dateFilterLabel' => 'Enrollment Date'
+    'dateFilterLabel' => 'Enrollment Date',
+    'exportUrl' => 'index.php?q=/modules/Reports/reports_admissions_export.php',
+    'exportParams' => $exportParams
 ];
 
 // Render the template

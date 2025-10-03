@@ -113,7 +113,7 @@ class ReportsGateway
                 FROM cor4edu_students s
                 JOIN cor4edu_programs p ON s.programID = p.programID
                 WHERE s.enrollmentDate BETWEEN :startDate AND :endDate
-                GROUP BY DATE_FORMAT(s.enrollmentDate, '%Y-%m'), p.programID
+                GROUP BY 1, 3
                 ORDER BY month, programName";
 
         $stmt = $this->pdo->prepare($sql);

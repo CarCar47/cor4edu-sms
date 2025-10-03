@@ -44,23 +44,23 @@
                                     </div>
                                 </div>
                             </div>
-
-                            {% if studentCount == 0 %}
-                            <div class="mt-4 bg-red-50 border-l-4 border-red-400 p-4">
-                                <label class="flex items-start">
-                                    <input type="checkbox" name="permanent_delete" value="1" id="permanent_delete" class="mt-1 mr-3 h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
-                                    <div>
-                                        <span class="text-sm font-medium text-red-900">Permanently delete (cannot be undone)</span>
-                                        <p class="text-xs text-red-700 mt-1">This program has zero students. You can choose to permanently remove it from the database forever. This action cannot be reversed.</p>
-                                    </div>
-                                </label>
-                            </div>
-                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
             <form method="POST" action="index.php?q=/modules/Programs/program_manage_delete.php&programID={{ program.programID }}" class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                {% if studentCount == 0 %}
+                <input type="hidden" name="permanent_delete" value="0" id="permanent_delete_hidden">
+                <div class="w-full mb-3 sm:mb-0 bg-red-50 border border-red-400 rounded-md p-3">
+                    <label class="flex items-start cursor-pointer">
+                        <input type="checkbox" value="1" id="permanent_delete_checkbox" onchange="document.getElementById('permanent_delete_hidden').value = this.checked ? '1' : '0'" class="mt-1 mr-3 h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                        <div>
+                            <span class="text-sm font-medium text-red-900">Permanently delete (cannot be undone)</span>
+                            <p class="text-xs text-red-700 mt-1">This program has zero students. Check this box to permanently remove it from the database forever. This action cannot be reversed.</p>
+                        </div>
+                    </label>
+                </div>
+                {% endif %}
                 <button type="submit"
                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
                     Delete Program
