@@ -497,7 +497,7 @@ class CareerReportsGateway
         }
 
         if (!empty($conditions)) {
-            $sql .= " AND " . implode(' AND ', $conditions);
+            $sql .= " WHERE " . implode(' AND ', $conditions);
         }
 
         $sql .= " ORDER BY p.name, s.lastName, s.firstName";

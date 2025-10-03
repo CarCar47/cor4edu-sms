@@ -111,16 +111,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function exportReport(format) {
-    // Get current report parameters
-    const reportType = getCurrentReportType();
-
     // Build export URL
     const exportUrl = new URL('index.php', window.location.origin);
     exportUrl.searchParams.set('q', '/modules/Reports/export_process.php');
-    exportUrl.searchParams.set('reportType', reportType);
     exportUrl.searchParams.set('format', format);
 
-    // Copy current filters
+    // Copy current filters from form (including reportType from form)
     const form = document.querySelector('form');
     if (form) {
         const formData = new FormData(form);
