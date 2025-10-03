@@ -159,11 +159,34 @@ try {
             $sheetName = 'Outstanding Balances';
             break;
 
+        // Career report sub-types
         case 'career':
+        case 'placement_rate':
             $careerGateway = getGateway('Cor4Edu\Reports\Domain\CareerReportsGateway');
             $data = $careerGateway->getPlacementSummaryByProgram($filters);
-            $filename = 'career_placement_report_' . date('Y-m-d');
-            $sheetName = 'Career Placements';
+            $filename = 'placement_rate_by_program_' . date('Y-m-d');
+            $sheetName = 'Placement Rate';
+            break;
+
+        case 'verification_report':
+            $careerGateway = getGateway('Cor4Edu\Reports\Domain\CareerReportsGateway');
+            $data = $careerGateway->getJobPlacementVerificationReport($filters);
+            $filename = 'job_placement_verification_' . date('Y-m-d');
+            $sheetName = 'Verification Report';
+            break;
+
+        case 'outcomes_summary':
+            $careerGateway = getGateway('Cor4Edu\Reports\Domain\CareerReportsGateway');
+            $data = $careerGateway->getStudentCareerDetails($filters);
+            $filename = 'employment_outcomes_summary_' . date('Y-m-d');
+            $sheetName = 'Outcomes Summary';
+            break;
+
+        case 'unverified_placements':
+            $careerGateway = getGateway('Cor4Edu\Reports\Domain\CareerReportsGateway');
+            $data = $careerGateway->getUnverifiedPlacements($filters);
+            $filename = 'unverified_placements_' . date('Y-m-d');
+            $sheetName = 'Unverified Placements';
             break;
 
         // Academic report sub-types

@@ -21,8 +21,9 @@ if (!$hasAccess || !isset($reportPermissions['generate_career_reports'])) {
 }
 
 // Get filter parameters (same as reports_career.php)
-$reportType = $_GET['reportType'] ?? 'verification_report';
+$reportType = $_GET['reportType'] ?? 'placement_rate';
 $programID = $_GET['programID'] ?? [];
+$studentStatus = $_GET['studentStatus'] ?? [];
 $employmentStatus = $_GET['employmentStatus'] ?? [];
 $verificationStatus = $_GET['verificationStatus'] ?? '';
 $graduationDateStart = $_GET['graduationDateStart'] ?? '';
@@ -30,9 +31,16 @@ $graduationDateEnd = $_GET['graduationDateEnd'] ?? '';
 
 // Ensure arrays
 if (!is_array($programID)) $programID = $programID ? [$programID] : [];
+if (!is_array($studentStatus)) $studentStatus = $studentStatus ? [$studentStatus] : [];
 if (!is_array($employmentStatus)) $employmentStatus = $employmentStatus ? [$employmentStatus] : [];
 $programID = array_filter($programID);
-$employmentStatus = array_filter($employmentStatus);
+$studentStatus = array_filter($studentStatus);
+// Don't filter employmentStatus - empty string '' is valid
+
+// Default student status
+if (empty($studentStatus)) {
+    $studentStatus = ['Active', 'Graduated', 'Alumni'];
+}
 
 // Default date range
 if (empty($graduationDateStart) || empty($graduationDateEnd)) {
@@ -46,18 +54,45 @@ try {
     // Build filters array
     $filters = [];
     if (!empty($programID)) $filters['programID'] = $programID;
+    if (!empty($studentStatus)) $filters['studentStatus'] = $studentStatus;
     if (!empty($employmentStatus)) $filters['employmentStatus'] = $employmentStatus;
     if (!empty($verificationStatus)) $filters['verificationStatus'] = $verificationStatus;
     if (!empty($graduationDateStart)) $filters['graduationDateStart'] = $graduationDateStart;
     if (!empty($graduationDateEnd)) $filters['graduationDateEnd'] = $graduationDateEnd;
 
-    // Get report data
-    $reportData = $careerReportsGateway->getJobPlacementVerificationReport($filters);
+    // Get report data based on report type
+    $reportData = [];
+    $filename = '';
+
+    switch ($reportType) {
+        case 'placement_rate':
+            $reportData = $careerReportsGateway->getPlacementSummaryByProgram($filters);
+            $filename = 'placement_rate_by_program_' . date('Y-m-d');
+            break;
+
+        case 'verification_report':
+            $reportData = $careerReportsGateway->getJobPlacementVerificationReport($filters);
+            $filename = 'job_placement_verification_' . date('Y-m-d');
+            break;
+
+        case 'outcomes_summary':
+            $reportData = $careerReportsGateway->getStudentCareerDetails($filters);
+            $filename = 'employment_outcomes_summary_' . date('Y-m-d');
+            break;
+
+        case 'unverified_placements':
+            $reportData = $careerReportsGateway->getUnverifiedPlacements($filters);
+            $filename = 'unverified_placements_' . date('Y-m-d');
+            break;
+
+        default:
+            $reportData = $careerReportsGateway->getPlacementSummaryByProgram($filters);
+            $filename = 'placement_rate_by_program_' . date('Y-m-d');
+    }
 
     // Set CSV headers
-    $filename = 'job_placement_verification_' . date('Y-m-d') . '.csv';
     header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
     header('Pragma: no-cache');
     header('Expires: 0');
 
@@ -67,81 +102,23 @@ try {
     // Add BOM for Excel UTF-8 support
     fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
 
-    // CSV Headers
-    $headers = [
-        'Student First Name',
-        'Student Last Name',
-        'Student Code',
-        'Student Phone',
-        'Student Email',
-        'Program Name',
-        'Program Code',
-        'Enrollment Date',
-        'Graduation Date',
-        'Employment Status',
-        'Employment Date',
-        'Job Title',
-        'Employer Name',
-        'Employer Address',
-        'Employer Contact Name',
-        'Employer Contact Phone',
-        'Employer Contact Email',
-        'Employment Type',
-        'Entry Level',
-        'Salary Range',
-        'Exact Salary',
-        'Verification Date',
-        'Verification Source',
-        'Verified By',
-        'Verification Notes',
-        'Requires License',
-        'License Type',
-        'License Obtained',
-        'License Number',
-        'Continuing Education Institution',
-        'Continuing Education Program',
-        'Comments'
-    ];
+    // Dynamic CSV Headers based on report type
+    if (empty($reportData)) {
+        fputcsv($output, ['No data available for the selected filters']);
+        fclose($output);
+        exit;
+    }
 
+    // Use first row keys as headers
+    $headers = array_keys($reportData[0]);
     fputcsv($output, $headers);
 
     // Add data rows
     foreach ($reportData as $row) {
-        $csvRow = [
-            $row['studentFirstName'] ?? '',
-            $row['studentLastName'] ?? '',
-            $row['studentCode'] ?? '',
-            $row['studentPhone'] ?? '',
-            $row['studentEmail'] ?? '',
-            $row['programName'] ?? '',
-            $row['programCode'] ?? '',
-            $row['enrollmentDate'] ?? '',
-            $row['actualGraduationDate'] ?? '',
-            $row['employmentStatus'] ?? '',
-            $row['employmentDate'] ?? '',
-            $row['jobTitle'] ?? '',
-            $row['employerName'] ?? '',
-            $row['employerAddress'] ?? '',
-            $row['employerContactName'] ?? '',
-            $row['employerContactPhone'] ?? '',
-            $row['employerContactEmail'] ?? '',
-            $row['employmentType'] ?? '',
-            $row['isEntryLevel'] ?? '',
-            $row['salaryRange'] ?? '',
-            $row['salaryExact'] ?? '',
-            $row['verificationDate'] ?? '',
-            $row['verificationSource'] ?? '',
-            ($row['verifiedByFirstName'] ?? '') . ' ' . ($row['verifiedByLastName'] ?? ''),
-            $row['verificationNotes'] ?? '',
-            $row['requiresLicense'] ?? '',
-            $row['licenseType'] ?? '',
-            $row['licenseObtained'] ?? '',
-            $row['licenseNumber'] ?? '',
-            $row['continuingEducationInstitution'] ?? '',
-            $row['continuingEducationProgram'] ?? '',
-            $row['comments'] ?? ''
-        ];
-
+        $csvRow = [];
+        foreach ($headers as $header) {
+            $csvRow[] = $row[$header] ?? '';
+        }
         fputcsv($output, $csvRow);
     }
 
