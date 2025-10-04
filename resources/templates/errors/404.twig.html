@@ -1,26 +1,44 @@
-{% extends "base.twig.html" %}
-
-{% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
-        <div class="text-center">
-            <div class="mx-auto h-24 w-24 text-gray-400">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.137 0-4.146-.832-5.657-2.343m0 0L3 10m3.343 2.657L3 16m5.657-2.343L12 17l3.343-2.343L21 12m-5.657 2.343L12 11" />
-                </svg>
-            </div>
-            <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
-                {{ title|default('404 - Page Not Found') }}
-            </h2>
-            <p class="mt-2 text-sm text-gray-600">
-                {{ message|default('The page you requested could not be found.') }}
-            </p>
-            <div class="mt-6">
-                <a href="index.php?q=/dashboard" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Return to Dashboard
-                </a>
-            </div>
-        </div>
+{# 404 Page Not Found #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - COR4EDU SMS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; padding: 20px;
+        }
+        .error-container {
+            background: white; border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 50px 40px; max-width: 600px; text-align: center;
+        }
+        .error-number {
+            font-size: 120px; font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        h1 { color: #343a40; font-size: 32px; margin-bottom: 15px; }
+        p { color: #6c757d; font-size: 16px; line-height: 1.6; margin-bottom: 15px; }
+        .btn {
+            display: inline-block; background: #667eea; color: white;
+            padding: 14px 35px; border-radius: 6px; text-decoration: none;
+            margin: 10px 5px; font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-number">404</div>
+        <h1>Page Not Found</h1>
+        <p>The page you're looking for doesn't exist or has been moved.</p>
+        <div><a href="/" class="btn">Return to Dashboard</a></div>
     </div>
-</div>
-{% endblock %}
+</body>
+</html>

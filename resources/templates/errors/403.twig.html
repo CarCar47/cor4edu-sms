@@ -1,0 +1,157 @@
+{# 403 Access Denied #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied - COR4EDU SMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .error-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 50px 40px;
+            max-width: 600px;
+            text-align: center;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #dc3545;
+            font-size: 32px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        h2 {
+            color: #343a40;
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        p {
+            color: #6c757d;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .permission-info {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 5px;
+            padding: 15px 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .permission-info strong {
+            color: #856404;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .permission-info ul {
+            margin-left: 20px;
+            color: #856404;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 14px 35px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin: 10px 5px;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .support-info {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            font-size: 14px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">🔒</div>
+        <h1>Access Denied</h1>
+        <h2>Insufficient Permissions</h2>
+
+        <p>You don't have permission to access this resource.</p>
+
+        <div class="permission-info">
+            <strong>This could be because:</strong>
+            <ul>
+                <li>Your role doesn't include the required permissions</li>
+                <li>You need to be logged in with a different account</li>
+                <li>This resource requires administrator access</li>
+            </ul>
+        </div>
+
+        <p>If you believe this is an error, please contact your system administrator.</p>
+
+        <div>
+            <a href="/" class="btn">Return to Dashboard</a>
+            <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+        </div>
+
+        <div class="support-info">
+            Need help? Contact your system administrator to request access.
+        </div>
+    </div>
+</body>
+</html>

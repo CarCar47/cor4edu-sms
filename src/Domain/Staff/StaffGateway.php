@@ -2,18 +2,20 @@
 /**
  * COR4EDU SMS - Staff Gateway
  * Following Gibbon patterns and COR4EDU Single permission architecture
+ *
+ * SECURITY UPDATE: Now using Aura SQL Query Builder for SQL injection prevention
+ *
+ * @version v1.0.0
+ * @since v1.0.0
  */
 
 namespace Cor4Edu\Domain\Staff;
 
-class StaffGateway
-{
-    private $pdo;
+use Cor4Edu\Domain\Gateway;
 
-    public function __construct(\PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
+class StaffGateway extends Gateway
+{
+    // Removed separate $pdo property - now inherited from Gateway base class
 
     /**
      * Role-based permission mapping following COR4EDU Single patterns
@@ -76,16 +78,18 @@ class StaffGateway
             $action = $permissionParts[1];
 
             // 3. Check granular permissions in cor4edu_staff_permissions table
-            $sql = "SELECT allowed FROM cor4edu_staff_permissions
-                    WHERE staffID = :staffID AND module = :module AND action = :action";
+            // SECURITY: Using Aura SQL Query Builder for SQL injection prevention
+            $query = $this->newSelect()
+                ->cols(['allowed'])
+                ->from('cor4edu_staff_permissions')
+                ->where('staffID = :staffID')
+                ->where('module = :module')
+                ->where('action = :action')
+                ->bindValue('staffID', $staffID)
+                ->bindValue('module', $module)
+                ->bindValue('action', $action);
 
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->bindParam(':staffID', $staffID, \PDO::PARAM_INT);
-            $stmt->bindParam(':module', $module);
-            $stmt->bindParam(':action', $action);
-            $stmt->execute();
-
-            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $result = $this->runSelectOne($query);
             if ($result && $result['allowed'] === 'Y') {
                 return true;
             }
@@ -111,19 +115,28 @@ class StaffGateway
 
     /**
      * Get staff member by ID
+     * SECURITY: Using Aura SQL Query Builder for SQL injection prevention
      */
     public function getStaffById(int $staffID): ?array
     {
-        $sql = "SELECT staffID, username, email, firstName, lastName,
-                       isSuperAdmin, canCreateAdmins, active, position
-                FROM cor4edu_staff
-                WHERE staffID = :staffID AND active = 'Y'";
+        $query = $this->newSelect()
+            ->cols([
+                'staffID',
+                'username',
+                'email',
+                'firstName',
+                'lastName',
+                'isSuperAdmin',
+                'canCreateAdmins',
+                'active',
+                'position'
+            ])
+            ->from('cor4edu_staff')
+            ->where('staffID = :staffID')
+            ->where("active = 'Y'")
+            ->bindValue('staffID', $staffID);
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam(':staffID', $staffID, \PDO::PARAM_INT);
-        $stmt->execute();
-
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $result = $this->runSelectOne($query);
 
         // Add default values for columns that don't exist yet
         if ($result) {
@@ -151,16 +164,18 @@ class StaffGateway
         }
 
         // Get permissions from cor4edu_staff_permissions table
-        $sql = "SELECT CONCAT(module, '.', action) as permission
-                FROM cor4edu_staff_permissions
-                WHERE staffID = :staffID AND allowed = 'Y'";
+        // SECURITY: Using Aura SQL Query Builder
+        $query = $this->newSelect()
+            ->cols(["CONCAT(module, '.', action) as permission"])
+            ->from('cor4edu_staff_permissions')
+            ->where('staffID = :staffID')
+            ->where("allowed = 'Y'")
+            ->bindValue('staffID', $staffID);
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam(':staffID', $staffID, \PDO::PARAM_INT);
-        $stmt->execute();
+        $results = $this->runSelect($query);
 
         $permissions = [];
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        foreach ($results as $row) {
             $permissions[] = $row['permission'];
         }
 
@@ -194,15 +209,14 @@ class StaffGateway
         }
 
         // Get permissions from cor4edu_staff_permissions table
-        $sql = "SELECT module, action, allowed
-                FROM cor4edu_staff_permissions
-                WHERE staffID = :staffID";
+        // SECURITY: Using Aura SQL Query Builder
+        $query = $this->newSelect()
+            ->cols(['module', 'action', 'allowed'])
+            ->from('cor4edu_staff_permissions')
+            ->where('staffID = :staffID')
+            ->bindValue('staffID', $staffID);
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam(':staffID', $staffID, \PDO::PARAM_INT);
-        $stmt->execute();
-
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $this->runSelect($query);
     }
 
     /**

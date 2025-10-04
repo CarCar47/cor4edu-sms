@@ -4,18 +4,28 @@ namespace Cor4Edu\Domain;
 
 use PDO;
 use Cor4Edu\Config\Database;
+use Cor4Edu\Database\QueryBuilder;
+use Aura\SqlQuery\Common\SelectInterface;
+use Aura\SqlQuery\Common\InsertInterface;
+use Aura\SqlQuery\Common\UpdateInterface;
+use Aura\SqlQuery\Common\DeleteInterface;
 
 /**
  * Base Gateway class following Gibbon patterns
- * Simple database access abstraction
+ * Enhanced with Aura SQL Query Builder for type-safe queries
+ *
+ * @version v1.0.0
+ * @since v1.0.0
  */
 abstract class Gateway
 {
     protected $pdo;
+    protected QueryBuilder $queryBuilder;
 
     public function __construct($db)
     {
         $this->pdo = $db;
+        $this->queryBuilder = new QueryBuilder($db);
     }
 
     /**
@@ -25,6 +35,109 @@ abstract class Gateway
     protected function db(): PDO
     {
         return $this->pdo;
+    }
+
+    /**
+     * Create a new SELECT query (Aura SQL Query)
+     *
+     * Example:
+     *   $query = $this->newSelect()
+     *       ->cols(['*'])
+     *       ->from('cor4edu_students')
+     *       ->where('status = :status')
+     *       ->bindValue('status', 'Active');
+     *   $results = $this->runSelect($query);
+     *
+     * @return SelectInterface
+     */
+    protected function newSelect(): SelectInterface
+    {
+        return $this->queryBuilder->newSelect();
+    }
+
+    /**
+     * Create a new INSERT query (Aura SQL Query)
+     *
+     * @return InsertInterface
+     */
+    protected function newInsert(): InsertInterface
+    {
+        return $this->queryBuilder->newInsert();
+    }
+
+    /**
+     * Create a new UPDATE query (Aura SQL Query)
+     *
+     * @return UpdateInterface
+     */
+    protected function newUpdate(): UpdateInterface
+    {
+        return $this->queryBuilder->newUpdate();
+    }
+
+    /**
+     * Create a new DELETE query (Aura SQL Query)
+     *
+     * @return DeleteInterface
+     */
+    protected function newDelete(): DeleteInterface
+    {
+        return $this->queryBuilder->newDelete();
+    }
+
+    /**
+     * Execute a SELECT query built with Aura SQL Query
+     *
+     * @param SelectInterface $query
+     * @return array
+     */
+    protected function runSelect(SelectInterface $query): array
+    {
+        return $this->queryBuilder->runSelect($query);
+    }
+
+    /**
+     * Execute a SELECT query and return first result
+     *
+     * @param SelectInterface $query
+     * @return array|false
+     */
+    protected function runSelectOne(SelectInterface $query): array|false
+    {
+        return $this->queryBuilder->runSelectOne($query);
+    }
+
+    /**
+     * Execute an INSERT query built with Aura SQL Query
+     *
+     * @param InsertInterface $query
+     * @return int Last insert ID
+     */
+    protected function runInsert(InsertInterface $query): int
+    {
+        return $this->queryBuilder->runInsert($query);
+    }
+
+    /**
+     * Execute an UPDATE query built with Aura SQL Query
+     *
+     * @param UpdateInterface $query
+     * @return int Affected rows
+     */
+    protected function runUpdate(UpdateInterface $query): int
+    {
+        return $this->queryBuilder->runUpdate($query);
+    }
+
+    /**
+     * Execute a DELETE query built with Aura SQL Query
+     *
+     * @param DeleteInterface $query
+     * @return int Affected rows
+     */
+    protected function runDelete(DeleteInterface $query): int
+    {
+        return $this->queryBuilder->runDelete($query);
     }
 
     /**
