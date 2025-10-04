@@ -19,7 +19,72 @@ steps:
       - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/${_SERVICE_NAME}:latest'
     id: 'push-image-latest'
 
-  # Step 3: Deploy to Cloud Run
+  # Step 3: Validate Database Schema (PREVENTS SCHEMA DRIFT)
+  # This step prevents Issues #8, #9, #11 from recurring by ensuring
+  # Cloud SQL schema matches what the code expects BEFORE deploying
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "================================================================"
+        echo " PRE-DEPLOYMENT SCHEMA VALIDATION"
+        echo "================================================================"
+
+        # Install PHP
+        apt-get update -qq && apt-get install -y -qq php-cli php-mysql > /dev/null
+
+        # Install Cloud SQL Proxy
+        wget -q https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.8.2/cloud-sql-proxy.linux.amd64 -O cloud-sql-proxy
+        chmod +x cloud-sql-proxy
+
+        # Start Cloud SQL Proxy in background
+        ./cloud-sql-proxy --port 3306 ${PROJECT_ID}:${_REGION}:${_CLOUDSQL_INSTANCE} &
+        PROXY_PID=$$!
+
+        # Wait for proxy to be ready
+        echo "Waiting for Cloud SQL Proxy..."
+        sleep 5
+
+        # Set environment variables for validation script
+        export DB_HOST=127.0.0.1
+        export DB_PORT=3306
+        export DB_NAME=${_DB_NAME}
+
+        # Get DB credentials from Secret Manager
+        export DB_USERNAME=$$(gcloud secrets versions access latest --secret=${_DB_USERNAME_SECRET})
+        export DB_PASSWORD=$$(gcloud secrets versions access latest --secret=${_DB_PASSWORD_SECRET})
+
+        # Run schema validation
+        php validate_schema.php
+        VALIDATION_EXIT_CODE=$$?
+
+        # Kill proxy
+        kill $$PROXY_PID 2>/dev/null || true
+
+        # Exit with validation result
+        if [ $$VALIDATION_EXIT_CODE -ne 0 ]; then
+          echo ""
+          echo "================================================================"
+          echo " ❌ DEPLOYMENT BLOCKED - SCHEMA DRIFT DETECTED"
+          echo "================================================================"
+          echo ""
+          echo "Action Required:"
+          echo "1. Apply missing migrations to Cloud SQL"
+          echo "2. Rebuild to trigger validation again"
+          echo ""
+          exit 1
+        fi
+
+        echo ""
+        echo "================================================================"
+        echo " ✅ SCHEMA VALIDATION PASSED - PROCEEDING TO DEPLOYMENT"
+        echo "================================================================"
+        echo ""
+    id: 'validate-schema'
+    waitFor: ['push-image-latest']
+
+  # Step 4: Deploy to Cloud Run (ONLY if schema validation passed)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -56,6 +121,7 @@ steps:
       - '--port'
       - '8080'
     id: 'deploy-cloud-run'
+    waitFor: ['validate-schema']
 
 # Substitution variables (configure per school)
 substitutions:
