@@ -53,7 +53,7 @@ try {
     exit(1);
 }
 
-// Define all required tables (based on actual production system)
+// Define ALL required tables (COMPREHENSIVE LIST - verified from Cloud SQL export 2025-10-04)
 $requiredTables = [
     // Core tables
     'cor4edu_students',
@@ -66,6 +66,7 @@ $requiredTables = [
     'cor4edu_staff_permissions',
     'cor4edu_staff_role_types',
     'cor4edu_role_permission_defaults',
+    'cor4edu_staff_tab_access',
 
     // Document system (Issue #11 - was missing, caused student profile 500 errors)
     'cor4edu_document_requirements',
@@ -77,12 +78,24 @@ $requiredTables = [
     'cor4edu_student_meetings',
     'cor4edu_academic_support_sessions',
     'cor4edu_academic_interventions',
+    'cor4edu_academic_records',
 
-    // Career placement
+    // Career placement & services
     'cor4edu_career_placements',
+    'cor4edu_career_services',
+    'cor4edu_employment_tracking',
+    'cor4edu_job_applications',
 
-    // Migration tracking (Phase 2.1)
+    // Program pricing
+    'cor4edu_program_pricing',
+    'cor4edu_program_price_history',
+
+    // System tables
+    'cor4edu_sessions',
     'cor4edu_schema_migrations',
+
+    // Views/computed tables (may be view, not table)
+    'cor4edu_student_academic_timeline',
 ];
 
 // Critical columns that caused production failures
