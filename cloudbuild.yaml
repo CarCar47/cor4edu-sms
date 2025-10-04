@@ -31,8 +31,8 @@ steps:
         echo " PRE-DEPLOYMENT SCHEMA VALIDATION"
         echo "================================================================"
 
-        # Install PHP
-        apt-get update -qq && apt-get install -y -qq php-cli php-mysql > /dev/null
+        # Install PHP and wget
+        apt-get update -qq && apt-get install -y -qq php-cli php-mysql wget > /dev/null
 
         # Install Cloud SQL Proxy
         wget -q https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.8.2/cloud-sql-proxy.linux.amd64 -O cloud-sql-proxy
