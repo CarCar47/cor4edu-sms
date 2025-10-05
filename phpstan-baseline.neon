@@ -1,39 +1,9 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Admin/Documents/document_bulkDeleteProcess.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Admin/Documents/document_deleteProcess.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Admin/Documents/document_history_manage.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Admin/Documents/document_history_manage.php
-
-		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 1
 			path: modules/Admin/Documents/document_history_manage.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Admin/Permissions/permissions_manage.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Admin/Permissions/permissions_manage.php
 
 		-
 			message: "#^Variable \\$container might not be defined\\.$#"
@@ -41,44 +11,14 @@ parameters:
 			path: modules/Admin/Permissions/permissions_manage.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Admin/Permissions/staff_permissions_edit.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Admin/Permissions/staff_permissions_edit.php
-
-		-
 			message: "#^Variable \\$container might not be defined\\.$#"
 			count: 1
 			path: modules/Admin/Permissions/staff_permissions_edit.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Admin/Staff/Documents/staff_document_manage.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Admin/Staff/Documents/staff_document_manage.php
-
-		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 1
 			path: modules/Admin/Staff/Documents/staff_document_manage.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 2
-			path: modules/Admin/Staff/Documents/staff_document_upload.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Admin/Staff/Documents/staff_document_upload.php
 
 		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
@@ -86,34 +26,9 @@ parameters:
 			path: modules/Admin/Staff/Documents/staff_document_upload.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Admin/Staff/Documents/staff_document_uploadProcess.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 2
-			path: modules/Admin/Staff/staff_manage.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Admin/Staff/staff_manage.php
-
-		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 1
 			path: modules/Admin/Staff/staff_manage.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Admin/Staff/staff_manage_add.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Admin/Staff/staff_manage_add.php
 
 		-
 			message: "#^Parameter \\#1 \\$string of function str_pad expects string, int given\\.$#"
@@ -126,34 +41,9 @@ parameters:
 			path: modules/Admin/Staff/staff_manage_add.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Admin/Staff/staff_manage_delete.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Admin/Staff/staff_manage_delete.php
-
-		-
-			message: "#^Function hasPermission not found\\.$#"
-			count: 1
-			path: modules/Admin/Staff/staff_manage_delete.php
-
-		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 1
 			path: modules/Admin/Staff/staff_manage_delete.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Admin/Staff/staff_manage_edit.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Admin/Staff/staff_manage_edit.php
 
 		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
@@ -161,54 +51,14 @@ parameters:
 			path: modules/Admin/Staff/staff_manage_edit.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 2
-			path: modules/Admin/Staff/staff_manage_view.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
+			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 1
 			path: modules/Admin/Staff/staff_manage_view.php
 
 		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 1
-			path: modules/Admin/Staff/staff_manage_view.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Admin/Staff/staff_permissions.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
 			path: modules/Programs/program_manage.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Programs/program_manage.php
-
-		-
-			message: "#^Function hasPermission not found\\.$#"
-			count: 1
-			path: modules/Programs/program_manage.php
-
-		-
-			message: "#^Variable \\$twig might not be defined\\.$#"
-			count: 1
-			path: modules/Programs/program_manage.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Programs/program_manage_add.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Programs/program_manage_add.php
 
 		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
@@ -216,39 +66,9 @@ parameters:
 			path: modules/Programs/program_manage_add.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Programs/program_manage_addProcess.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Programs/program_manage_delete.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Programs/program_manage_delete.php
-
-		-
-			message: "#^Function hasPermission not found\\.$#"
-			count: 1
-			path: modules/Programs/program_manage_delete.php
-
-		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 1
 			path: modules/Programs/program_manage_delete.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Programs/program_manage_edit.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Programs/program_manage_edit.php
 
 		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
@@ -256,34 +76,9 @@ parameters:
 			path: modules/Programs/program_manage_edit.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Programs/program_manage_editProcess.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 2
-			path: modules/Programs/program_manage_editProcess.php
-
-		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 2
 			path: modules/Programs/program_manage_editProcess.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 15
-			path: modules/Reports/export_process.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 2
-			path: modules/Reports/reports_academic.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Reports/reports_academic.php
 
 		-
 			message: "#^Variable \\$status in empty\\(\\) always exists and is not falsy\\.$#"
@@ -294,16 +89,6 @@ parameters:
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 2
 			path: modules/Reports/reports_academic.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Reports/reports_admissions.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Reports/reports_admissions.php
 
 		-
 			message: "#^Variable \\$summaryStats might not be defined\\.$#"
@@ -316,26 +101,6 @@ parameters:
 			path: modules/Reports/reports_admissions.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Reports/reports_admissions_export.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Reports/reports_admissions_export.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Reports/reports_career.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Reports/reports_career.php
-
-		-
 			message: "#^Variable \\$studentStatus in empty\\(\\) always exists and is not falsy\\.$#"
 			count: 1
 			path: modules/Reports/reports_career.php
@@ -346,44 +111,14 @@ parameters:
 			path: modules/Reports/reports_career.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Reports/reports_career_export.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Reports/reports_career_export.php
-
-		-
 			message: "#^Variable \\$studentStatus in empty\\(\\) always exists and is not falsy\\.$#"
 			count: 1
 			path: modules/Reports/reports_career_export.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Reports/reports_dashboard.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Reports/reports_dashboard.php
-
-		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 2
 			path: modules/Reports/reports_dashboard.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 2
-			path: modules/Reports/reports_financial.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Reports/reports_financial.php
 
 		-
 			message: "#^Variable \\$status in empty\\(\\) always exists and is not falsy\\.$#"
@@ -394,16 +129,6 @@ parameters:
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 2
 			path: modules/Reports/reports_financial.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Reports/reports_overview.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Reports/reports_overview.php
 
 		-
 			message: "#^Variable \\$summaryStats might not be defined\\.$#"
@@ -436,39 +161,9 @@ parameters:
 			path: modules/Reports/src/Domain/FinancialReportsGateway.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Staff/staff_profile_updateProcess.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Staff/staff_profile_view.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Staff/staff_profile_view.php
-
-		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 2
 			path: modules/Staff/staff_profile_view.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 3
-			path: modules/Students/Documents/document_delete.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 3
-			path: modules/Students/Documents/document_deleteConfirm.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Students/Documents/document_deleteConfirm.php
 
 		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
@@ -476,64 +171,9 @@ parameters:
 			path: modules/Students/Documents/document_deleteConfirm.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 2
-			path: modules/Students/Documents/document_upload.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Students/Documents/document_upload.php
-
-		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 1
 			path: modules/Students/Documents/document_upload.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 2
-			path: modules/Students/Documents/document_uploadProcess.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Students/FacultyNotes/meeting_process.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Students/FacultyNotes/note_process.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Students/FacultyNotes/support_session_process.php
-
-		-
-			message: "#^Function canUserEditTab not found\\.$#"
-			count: 1
-			path: modules/Students/Requirements/requirement_delete.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 3
-			path: modules/Students/Requirements/requirement_delete.php
-
-		-
-			message: "#^Function canUserEditTab not found\\.$#"
-			count: 1
-			path: modules/Students/Requirements/requirement_upload.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 3
-			path: modules/Students/Requirements/requirement_upload.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Students/Requirements/requirement_upload.php
 
 		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
@@ -541,39 +181,9 @@ parameters:
 			path: modules/Students/Requirements/requirement_upload.php
 
 		-
-			message: "#^Function canUserEditTab not found\\.$#"
-			count: 1
-			path: modules/Students/Requirements/requirement_uploadProcess.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 3
-			path: modules/Students/Requirements/requirement_uploadProcess.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 3
-			path: modules/Students/Requirements/requirement_view.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Students/Requirements/requirement_view.php
-
-		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 1
 			path: modules/Students/Requirements/requirement_view.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Students/academic_info_updateProcess.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 2
-			path: modules/Students/payment_addProcess.php
 
 		-
 			message: "#^Variable \\$studentID might not be defined\\.$#"
@@ -581,49 +191,14 @@ parameters:
 			path: modules/Students/payment_addProcess.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 2
-			path: modules/Students/payment_editProcess.php
-
-		-
 			message: "#^Variable \\$studentID might not be defined\\.$#"
 			count: 1
 			path: modules/Students/payment_editProcess.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 2
-			path: modules/Students/placement_record_process.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Students/student_manage.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Students/student_manage.php
-
-		-
-			message: "#^Function hasPermission not found\\.$#"
-			count: 1
-			path: modules/Students/student_manage.php
-
-		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 1
 			path: modules/Students/student_manage.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Students/student_manage_add.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Students/student_manage_add.php
 
 		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
@@ -631,49 +206,14 @@ parameters:
 			path: modules/Students/student_manage_add.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 2
-			path: modules/Students/student_manage_addProcess.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 2
-			path: modules/Students/student_manage_addProcess.php
-
-		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 2
 			path: modules/Students/student_manage_addProcess.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 1
-			path: modules/Students/student_manage_delete.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Students/student_manage_delete.php
-
-		-
-			message: "#^Function hasPermission not found\\.$#"
-			count: 1
-			path: modules/Students/student_manage_delete.php
-
-		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 1
 			path: modules/Students/student_manage_delete.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 2
-			path: modules/Students/student_manage_edit.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Students/student_manage_edit.php
 
 		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
@@ -681,43 +221,13 @@ parameters:
 			path: modules/Students/student_manage_edit.php
 
 		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 3
-			path: modules/Students/student_manage_editProcess.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 2
-			path: modules/Students/student_manage_editProcess.php
-
-		-
 			message: "#^Variable \\$twig might not be defined\\.$#"
 			count: 2
 			path: modules/Students/student_manage_editProcess.php
-
-		-
-			message: "#^Function getGateway not found\\.$#"
-			count: 6
-			path: modules/Students/student_manage_view.php
-
-		-
-			message: "#^Function getUserEditableTabsForStudents not found\\.$#"
-			count: 1
-			path: modules/Students/student_manage_view.php
-
-		-
-			message: "#^Function getUserPermissionsForNavigation not found\\.$#"
-			count: 1
-			path: modules/Students/student_manage_view.php
 
 		-
 			message: "#^Function hasEditPermission not found\\.$#"
 			count: 2
-			path: modules/Students/student_manage_view.php
-
-		-
-			message: "#^Function hasPermission not found\\.$#"
-			count: 14
 			path: modules/Students/student_manage_view.php
 
 		-
@@ -754,11 +264,6 @@ parameters:
 			message: "#^Property Cor4Edu\\\\Domain\\\\Staff\\\\StaffGateway\\:\\:\\$rolePermissions is never read, only written\\.$#"
 			count: 1
 			path: src/Domain/Staff/StaffGateway.php
-
-		-
-			message: "#^Function hasPermission not found\\.$#"
-			count: 8
-			path: src/Domain/Staff/StaffProfileGateway.php
 
 		-
 			message: "#^Method Cor4Edu\\\\Domain\\\\Student\\\\StudentGateway\\:\\:updateEmploymentStatus\\(\\) should return bool but returns int\\.$#"

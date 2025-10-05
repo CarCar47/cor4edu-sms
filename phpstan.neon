@@ -6,6 +6,8 @@ parameters:
     paths:
         - src
         - modules
+    bootstrapFiles:
+        - phpstan-bootstrap.php
     excludePaths:
         - src/views
         - modules/*/views
