@@ -1,0 +1,121 @@
+# COR4EDU SMS - Google Cloud Build Exclusions
+# Prevents OneDrive metadata and problematic files from causing build failures
+
+# This file mirrors .dockerignore but adds OneDrive-specific exclusions
+# for Cloud Build compatibility
+
+# CRITICAL: OneDrive-specific files that cause "operation not permitted" errors
+desktop.ini
+*.lnk
+~$*
+*:Zone.Identifier
+.directory
+*.DS_Store
+._*
+
+# OneDrive sync files
+.sync*
+*~lock*
+*.tmp
+*.temp
+
+# Git (not needed in Cloud Build - will be in Docker image via tarball)
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# Dependencies (installed via Dockerfile)
+/vendor/
+# composer.lock - NEEDED for Step #2 test suite to resolve dependencies
+composer.phar
+node_modules/
+
+# Environment & Secrets (managed via Secret Manager)
+.env
+.env.*
+!.env.example
+
+# Storage (created at runtime)
+/storage/uploads/*
+/storage/documents/*
+/storage/logs/*
+/storage/cache/*
+/storage/sessions/*
+
+# IDE & Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.editorconfig
+
+# Testing (not needed in production image, but NEEDED for CI/CD Step #2)
+# /tests/ - NEEDED for Step #2 test suite to run
+# phpunit.xml - NEEDED for Step #2 test suite
+.phpunit.result.cache
+coverage/
+/vendor/phpunit/
+/vendor/phpstan/
+
+# Documentation (not needed in image)
+*.md
+!README.md
+/docs/
+VERIFICATION-CHECKLIST.md
+.claude/
+
+# Build & CI config files (Cloud Build reads these but doesn't include in tarball)
+cloudbuild.yaml
+docker-compose.yml
+docker-compose.override.yml
+Dockerfile.dev
+.dockerignore
+.gcloudignore
+
+# Logs and debug files
+*.log
+npm-debug.log*
+debug.log
+error.log
+build-output.log
+
+# Windows-specific files
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+
+# Temporary/backup files
+*.swp
+*.swo
+*~
+*.bak
+*.backup
+*.old
+
+# Database files (schema is in migrations)
+*.sqlite
+*.db
+!database_complete_schema.sql
+
+# Local Cloud SQL Proxy and tools
+cloud-sql-proxy*
+*.exe
+
+# Test/debug PHP scripts
+check_*.php
+test_*.php
+debug_*.php
+export_*.php
+verify_*.php
+
+# Session data
+.claude/
+build/
+dist/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride

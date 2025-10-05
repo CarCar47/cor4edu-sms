@@ -19,7 +19,69 @@ steps:
       - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/${_SERVICE_NAME}:latest'
     id: 'push-image-latest'
 
-  # Step 3: Validate Database Schema (PREVENTS SCHEMA DRIFT)
+  # Step 3: Run Test Suite (PREVENTS BUGS FROM REACHING PRODUCTION)
+  # Runs unit tests, code style checks, and static analysis before deploying
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "================================================================"
+        echo " PRE-DEPLOYMENT TEST SUITE"
+        echo "================================================================"
+
+        # Install PHP 8.3 (matching Dockerfile) and composer
+        apt-get update -qq
+        apt-get install -y -qq lsb-release ca-certificates curl gnupg2
+
+        # Add Sury PHP repository (explicit method to prevent script exit issues)
+        curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
+        dpkg -i /tmp/debsuryorg-archive-keyring.deb
+        echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
+        apt-get update -qq
+
+        # Install PHP 8.3 and required extensions (matching Dockerfile requirements + SQLite for unit tests)
+        echo "Installing PHP 8.3..."
+        apt-get install -y -qq php8.3-cli php8.3-mysql php8.3-xml php8.3-mbstring php8.3-gd php8.3-zip php8.3-curl php8.3-sqlite3 unzip wget
+
+        # Verify PHP version
+        php -v
+
+        # Install Composer
+        wget -q https://getcomposer.org/installer -O composer-setup.php
+        php composer-setup.php --quiet
+        rm composer-setup.php
+
+        # Install dependencies (dev dependencies needed for tests)
+        # Use 'update' instead of 'install' to resolve dependencies with PHP 8.3
+        echo "Installing dependencies..."
+        php composer.phar update --no-interaction
+
+        echo ""
+        echo "Running Unit Tests..."
+        php composer.phar test:unit || exit 1
+
+        echo ""
+        echo "Running Code Style Check..."
+        php composer.phar test:lint || exit 1
+
+        echo ""
+        echo "Running Static Analysis..."
+        php composer.phar test:analyze || exit 1
+
+        echo ""
+        echo "Running Security Audit..."
+        php composer.phar test:security || exit 1
+
+        echo ""
+        echo "================================================================"
+        echo " [PASSED] ALL TESTS PASSED - CODE QUALITY VERIFIED"
+        echo "================================================================"
+        echo ""
+    id: 'run-tests'
+    waitFor: ['push-image-latest']
+
+  # Step 4: Validate Database Schema (PREVENTS SCHEMA DRIFT)
   # This step prevents Issues #8, #9, #11 from recurring by ensuring
   # Cloud SQL schema matches what the code expects BEFORE deploying
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -66,7 +128,7 @@ steps:
         if [ $$VALIDATION_EXIT_CODE -ne 0 ]; then
           echo ""
           echo "================================================================"
-          echo " ❌ DEPLOYMENT BLOCKED - SCHEMA DRIFT DETECTED"
+          echo " [BLOCKED] DEPLOYMENT BLOCKED - SCHEMA DRIFT DETECTED"
           echo "================================================================"
           echo ""
           echo "Action Required:"
@@ -78,13 +140,13 @@ steps:
 
         echo ""
         echo "================================================================"
-        echo " ✅ SCHEMA VALIDATION PASSED - PROCEEDING TO DEPLOYMENT"
+        echo " [PASSED] SCHEMA VALIDATION PASSED - PROCEEDING TO DEPLOYMENT"
         echo "================================================================"
         echo ""
     id: 'validate-schema'
-    waitFor: ['push-image-latest']
+    waitFor: ['run-tests']
 
-  # Step 4: Deploy to Cloud Run (ONLY if schema validation passed)
+  # Step 5: Deploy to Cloud Run (ONLY if tests AND schema validation passed)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:

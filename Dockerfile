@@ -1,7 +1,7 @@
 # COR4EDU SMS - Google Cloud Run Dockerfile
-# PHP 8.1 with Apache for production deployment
+# PHP 8.3 with Apache for production deployment
 
-FROM php:8.1-apache
+FROM php:8.3-apache
 
 LABEL maintainer="COR4EDU Development Team <dev@cor4edu.com>"
 LABEL description="COR4EDU Student Management System"
@@ -49,8 +49,15 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy application files
-COPY . /var/www/html/
+# Copy application files (selective copy to avoid OneDrive metadata issues)
+# CRITICAL: Do NOT use "COPY . /var/www/html/" as it includes OneDrive attributes
+COPY composer.json composer.lock* /var/www/html/
+COPY public/ /var/www/html/public/
+COPY src/ /var/www/html/src/
+COPY modules/ /var/www/html/modules/
+COPY resources/ /var/www/html/resources/
+COPY database_migrations/ /var/www/html/database_migrations/
+COPY config/ /var/www/html/config/
 
 # Install PHP dependencies (production mode)
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
