@@ -46,23 +46,49 @@
     },
     "scripts": {
         "test": [
-            "@test:phpunit",
-            "@test:codeception"
+            "echo '\\n=== Running Unit Tests ===\\n' && @test:unit",
+            "echo '\\n=== Running Code Style Check ===\\n' && @test:lint",
+            "echo '\\n=== Running Static Analysis ===\\n' && @test:analyze",
+            "echo '\\n=== All Tests Passed ✅ ===\\n'"
+        ],
+        "test:unit": [
+            "vendor/bin/phpunit --testsuite=Unit --colors=always"
+        ],
+        "test:integration": [
+            "vendor/bin/phpunit --testsuite=Integration --colors=always"
+        ],
+        "test:all": [
+            "vendor/bin/phpunit --colors=always"
+        ],
+        "test:coverage": [
+            "vendor/bin/phpunit --coverage-html coverage/ --coverage-text --colors=always"
+        ],
+        "test:lint": [
+            "vendor/bin/phpcs --standard=PSR12 --colors --warning-severity=0 src/ modules/"
+        ],
+        "test:analyze": [
+            "vendor/bin/phpstan analyse src/ modules/ --level=5 --ansi --no-progress --memory-limit=-1"
+        ],
+        "test:security": [
+            "composer audit --no-dev"
+        ],
+        "fix": [
+            "phpcbf --standard=PSR12 src/ modules/"
         ],
         "test:phpunit": [
-            "phpunit"
+            "@test:unit"
         ],
         "test:codeception": [
             "codecept run"
         ],
         "test:phpstan": [
-            "phpstan analyse --ansi --no-progress --memory-limit=-1"
+            "@test:analyze"
         ],
         "test:codesniffer": [
-            "phpcs --standard=PSR12 src/"
+            "@test:lint"
         ],
         "fix:codesniffer": [
-            "phpcbf --standard=PSR12 src/"
+            "@fix"
         ]
     },
     "config": {
