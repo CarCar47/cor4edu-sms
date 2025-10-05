@@ -1,0 +1,30 @@
+{
+  "displayName": "COR4EDU SMS - High Error Rate",
+  "documentation": {
+    "content": "The SMS application is experiencing a high error rate (>10% of requests failing).\n\nImmediate Actions:\n1. Check Cloud Run logs for error patterns\n2. Review recent code deployments\n3. Check database performance and connectivity\n4. Verify external service integrations\n5. Consider rolling back to previous version if errors persist",
+    "mimeType": "text/markdown"
+  },
+  "conditions": [
+    {
+      "displayName": "Error rate exceeds 10% for 5 minutes",
+      "conditionThreshold": {
+        "filter": "resource.type=\"cloud_run_revision\" resource.labels.service_name=\"sms-edu\" metric.type=\"run.googleapis.com/request_count\" (metric.labels.response_code_class=\"4xx\" OR metric.labels.response_code_class=\"5xx\")",
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 0.1,
+        "duration": "300s",
+        "aggregations": [
+          {
+            "alignmentPeriod": "60s",
+            "perSeriesAligner": "ALIGN_RATE",
+            "crossSeriesReducer": "REDUCE_SUM"
+          }
+        ]
+      }
+    }
+  ],
+  "combiner": "OR",
+  "enabled": true,
+  "alertStrategy": {
+    "autoClose": "1800s"
+  }
+}

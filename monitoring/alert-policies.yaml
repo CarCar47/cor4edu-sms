@@ -1,0 +1,263 @@
+# Cloud Monitoring Alert Policies
+# COR4EDU SMS - Production Monitoring
+#
+# Deploy with:
+#   gcloud alpha monitoring policies create --policy-from-file=alert-policies.yaml
+
+---
+# Alert 1: High Error Rate (P1 - Critical)
+displayName: "COR4EDU SMS - High Error Rate (>5%)"
+documentation:
+  content: |
+    **Alert: High Error Rate Detected**
+
+    Error rate has exceeded 5% threshold. This indicates system instability.
+
+    **Immediate Actions:**
+    1. Check Cloud Run logs for error patterns
+    2. Verify database connectivity
+    3. Check recent deployments (potential rollback needed)
+    4. Review error types (500 vs 502 vs 503)
+
+    **Runbook:** https://github.com/cor4edu/sms/wiki/Runbook-High-Error-Rate
+  mimeType: text/markdown
+
+conditions:
+  - displayName: "Error rate > 5%"
+    conditionThreshold:
+      filter: |
+        resource.type="cloud_run_revision"
+        resource.labels.service_name="sms-edu"
+        metric.type="run.googleapis.com/request_count"
+        metric.labels.response_code_class="5xx"
+      aggregations:
+        - alignmentPeriod: 300s  # 5 minutes
+          perSeriesAligner: ALIGN_RATE
+          crossSeriesReducer: REDUCE_SUM
+      comparison: COMPARISON_GT
+      thresholdValue: 0.05  # 5%
+      duration: 600s  # 10 minutes
+
+alertStrategy:
+  autoClose: 1800s  # Auto-close after 30 minutes if resolved
+
+notificationChannels:
+  - projects/sms-edu-47/notificationChannels/[EMAIL_CHANNEL_ID]
+
+enabled: true
+severity: CRITICAL
+
+---
+# Alert 2: High Latency (P1)
+displayName: "COR4EDU SMS - High Latency (P95 > 3s)"
+documentation:
+  content: |
+    **Alert: High Latency Detected**
+
+    95th percentile latency exceeded 3 seconds.
+
+    **Immediate Actions:**
+    1. Check database query performance
+    2. Review slow query logs
+    3. Check Cloud Run instance count (may need scaling)
+    4. Investigate recent code changes
+
+    **Runbook:** https://github.com/cor4edu/sms/wiki/Runbook-High-Latency
+  mimeType: text/markdown
+
+conditions:
+  - displayName: "P95 latency > 3s"
+    conditionThreshold:
+      filter: |
+        resource.type="cloud_run_revision"
+        resource.labels.service_name="sms-edu"
+        metric.type="run.googleapis.com/request_latencies"
+      aggregations:
+        - alignmentPeriod: 60s
+          perSeriesAligner: ALIGN_DELTA
+          crossSeriesReducer: REDUCE_PERCENTILE_95
+      comparison: COMPARISON_GT
+      thresholdValue: 3000  # 3 seconds (in ms)
+      duration: 300s  # 5 minutes
+
+alertStrategy:
+  autoClose: 1800s
+
+notificationChannels:
+  - projects/sms-edu-47/notificationChannels/[EMAIL_CHANNEL_ID]
+
+enabled: true
+severity: WARNING
+
+---
+# Alert 3: Database Connection Failures (P0 - Critical)
+displayName: "COR4EDU SMS - Database Unreachable"
+documentation:
+  content: |
+    **Alert: Database Connection Failures**
+
+    Multiple database connection failures detected. System cannot function.
+
+    **IMMEDIATE ACTIONS (P0):**
+    1. Check Cloud SQL instance status
+    2. Verify Cloud Run service account has SQL access
+    3. Check database credentials in Secret Manager
+    4. Review Cloud SQL logs
+    5. Check for connection limit exhaustion
+
+    **Runbook:** https://github.com/cor4edu/sms/wiki/Runbook-Database-Down
+  mimeType: text/markdown
+
+conditions:
+  - displayName: "Health check failing"
+    conditionThreshold:
+      filter: |
+        resource.type="cloud_run_revision"
+        resource.labels.service_name="sms-edu"
+        metric.type="run.googleapis.com/request_count"
+        metric.labels.response_code="503"
+      aggregations:
+        - alignmentPeriod: 60s
+          perSeriesAligner: ALIGN_RATE
+      comparison: COMPARISON_GT
+      thresholdValue: 0.1  # More than 10% 503 errors
+      duration: 120s  # 2 minutes
+
+alertStrategy:
+  autoClose: 900s  # 15 minutes
+
+notificationChannels:
+  - projects/sms-edu-47/notificationChannels/[EMAIL_CHANNEL_ID]
+  - projects/sms-edu-47/notificationChannels/[SMS_CHANNEL_ID]
+
+enabled: true
+severity: CRITICAL
+
+---
+# Alert 4: Low Availability (Approaching SLO Violation)
+displayName: "COR4EDU SMS - Availability < 99%"
+documentation:
+  content: |
+    **Alert: Availability Below Target**
+
+    System availability has dropped below 99% (SLO target: 99.5%).
+
+    **Actions:**
+    1. Investigate recent incidents
+    2. Review error budget consumption
+    3. Consider freezing deployments
+    4. Identify root cause patterns
+
+    **Runbook:** https://github.com/cor4edu/sms/wiki/Runbook-Low-Availability
+  mimeType: text/markdown
+
+conditions:
+  - displayName: "Availability < 99% over 1 hour"
+    conditionThreshold:
+      filter: |
+        resource.type="cloud_run_revision"
+        resource.labels.service_name="sms-edu"
+        metric.type="run.googleapis.com/request_count"
+        metric.labels.response_code_class!="5xx"
+      aggregations:
+        - alignmentPeriod: 3600s  # 1 hour
+          perSeriesAligner: ALIGN_RATE
+          crossSeriesReducer: REDUCE_SUM
+      comparison: COMPARISON_LT
+      thresholdValue: 0.99
+      duration: 3600s
+
+alertStrategy:
+  autoClose: 3600s
+
+notificationChannels:
+  - projects/sms-edu-47/notificationChannels/[EMAIL_CHANNEL_ID]
+
+enabled: true
+severity: WARNING
+
+---
+# Alert 5: High Memory Usage (P2)
+displayName: "COR4EDU SMS - High Memory Usage (>90%)"
+documentation:
+  content: |
+    **Alert: High Memory Usage**
+
+    Container memory usage exceeded 90%.
+
+    **Actions:**
+    1. Check for memory leaks
+    2. Review recent code changes
+    3. Consider increasing memory allocation
+    4. Check for large file uploads
+
+    **Runbook:** https://github.com/cor4edu/sms/wiki/Runbook-High-Memory
+  mimeType: text/markdown
+
+conditions:
+  - displayName: "Memory utilization > 90%"
+    conditionThreshold:
+      filter: |
+        resource.type="cloud_run_revision"
+        resource.labels.service_name="sms-edu"
+        metric.type="run.googleapis.com/container/memory/utilizations"
+      aggregations:
+        - alignmentPeriod: 300s
+          perSeriesAligner: ALIGN_MEAN
+      comparison: COMPARISON_GT
+      thresholdValue: 0.9
+      duration: 600s  # 10 minutes
+
+alertStrategy:
+  autoClose: 1800s
+
+notificationChannels:
+  - projects/sms-edu-47/notificationChannels/[EMAIL_CHANNEL_ID]
+
+enabled: true
+severity: WARNING
+
+---
+# Alert 6: Security - High Authentication Failures (Potential Attack)
+displayName: "COR4EDU SMS - Potential Brute Force Attack"
+documentation:
+  content: |
+    **Alert: High Authentication Failure Rate**
+
+    Detected unusually high rate of authentication failures.
+    Possible brute force attack in progress.
+
+    **IMMEDIATE ACTIONS:**
+    1. Review authentication logs for patterns
+    2. Identify source IPs (consider blocking)
+    3. Check for credential stuffing attempts
+    4. Notify security team
+    5. Consider temporary rate limiting
+
+    **Runbook:** https://github.com/cor4edu/sms/wiki/Runbook-Security-Incident
+  mimeType: text/markdown
+
+conditions:
+  - displayName: "Auth failures > 50/minute"
+    conditionThreshold:
+      filter: |
+        resource.type="cloud_run_revision"
+        resource.labels.service_name="sms-edu"
+        severity="WARNING"
+        jsonPayload.event_type="authentication_failure"
+      aggregations:
+        - alignmentPeriod: 60s
+          perSeriesAligner: ALIGN_RATE
+      comparison: COMPARISON_GT
+      thresholdValue: 50
+      duration: 180s  # 3 minutes
+
+alertStrategy:
+  autoClose: 900s
+
+notificationChannels:
+  - projects/sms-edu-47/notificationChannels/[EMAIL_CHANNEL_ID]
+  - projects/sms-edu-47/notificationChannels/[SMS_CHANNEL_ID]
+
+enabled: true
+severity: CRITICAL

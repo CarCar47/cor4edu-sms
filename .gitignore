@@ -30,6 +30,7 @@ Thumbs.db
 /tests/_output/
 /tests/_support/_generated/
 .phpunit.result.cache
+.phpunit.cache/
 coverage/
 *.coverage
 

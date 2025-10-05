@@ -1,0 +1,30 @@
+{
+  "displayName": "COR4EDU SMS - Health Check Failure",
+  "documentation": {
+    "content": "The SMS application health endpoint is failing. This indicates a critical system failure requiring immediate attention.\n\nImmediate Actions:\n1. Check Cloud Run logs for errors\n2. Verify database connectivity\n3. Check service status in Cloud Console\n4. Review recent deployments",
+    "mimeType": "text/markdown"
+  },
+  "conditions": [
+    {
+      "displayName": "Health endpoint returning unhealthy status",
+      "conditionThreshold": {
+        "filter": "resource.type=\"cloud_run_revision\" resource.labels.service_name=\"sms-edu\" metric.type=\"run.googleapis.com/request_count\" metric.labels.response_code=\"503\"",
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 0,
+        "duration": "0s",
+        "aggregations": [
+          {
+            "alignmentPeriod": "60s",
+            "perSeriesAligner": "ALIGN_RATE",
+            "crossSeriesReducer": "REDUCE_SUM"
+          }
+        ]
+      }
+    }
+  ],
+  "combiner": "OR",
+  "enabled": true,
+  "alertStrategy": {
+    "autoClose": "1800s"
+  }
+}
