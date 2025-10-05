@@ -51,7 +51,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy application files (selective copy to avoid OneDrive metadata issues)
 # CRITICAL: Do NOT use "COPY . /var/www/html/" as it includes OneDrive attributes
-COPY composer.json composer.lock* /var/www/html/
+COPY composer.json composer.lock* bootstrap.php /var/www/html/
 COPY public/ /var/www/html/public/
 COPY src/ /var/www/html/src/
 COPY modules/ /var/www/html/modules/
