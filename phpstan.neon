@@ -1,0 +1,13 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 5
+    paths:
+        - src
+        - modules
+    excludePaths:
+        - src/views
+        - modules/*/views
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
