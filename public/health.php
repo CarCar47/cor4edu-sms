@@ -21,15 +21,16 @@ $health = [
 
 // Check 1: Database connectivity
 try {
-    $dbHost = getenv('DB_HOST') ?: ($_ENV['DB_SOCKET'] ?? 'localhost');
+    $dbSocket = getenv('DB_SOCKET');
+    $dbHost = getenv('DB_HOST') ?: 'localhost';
     $dbPort = getenv('DB_PORT') ?: '3306';
     $dbName = getenv('DB_NAME') ?: 'cor4edu_sms';
     $dbUser = getenv('DB_USERNAME') ?: 'root';
     $dbPass = getenv('DB_PASSWORD') ?: '';
 
     // Use Unix socket for Cloud SQL if available
-    if (isset($_ENV['DB_SOCKET'])) {
-        $dsn = "mysql:unix_socket={$_ENV['DB_SOCKET']};dbname={$dbName};charset=utf8mb4";
+    if ($dbSocket) {
+        $dsn = "mysql:unix_socket={$dbSocket};dbname={$dbName};charset=utf8mb4";
     } else {
         $dsn = "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4";
     }
