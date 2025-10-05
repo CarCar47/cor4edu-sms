@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Academic Support Session Process Module
  * Handles creation and updating of academic support sessions
@@ -144,7 +145,6 @@ try {
     } else {
         throw new Exception('Failed to ' . $action . ' support session.');
     }
-
 } catch (Exception $e) {
     $_SESSION['flash_errors'] = ['Error processing support session: ' . $e->getMessage()];
     header('Location: index.php?q=/modules/Students/student_manage_view.php&studentID=' . $studentID . '&tab=academics');

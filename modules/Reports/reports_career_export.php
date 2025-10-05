@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS Career Services Reports CSV Export
  * Exports job placement verification report for state auditors
@@ -30,9 +31,15 @@ $graduationDateStart = $_GET['graduationDateStart'] ?? '';
 $graduationDateEnd = $_GET['graduationDateEnd'] ?? '';
 
 // Ensure arrays
-if (!is_array($programID)) $programID = $programID ? [$programID] : [];
-if (!is_array($studentStatus)) $studentStatus = $studentStatus ? [$studentStatus] : [];
-if (!is_array($employmentStatus)) $employmentStatus = $employmentStatus ? [$employmentStatus] : [];
+if (!is_array($programID)) {
+    $programID = $programID ? [$programID] : [];
+}
+if (!is_array($studentStatus)) {
+    $studentStatus = $studentStatus ? [$studentStatus] : [];
+}
+if (!is_array($employmentStatus)) {
+    $employmentStatus = $employmentStatus ? [$employmentStatus] : [];
+}
 $programID = array_filter($programID);
 $studentStatus = array_filter($studentStatus);
 // Don't filter employmentStatus - empty string '' is valid
@@ -53,12 +60,24 @@ try {
 
     // Build filters array
     $filters = [];
-    if (!empty($programID)) $filters['programID'] = $programID;
-    if (!empty($studentStatus)) $filters['studentStatus'] = $studentStatus;
-    if (!empty($employmentStatus)) $filters['employmentStatus'] = $employmentStatus;
-    if (!empty($verificationStatus)) $filters['verificationStatus'] = $verificationStatus;
-    if (!empty($graduationDateStart)) $filters['graduationDateStart'] = $graduationDateStart;
-    if (!empty($graduationDateEnd)) $filters['graduationDateEnd'] = $graduationDateEnd;
+    if (!empty($programID)) {
+        $filters['programID'] = $programID;
+    }
+    if (!empty($studentStatus)) {
+        $filters['studentStatus'] = $studentStatus;
+    }
+    if (!empty($employmentStatus)) {
+        $filters['employmentStatus'] = $employmentStatus;
+    }
+    if (!empty($verificationStatus)) {
+        $filters['verificationStatus'] = $verificationStatus;
+    }
+    if (!empty($graduationDateStart)) {
+        $filters['graduationDateStart'] = $graduationDateStart;
+    }
+    if (!empty($graduationDateEnd)) {
+        $filters['graduationDateEnd'] = $graduationDateEnd;
+    }
 
     // Get report data based on report type
     $reportData = [];
@@ -100,7 +119,7 @@ try {
     $output = fopen('php://output', 'w');
 
     // Add BOM for Excel UTF-8 support
-    fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+    fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
     // Dynamic CSV Headers based on report type
     if (empty($reportData)) {
@@ -124,10 +143,8 @@ try {
 
     fclose($output);
     exit;
-
 } catch (Exception $e) {
     error_log("Career Reports Export Error: " . $e->getMessage());
     http_response_code(500);
     die('Error generating export: ' . $e->getMessage());
 }
-?>

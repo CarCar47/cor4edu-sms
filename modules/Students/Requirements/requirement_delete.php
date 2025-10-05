@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Student Document Requirement Delete Process Module
  * Following Gibbon patterns exactly - handles requirement document removal with audit trail preservation
@@ -91,7 +92,6 @@ try {
     } else {
         throw new Exception('Failed to remove requirement document.');
     }
-
 } catch (Exception $e) {
     $_SESSION['flash_errors'] = ['Error removing requirement document: ' . $e->getMessage()];
     // If we have requirement data, include tab parameter

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS Financial Reports Gateway
  * Specialized gateway for financial reporting and analytics

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Student Edit Process Module
  * Following Gibbon patterns exactly - simple PHP file
@@ -105,7 +106,6 @@ try {
     } else {
         throw new Exception('Failed to update student.');
     }
-
 } catch (Exception $e) {
     // Get student data for form repopulation
     $student = $studentGateway->selectStudentWithProgram($studentID);

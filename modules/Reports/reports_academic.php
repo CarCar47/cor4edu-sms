@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS Academic Performance Reports
  * Faculty notes, at-risk students, engagement tracking, and intervention analytics
@@ -34,10 +35,18 @@ $dateStart = $_GET['startDate'] ?? '';  // Using startDate from form
 $dateEnd = $_GET['endDate'] ?? '';      // Using endDate from form
 
 // Ensure arrays
-if (!is_array($programID)) $programID = $programID ? [$programID] : [];
-if (!is_array($status)) $status = $status ? [$status] : [];
-if (!is_array($category)) $category = $category ? [$category] : [];
-if (!is_array($meetingType)) $meetingType = $meetingType ? [$meetingType] : [];
+if (!is_array($programID)) {
+    $programID = $programID ? [$programID] : [];
+}
+if (!is_array($status)) {
+    $status = $status ? [$status] : [];
+}
+if (!is_array($category)) {
+    $category = $category ? [$category] : [];
+}
+if (!is_array($meetingType)) {
+    $meetingType = $meetingType ? [$meetingType] : [];
+}
 $programID = array_filter($programID); // Remove empty values
 $status = array_filter($status); // Remove empty values
 $category = array_filter($category); // Remove empty values
@@ -73,13 +82,27 @@ try {
 
     // Build filters array
     $filters = [];
-    if (!empty($programID)) $filters['programID'] = $programID;
-    if (!empty($status)) $filters['status'] = $status;
-    if (!empty($category)) $filters['category'] = $category;
-    if (!empty($meetingType)) $filters['meetingType'] = $meetingType;
-    if (!empty($facultyID)) $filters['facultyID'] = $facultyID;
-    if (!empty($dateStart)) $filters['dateStart'] = $dateStart;
-    if (!empty($dateEnd)) $filters['dateEnd'] = $dateEnd;
+    if (!empty($programID)) {
+        $filters['programID'] = $programID;
+    }
+    if (!empty($status)) {
+        $filters['status'] = $status;
+    }
+    if (!empty($category)) {
+        $filters['category'] = $category;
+    }
+    if (!empty($meetingType)) {
+        $filters['meetingType'] = $meetingType;
+    }
+    if (!empty($facultyID)) {
+        $filters['facultyID'] = $facultyID;
+    }
+    if (!empty($dateStart)) {
+        $filters['dateStart'] = $dateStart;
+    }
+    if (!empty($dateEnd)) {
+        $filters['dateEnd'] = $dateEnd;
+    }
 
     $reportData = null;
     $reportTitle = '';
@@ -121,7 +144,6 @@ try {
     $availableCategories = $academicGateway->getAvailableNoteCategories();
     $availableMeetingTypes = $academicGateway->getAvailableMeetingTypes();
     $availableFaculty = $academicGateway->getAvailableFaculty();
-
 } catch (Exception $e) {
     $reportData = null;
     $reportTitle = 'Error Loading Report';
@@ -194,4 +216,3 @@ $templateData = [
 
 // Render the template
 echo $twig->render('reports/academic/academic.twig.html', $templateData);
-?>

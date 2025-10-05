@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Student Document Requirement Upload Process Module
  * Following Gibbon patterns exactly - handles requirement file upload with dual-storage
@@ -184,7 +185,6 @@ try {
         }
         throw new Exception('Failed to save document record.');
     }
-
 } catch (Exception $e) {
     // Clean up uploaded file on error
     if (isset($filePath) && file_exists($filePath)) {

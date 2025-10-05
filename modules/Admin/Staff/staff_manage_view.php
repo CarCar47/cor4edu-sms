@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin Staff View Module
  * View detailed staff member information

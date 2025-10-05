@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Staff Profile Update Process Module
  * Handles staff profile information updates
@@ -98,7 +99,6 @@ try {
     } else {
         throw new Exception('Failed to update profile information.');
     }
-
 } catch (Exception $e) {
     $_SESSION['flash_errors'] = ['Error updating profile: ' . $e->getMessage()];
     header('Location: index.php?q=/modules/Staff/staff_profile_view.php');

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Program Edit Process Module
  * Following Gibbon patterns exactly - simple PHP file
@@ -151,7 +152,6 @@ try {
     } else {
         throw new Exception('Failed to update program.');
     }
-
 } catch (Exception $e) {
     // Get program data for form repopulation
     $program = $programGateway->getProgramDetails($programID);

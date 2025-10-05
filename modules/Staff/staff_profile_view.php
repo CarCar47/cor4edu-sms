@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Staff Profile View Module
  * Shows staff member their own profile with 3 sections: Information, Required Documents, Other Documents

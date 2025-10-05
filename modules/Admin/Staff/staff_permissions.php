@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin Staff Permissions Module
  * Manage individual staff permissions
@@ -48,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             $stmt->execute([$staffID, $module, $permissionAction, $_SESSION['cor4edu']['staffID']]);
             $_SESSION['flash_success'] = 'Permission added successfully';
-
         } elseif ($action === 'remove' && !empty($module) && !empty($permissionAction)) {
             // Remove permission
             $stmt = $pdo->prepare("DELETE FROM cor4edu_staff_permissions WHERE staffID = ? AND module = ? AND action = ?");

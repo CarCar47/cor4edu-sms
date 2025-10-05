@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Student Document Requirement Upload Module
  * Following Gibbon patterns exactly - handles requirement-specific uploads

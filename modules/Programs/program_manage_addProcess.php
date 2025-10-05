@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Program Add Process Module
  * Following Gibbon patterns exactly - handles form submission
@@ -121,7 +122,6 @@ try {
     } else {
         throw new Exception('Failed to create program');
     }
-
 } catch (Exception $e) {
     // Error - store error and form data in session
     $_SESSION['flash_errors'] = ['Failed to create program: ' . $e->getMessage()];

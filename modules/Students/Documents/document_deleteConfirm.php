@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS - Document Delete Confirmation Page
  * Following Gibbon patterns for professional delete confirmation

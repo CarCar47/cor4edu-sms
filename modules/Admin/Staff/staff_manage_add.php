@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin Staff Add Module
  * Create new staff users with role assignments
@@ -32,14 +33,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $isSuperAdmin = $_POST['isSuperAdmin'] ?? 'N';
 
     // Validation
-    if (empty($firstName)) $errors[] = 'First name is required';
-    if (empty($lastName)) $errors[] = 'Last name is required';
-    if (empty($email)) $errors[] = 'Email is required';
-    if (empty($username)) $errors[] = 'Username is required';
-    if (empty($password)) $errors[] = 'Password is required';
-    if ($password !== $confirmPassword) $errors[] = 'Passwords do not match';
-    if (strlen($password) < 8) $errors[] = 'Password must be at least 8 characters';
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Invalid email format';
+    if (empty($firstName)) {
+        $errors[] = 'First name is required';
+    }
+    if (empty($lastName)) {
+        $errors[] = 'Last name is required';
+    }
+    if (empty($email)) {
+        $errors[] = 'Email is required';
+    }
+    if (empty($username)) {
+        $errors[] = 'Username is required';
+    }
+    if (empty($password)) {
+        $errors[] = 'Password is required';
+    }
+    if ($password !== $confirmPassword) {
+        $errors[] = 'Passwords do not match';
+    }
+    if (strlen($password) < 8) {
+        $errors[] = 'Password must be at least 8 characters';
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Invalid email format';
+    }
 
     // Check for duplicate username/email
     global $container;
@@ -100,7 +117,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['flash_success'] = 'Staff member created successfully';
             header('Location: index.php?q=/modules/Admin/Staff/staff_manage.php');
             exit;
-
         } catch (Exception $e) {
             $errors[] = 'Database error: ' . $e->getMessage();
         }

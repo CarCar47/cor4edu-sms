@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Placement Record Process Module
  * Following Gibbon patterns exactly - simple PHP file
@@ -54,11 +55,13 @@ if (empty($studentID)) {
 // Employment status is required and must not be empty string
 if (empty($employmentStatus) || trim($employmentStatus) === '') {
     $errors[] = 'Employment status is required.';
-} elseif (!in_array($employmentStatus, [
+} elseif (
+    !in_array($employmentStatus, [
     'not_graduated', 'employed_related', 'employed_unrelated', 'self_employed_related',
     'self_employed_unrelated', 'not_employed_seeking', 'not_employed_not_seeking',
     'continuing_education'
-])) {
+    ])
+) {
     $errors[] = 'Invalid employment status.';
 }
 
@@ -203,7 +206,6 @@ try {
     } else {
         throw new Exception('Failed to ' . $action . ' placement record.');
     }
-
 } catch (Exception $e) {
     // Store error in session and redirect back (never render directly to avoid data loss)
     $_SESSION['flash_errors'] = ['Error processing placement record: ' . $e->getMessage()];

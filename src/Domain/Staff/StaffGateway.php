@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS - Staff Gateway
  * Following Gibbon patterns and COR4EDU Single permission architecture
@@ -95,7 +96,6 @@ class StaffGateway extends Gateway
             }
 
             return false;
-
         } catch (\Exception $e) {
             // Log error and deny access for security
             error_log("Permission check failed for staff $staffID: " . $e->getMessage());

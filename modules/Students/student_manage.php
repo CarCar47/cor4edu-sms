@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Student Management Module
  * Following Gibbon patterns exactly - simple PHP file

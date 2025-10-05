@@ -543,7 +543,7 @@ class DocumentGateway extends QueryableGateway
         $documents = $this->getDocumentsForAdmin($filters);
 
         if (!empty($categories)) {
-            $documents = array_filter($documents, function($doc) use ($categories) {
+            $documents = array_filter($documents, function ($doc) use ($categories) {
                 return in_array($doc['category'], $categories);
             });
         }
@@ -565,7 +565,9 @@ class DocumentGateway extends QueryableGateway
      */
     private function formatFileSize($bytes): string
     {
-        if (!$bytes || $bytes === 0) return '0 B';
+        if (!$bytes || $bytes === 0) {
+            return '0 B';
+        }
 
         $units = ['B', 'KB', 'MB', 'GB'];
         $unitIndex = 0;

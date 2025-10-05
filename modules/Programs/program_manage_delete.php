@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Program Delete Module
  * Handles soft deletion of programs with security checks
@@ -126,7 +127,6 @@ try {
     $_SESSION['flash_success'] = [$successMessage];
     header('Location: index.php?q=/modules/Programs/program_manage.php');
     exit;
-
 } catch (Exception $e) {
     $pdo->rollBack();
     error_log("Program deletion failed: " . $e->getMessage());

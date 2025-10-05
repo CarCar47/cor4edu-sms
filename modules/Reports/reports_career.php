@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS Career Services Reports
  * Job placement tracking, employment analytics, and compliance reporting
@@ -33,9 +34,15 @@ $graduationDateStart = $_GET['graduationDateStart'] ?? '';
 $graduationDateEnd = $_GET['graduationDateEnd'] ?? '';
 
 // Ensure arrays
-if (!is_array($programID)) $programID = $programID ? [$programID] : [];
-if (!is_array($studentStatus)) $studentStatus = $studentStatus ? [$studentStatus] : [];
-if (!is_array($employmentStatus)) $employmentStatus = $employmentStatus ? [$employmentStatus] : [];
+if (!is_array($programID)) {
+    $programID = $programID ? [$programID] : [];
+}
+if (!is_array($studentStatus)) {
+    $studentStatus = $studentStatus ? [$studentStatus] : [];
+}
+if (!is_array($employmentStatus)) {
+    $employmentStatus = $employmentStatus ? [$employmentStatus] : [];
+}
 $programID = array_filter($programID); // Remove empty values
 $studentStatus = array_filter($studentStatus); // Remove empty values
 // Don't filter employmentStatus - empty string '' is valid for "No Status Set" (NULL filter)
@@ -66,12 +73,24 @@ try {
 
     // Build filters array
     $filters = [];
-    if (!empty($programID)) $filters['programID'] = $programID;
-    if (!empty($studentStatus)) $filters['studentStatus'] = $studentStatus;
-    if (!empty($employmentStatus)) $filters['employmentStatus'] = $employmentStatus;
-    if (!empty($verificationStatus)) $filters['verificationStatus'] = $verificationStatus;
-    if (!empty($graduationDateStart)) $filters['graduationDateStart'] = $graduationDateStart;
-    if (!empty($graduationDateEnd)) $filters['graduationDateEnd'] = $graduationDateEnd;
+    if (!empty($programID)) {
+        $filters['programID'] = $programID;
+    }
+    if (!empty($studentStatus)) {
+        $filters['studentStatus'] = $studentStatus;
+    }
+    if (!empty($employmentStatus)) {
+        $filters['employmentStatus'] = $employmentStatus;
+    }
+    if (!empty($verificationStatus)) {
+        $filters['verificationStatus'] = $verificationStatus;
+    }
+    if (!empty($graduationDateStart)) {
+        $filters['graduationDateStart'] = $graduationDateStart;
+    }
+    if (!empty($graduationDateEnd)) {
+        $filters['graduationDateEnd'] = $graduationDateEnd;
+    }
 
     $reportData = null;
     $reportTitle = '';
@@ -106,7 +125,6 @@ try {
     $availablePrograms = $careerReportsGateway->getAvailablePrograms();
     $availableStudentStatuses = $careerReportsGateway->getAvailableStudentStatuses();
     $availableEmploymentStatuses = $careerReportsGateway->getAvailableEmploymentStatuses();
-
 } catch (Exception $e) {
     $reportData = null;
     $reportTitle = 'Error Loading Report';
@@ -176,4 +194,3 @@ $templateData = [
 
 // Render the template
 echo $twig->render('reports/career/career.twig.html', $templateData);
-?>

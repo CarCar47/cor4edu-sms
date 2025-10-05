@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS Report Export Process
  * Handles CSV export functionality with permission controls
@@ -22,12 +23,14 @@ $userPermissions = $staffGateway->getStaffPermissionsDetailed($_SESSION['cor4edu
 
 $reportPermissions = [];
 foreach ($userPermissions as $permission) {
-    if (is_array($permission) &&
+    if (
+        is_array($permission) &&
         isset($permission['module']) &&
         isset($permission['allowed']) &&
         isset($permission['action']) &&
         $permission['module'] === 'reports' &&
-        $permission['allowed'] === 'Y') {
+        $permission['allowed'] === 'Y'
+    ) {
         $reportPermissions[$permission['action']] = true;
     }
 }
@@ -49,9 +52,15 @@ $endDate = $_GET['endDate'] ?? '';
 $optionalFields = $_GET['optionalFields'] ?? [];
 
 // Ensure arrays
-if (!is_array($programID)) $programID = $programID ? [$programID] : [];
-if (!is_array($status)) $status = $status ? [$status] : [];
-if (!is_array($optionalFields)) $optionalFields = $optionalFields ? [$optionalFields] : [];
+if (!is_array($programID)) {
+    $programID = $programID ? [$programID] : [];
+}
+if (!is_array($status)) {
+    $status = $status ? [$status] : [];
+}
+if (!is_array($optionalFields)) {
+    $optionalFields = $optionalFields ? [$optionalFields] : [];
+}
 
 // Check format permissions
 if ($format === 'excel' && !isset($reportPermissions['export_reports_excel'])) {
@@ -91,10 +100,18 @@ try {
 
     // Build filters
     $filters = [];
-    if (!empty($programID)) $filters['programID'] = $programID;
-    if (!empty($status)) $filters['status'] = $status;
-    if (!empty($startDate)) $filters['startDate'] = $startDate;
-    if (!empty($endDate)) $filters['endDate'] = $endDate;
+    if (!empty($programID)) {
+        $filters['programID'] = $programID;
+    }
+    if (!empty($status)) {
+        $filters['status'] = $status;
+    }
+    if (!empty($startDate)) {
+        $filters['startDate'] = $startDate;
+    }
+    if (!empty($endDate)) {
+        $filters['endDate'] = $endDate;
+    }
 
     // Get data based on report type
     switch ($reportType) {
@@ -193,8 +210,12 @@ try {
         case 'academic':
         case 'notes_summary':
             $academicGateway = getGateway('Cor4Edu\Reports\Domain\AcademicReportsGateway');
-            if (!empty($_GET['category'])) $filters['category'] = $_GET['category'];
-            if (!empty($_GET['facultyID'])) $filters['facultyID'] = $_GET['facultyID'];
+            if (!empty($_GET['category'])) {
+                $filters['category'] = $_GET['category'];
+            }
+            if (!empty($_GET['facultyID'])) {
+                $filters['facultyID'] = $_GET['facultyID'];
+            }
             $data = $academicGateway->getFacultyNotesSummaryByProgram($filters);
             $filename = 'faculty_notes_summary_' . date('Y-m-d');
             $sheetName = 'Faculty Notes Summary';
@@ -202,8 +223,12 @@ try {
 
         case 'at_risk_students':
             $academicGateway = getGateway('Cor4Edu\Reports\Domain\AcademicReportsGateway');
-            if (!empty($_GET['category'])) $filters['category'] = $_GET['category'];
-            if (!empty($_GET['meetingType'])) $filters['meetingType'] = $_GET['meetingType'];
+            if (!empty($_GET['category'])) {
+                $filters['category'] = $_GET['category'];
+            }
+            if (!empty($_GET['meetingType'])) {
+                $filters['meetingType'] = $_GET['meetingType'];
+            }
             $data = $academicGateway->getAtRiskStudents($filters);
             $filename = 'at_risk_students_' . date('Y-m-d');
             $sheetName = 'At-Risk Students';
@@ -211,8 +236,12 @@ try {
 
         case 'student_engagement':
             $academicGateway = getGateway('Cor4Edu\Reports\Domain\AcademicReportsGateway');
-            if (!empty($_GET['category'])) $filters['category'] = $_GET['category'];
-            if (!empty($_GET['meetingType'])) $filters['meetingType'] = $_GET['meetingType'];
+            if (!empty($_GET['category'])) {
+                $filters['category'] = $_GET['category'];
+            }
+            if (!empty($_GET['meetingType'])) {
+                $filters['meetingType'] = $_GET['meetingType'];
+            }
             $data = $academicGateway->getStudentEngagementDetails($filters);
             $filename = 'student_engagement_details_' . date('Y-m-d');
             $sheetName = 'Student Engagement';
@@ -220,9 +249,15 @@ try {
 
         case 'intervention_log':
             $academicGateway = getGateway('Cor4Edu\Reports\Domain\AcademicReportsGateway');
-            if (!empty($_GET['category'])) $filters['category'] = $_GET['category'];
-            if (!empty($_GET['meetingType'])) $filters['meetingType'] = $_GET['meetingType'];
-            if (!empty($_GET['facultyID'])) $filters['facultyID'] = $_GET['facultyID'];
+            if (!empty($_GET['category'])) {
+                $filters['category'] = $_GET['category'];
+            }
+            if (!empty($_GET['meetingType'])) {
+                $filters['meetingType'] = $_GET['meetingType'];
+            }
+            if (!empty($_GET['facultyID'])) {
+                $filters['facultyID'] = $_GET['facultyID'];
+            }
             $data = $academicGateway->getInterventionActivityLog($filters);
             $filename = 'intervention_activity_log_' . date('Y-m-d');
             $sheetName = 'Intervention Log';
@@ -230,9 +265,15 @@ try {
 
         case 'faculty_activity':
             $academicGateway = getGateway('Cor4Edu\Reports\Domain\AcademicReportsGateway');
-            if (!empty($_GET['category'])) $filters['category'] = $_GET['category'];
-            if (!empty($_GET['meetingType'])) $filters['meetingType'] = $_GET['meetingType'];
-            if (!empty($_GET['facultyID'])) $filters['facultyID'] = $_GET['facultyID'];
+            if (!empty($_GET['category'])) {
+                $filters['category'] = $_GET['category'];
+            }
+            if (!empty($_GET['meetingType'])) {
+                $filters['meetingType'] = $_GET['meetingType'];
+            }
+            if (!empty($_GET['facultyID'])) {
+                $filters['facultyID'] = $_GET['facultyID'];
+            }
             $data = $academicGateway->getFacultyActivityReport($filters);
             $filename = 'faculty_activity_report_' . date('Y-m-d');
             $sheetName = 'Faculty Activity';
@@ -252,7 +293,6 @@ try {
     } else {
         exportToCSV($data, $filename);
     }
-
 } catch (Exception $e) {
     error_log("Export Error: " . $e->getMessage());
     http_response_code(500);
@@ -263,7 +303,8 @@ try {
 /**
  * Export data to CSV format
  */
-function exportToCSV($data, $filename) {
+function exportToCSV($data, $filename)
+{
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -297,7 +338,8 @@ function exportToCSV($data, $filename) {
 /**
  * Export data to Excel format
  */
-function exportToExcel($data, $filename, $sheetName, $reportType, $userPermissions) {
+function exportToExcel($data, $filename, $sheetName, $reportType, $userPermissions)
+{
     // Check if PhpSpreadsheet is available
     if (!class_exists('PhpOffice\PhpSpreadsheet\Spreadsheet')) {
         throw new Exception("PhpSpreadsheet library not available");
@@ -417,4 +459,3 @@ function exportToExcel($data, $filename, $sheetName, $reportType, $userPermissio
     $writer->save('php://output');
     exit;
 }
-?>

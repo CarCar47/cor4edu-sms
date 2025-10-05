@@ -366,7 +366,7 @@ class FinancialGateway extends Gateway
      */
     public function getPaymentTrends(string $period = 'month'): array
     {
-        $dateFormat = match($period) {
+        $dateFormat = match ($period) {
             'quarter' => "%Y-Q%q",
             'year' => "%Y",
             default => "%Y-%m"

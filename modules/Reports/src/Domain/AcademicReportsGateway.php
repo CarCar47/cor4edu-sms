@@ -1,4 +1,5 @@
 <?php
+
 namespace Cor4Edu\Reports\Domain;
 
 use PDO;

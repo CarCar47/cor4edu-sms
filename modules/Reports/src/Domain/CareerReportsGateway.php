@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS Career Services Reports Gateway
  * Specialized gateway for career placement and employment tracking reports
@@ -172,7 +173,9 @@ class CareerReportsGateway
         if (!empty($filters['employmentStatus'])) {
             // Handle empty string as NULL filter
             $hasNullFilter = in_array('', $filters['employmentStatus'], true);
-            $nonNullStatuses = array_filter($filters['employmentStatus'], function($val) { return $val !== ''; });
+            $nonNullStatuses = array_filter($filters['employmentStatus'], function ($val) {
+                return $val !== '';
+            });
 
             if ($hasNullFilter && !empty($nonNullStatuses)) {
                 // Both NULL and specific statuses
@@ -462,7 +465,9 @@ class CareerReportsGateway
         if (!empty($filters['employmentStatus'])) {
             // Handle empty string as NULL filter
             $hasNullFilter = in_array('', $filters['employmentStatus'], true);
-            $nonNullStatuses = array_filter($filters['employmentStatus'], function($val) { return $val !== ''; });
+            $nonNullStatuses = array_filter($filters['employmentStatus'], function ($val) {
+                return $val !== '';
+            });
 
             if ($hasNullFilter && !empty($nonNullStatuses)) {
                 // Both NULL and specific statuses

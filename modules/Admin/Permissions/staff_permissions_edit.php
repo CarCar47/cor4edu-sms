@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../../../bootstrap.php';
 
 // Basic session check for direct access protection
@@ -59,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_permissions'])
 
         $pdo->commit();
         $_SESSION['cor4edu']['flash_success'] = 'Permissions updated successfully for ' . $targetStaff['firstName'] . ' ' . $targetStaff['lastName'];
-
     } catch (PDOException $e) {
         $pdo->rollBack();
         $_SESSION['cor4edu']['flash_errors'] = ['Error updating permissions: ' . $e->getMessage()];
@@ -112,7 +112,6 @@ try {
         // If role defaults table doesn't exist, just continue with empty defaults
         $roleDefaults = [];
     }
-
 } catch (PDOException $e) {
     $_SESSION['cor4edu']['flash_errors'] = ['Database error: ' . $e->getMessage()];
     $systemPermissions = [];
@@ -144,10 +143,9 @@ echo $twig->render('staff_permissions_edit.twig.html', [
     'system_permissions' => $systemPermissions,
     'current_permissions' => $currentPermissions,
     'role_defaults' => $roleDefaults,
-    'grouped_permissions' => array_reduce($systemPermissions, function($carry, $perm) {
+    'grouped_permissions' => array_reduce($systemPermissions, function ($carry, $perm) {
         $carry[$perm['category']][] = $perm;
         return $carry;
     }, []),
     'is_super_admin' => $isSuper
 ]);
-?>

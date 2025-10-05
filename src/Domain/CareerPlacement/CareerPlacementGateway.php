@@ -97,7 +97,6 @@ class CareerPlacementGateway extends QueryableGateway
 
             $this->pdo->commit();
             return $placementID;
-
         } catch (\Exception $e) {
             $this->pdo->rollback();
             throw $e;

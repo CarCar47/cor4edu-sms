@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS Overview Reports
  * Institution-wide statistics and summary reports
@@ -65,7 +66,6 @@ try {
 
     // Get available programs for filters
     $availablePrograms = $reportsGateway->getAvailablePrograms();
-
 } catch (Exception $e) {
     $reportData = null;
     $reportTitle = 'Error Loading Report';
@@ -103,4 +103,3 @@ $templateData = [
 
 // Render the template
 echo $twig->render('reports/overview/overview.twig.html', $templateData);
-?>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin Document History Management Module
  * Following Gibbon patterns exactly - admin-only document cleanup

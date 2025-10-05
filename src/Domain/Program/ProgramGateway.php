@@ -262,8 +262,12 @@ class ProgramGateway extends QueryableGateway
                 return $hours ? $hours . ' hours' : '—';
             case 'both':
                 $parts = [];
-                if ($credits) $parts[] = $credits . ' credits';
-                if ($hours) $parts[] = $hours . ' hours';
+                if ($credits) {
+                    $parts[] = $credits . ' credits';
+                }
+                if ($hours) {
+                    $parts[] = $hours . ' hours';
+                }
                 return $parts ? implode(', ', $parts) : '—';
             case 'none':
             default:

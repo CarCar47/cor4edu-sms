@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS - Payment Edit Process
  * Processes payment record updates from modal forms
@@ -116,7 +117,6 @@ try {
         header("Location: index.php?q=/modules/Students/student_manage_view.php&studentID=$studentID&tab=bursar");
         exit;
     }
-
 } catch (Exception $e) {
     $_SESSION['flash_errors'] = ['An error occurred: ' . $e->getMessage()];
     header("Location: index.php?q=/modules/Students/student_manage_view.php&studentID=$studentID&tab=bursar");

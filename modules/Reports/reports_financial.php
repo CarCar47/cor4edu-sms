@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS Financial Reports
  * Payment tracking, outstanding balances, and financial analytics
@@ -32,8 +33,12 @@ $enrollmentDateEnd = $_GET['enrollmentDateEnd'] ?? '';
 $outstandingOnly = isset($_GET['outstandingOnly']) ? $_GET['outstandingOnly'] : false;
 
 // Ensure arrays
-if (!is_array($programID)) $programID = $programID ? [$programID] : [];
-if (!is_array($status)) $status = $status ? [$status] : [];
+if (!is_array($programID)) {
+    $programID = $programID ? [$programID] : [];
+}
+if (!is_array($status)) {
+    $status = $status ? [$status] : [];
+}
 $programID = array_filter($programID); // Remove empty values
 $status = array_filter($status); // Remove empty values
 
@@ -77,11 +82,21 @@ try {
 
     // Build filters array
     $filters = [];
-    if (!empty($programID)) $filters['programID'] = $programID;
-    if (!empty($status)) $filters['status'] = $status;
-    if (!empty($enrollmentDateStart)) $filters['enrollmentDateStart'] = $enrollmentDateStart;
-    if (!empty($enrollmentDateEnd)) $filters['enrollmentDateEnd'] = $enrollmentDateEnd;
-    if ($outstandingOnly) $filters['outstandingOnly'] = true;
+    if (!empty($programID)) {
+        $filters['programID'] = $programID;
+    }
+    if (!empty($status)) {
+        $filters['status'] = $status;
+    }
+    if (!empty($enrollmentDateStart)) {
+        $filters['enrollmentDateStart'] = $enrollmentDateStart;
+    }
+    if (!empty($enrollmentDateEnd)) {
+        $filters['enrollmentDateEnd'] = $enrollmentDateEnd;
+    }
+    if ($outstandingOnly) {
+        $filters['outstandingOnly'] = true;
+    }
 
     $reportData = null;
     $reportTitle = '';
@@ -120,7 +135,6 @@ try {
     // Get available filter options
     $availablePrograms = $reportsGateway->getAvailablePrograms();
     $availableStatuses = $reportsGateway->getAvailableStatuses();
-
 } catch (Exception $e) {
     $reportData = null;
     $reportTitle = 'Error Loading Report';
@@ -170,4 +184,3 @@ $templateData = [
 
 // Render the template
 echo $twig->render('reports/financial/financial.twig.html', $templateData);
-?>

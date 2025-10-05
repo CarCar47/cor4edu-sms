@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS Reports Dashboard
  * Main entry point for the comprehensive reports system
@@ -39,4 +40,3 @@ echo $twig->render('reports/dashboard.twig.html', [
     'overviewData' => $overviewData,
     'activeTab' => 'overview'
 ]);
-?>

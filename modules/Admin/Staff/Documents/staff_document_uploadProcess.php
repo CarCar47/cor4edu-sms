@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Staff Document Upload Process Module
  * Handle staff document file upload
@@ -189,7 +190,6 @@ try {
         }
         throw new Exception('Failed to save document record.');
     }
-
 } catch (Exception $e) {
     // Clean up uploaded file on error
     if (isset($filePath) && file_exists($filePath)) {

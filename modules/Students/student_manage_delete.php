@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Student Delete Module
  * Handles soft deletion of students with security checks
@@ -108,7 +109,6 @@ try {
 
     header('Location: index.php?q=/modules/Students/student_manage.php');
     exit;
-
 } catch (Exception $e) {
     $pdo->rollBack();
     error_log("Student deletion failed: " . $e->getMessage());

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Faculty Note Process Module
  * Handles creation and updating of faculty notes
@@ -110,7 +111,6 @@ try {
     } else {
         throw new Exception('Failed to ' . $action . ' faculty note.');
     }
-
 } catch (Exception $e) {
     $_SESSION['flash_errors'] = ['Error processing faculty note: ' . $e->getMessage()];
     header('Location: index.php?q=/modules/Students/student_manage_view.php&studentID=' . $studentID . '&tab=academics');

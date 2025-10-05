@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Academic Information Update Process Module
  * Following Gibbon patterns exactly - simple PHP file
@@ -169,7 +170,6 @@ try {
     } else {
         throw new Exception('Failed to update academic information.');
     }
-
 } catch (Exception $e) {
     // Store error in session and redirect back
     $_SESSION['flash_errors'] = ['Error updating academic information: ' . $e->getMessage()];

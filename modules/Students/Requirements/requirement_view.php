@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Student Document Requirement View Module
  * Following Gibbon patterns exactly - handles requirement document viewing

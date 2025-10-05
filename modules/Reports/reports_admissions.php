@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS Admissions & Enrollment Reports
  * Student enrollment tracking, demographics, and application analytics
@@ -32,9 +33,15 @@ $endDate = $_GET['endDate'] ?? '';
 $optionalFields = $_GET['optionalFields'] ?? [];
 
 // Ensure arrays
-if (!is_array($programID)) $programID = $programID ? [$programID] : [];
-if (!is_array($status)) $status = $status ? [$status] : [];
-if (!is_array($optionalFields)) $optionalFields = $optionalFields ? [$optionalFields] : [];
+if (!is_array($programID)) {
+    $programID = $programID ? [$programID] : [];
+}
+if (!is_array($status)) {
+    $status = $status ? [$status] : [];
+}
+if (!is_array($optionalFields)) {
+    $optionalFields = $optionalFields ? [$optionalFields] : [];
+}
 $programID = array_filter($programID); // Remove empty values
 $status = array_filter($status); // Remove empty values
 
@@ -67,10 +74,18 @@ try {
 
     // Build filters array
     $filters = [];
-    if (!empty($programID)) $filters['programID'] = $programID;
-    if (!empty($status)) $filters['status'] = $status;
-    if (!empty($startDate)) $filters['startDate'] = $startDate;
-    if (!empty($endDate)) $filters['endDate'] = $endDate;
+    if (!empty($programID)) {
+        $filters['programID'] = $programID;
+    }
+    if (!empty($status)) {
+        $filters['status'] = $status;
+    }
+    if (!empty($startDate)) {
+        $filters['startDate'] = $startDate;
+    }
+    if (!empty($endDate)) {
+        $filters['endDate'] = $endDate;
+    }
 
     $reportData = null;
     $reportTitle = '';
@@ -114,7 +129,6 @@ try {
     // Get available filter options
     $availablePrograms = $reportsGateway->getAvailablePrograms();
     $availableStatuses = $reportsGateway->getAvailableStatuses();
-
 } catch (Exception $e) {
     $reportData = null;
     $reportTitle = 'Error Loading Report';
@@ -173,4 +187,3 @@ $templateData = [
 
 // Render the template
 echo $twig->render('reports/admissions/admissions.twig.html', $templateData);
-?>

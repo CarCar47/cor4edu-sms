@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Staff Profile Gateway
  * Handles staff profile operations including personal info and document management

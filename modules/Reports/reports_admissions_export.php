@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS Admissions & Enrollment Reports CSV Export
  * Exports student enrollment list report
@@ -29,9 +30,15 @@ $endDate = $_GET['endDate'] ?? '';
 $optionalFields = $_GET['optionalFields'] ?? [];
 
 // Ensure arrays
-if (!is_array($programID)) $programID = $programID ? [$programID] : [];
-if (!is_array($status)) $status = $status ? [$status] : [];
-if (!is_array($optionalFields)) $optionalFields = $optionalFields ? [$optionalFields] : [];
+if (!is_array($programID)) {
+    $programID = $programID ? [$programID] : [];
+}
+if (!is_array($status)) {
+    $status = $status ? [$status] : [];
+}
+if (!is_array($optionalFields)) {
+    $optionalFields = $optionalFields ? [$optionalFields] : [];
+}
 $programID = array_filter($programID);
 $status = array_filter($status);
 
@@ -46,10 +53,18 @@ try {
 
     // Build filters array
     $filters = [];
-    if (!empty($programID)) $filters['programID'] = $programID;
-    if (!empty($status)) $filters['status'] = $status;
-    if (!empty($startDate)) $filters['startDate'] = $startDate;
-    if (!empty($endDate)) $filters['endDate'] = $endDate;
+    if (!empty($programID)) {
+        $filters['programID'] = $programID;
+    }
+    if (!empty($status)) {
+        $filters['status'] = $status;
+    }
+    if (!empty($startDate)) {
+        $filters['startDate'] = $startDate;
+    }
+    if (!empty($endDate)) {
+        $filters['endDate'] = $endDate;
+    }
 
     // Get report data - student list report
     $reportData = $reportsGateway->getStudentDetailReport($filters, $optionalFields);
@@ -65,7 +80,7 @@ try {
     $output = fopen('php://output', 'w');
 
     // Add BOM for Excel UTF-8 support
-    fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+    fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
     // CSV Headers - Base fields
     $headers = [
@@ -151,10 +166,8 @@ try {
 
     fclose($output);
     exit;
-
 } catch (Exception $e) {
     error_log("Admissions Reports Export Error: " . $e->getMessage());
     http_response_code(500);
     die('Error generating export: ' . $e->getMessage());
 }
-?>

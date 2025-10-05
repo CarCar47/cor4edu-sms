@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin Document Bulk Delete Process Module
  * Following Gibbon patterns exactly - bulk document cleanup with safety checks
@@ -82,7 +83,7 @@ try {
 
     // Filter by categories if specified
     if (!empty($categories)) {
-        $documentsToDelete = array_filter($documentsToDelete, function($doc) use ($categories) {
+        $documentsToDelete = array_filter($documentsToDelete, function ($doc) use ($categories) {
             return in_array($doc['category'], $categories);
         });
     }
@@ -134,7 +135,6 @@ try {
     $_SESSION['flash_success'] = $message;
     header('Location: index.php?q=/modules/Admin/Documents/document_history_manage.php');
     exit;
-
 } catch (Exception $e) {
     $_SESSION['flash_errors'] = ['Error during bulk deletion: ' . $e->getMessage()];
     header('Location: index.php?q=/modules/Admin/Documents/document_history_manage.php');

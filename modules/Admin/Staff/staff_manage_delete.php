@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin Staff Delete Module
  * Handles soft deletion of staff members with security checks
@@ -120,7 +121,6 @@ try {
 
     header('Location: index.php?q=/modules/Admin/Staff/staff_manage.php');
     exit;
-
 } catch (Exception $e) {
     $pdo->rollBack();
     error_log("Staff deletion failed: " . $e->getMessage());

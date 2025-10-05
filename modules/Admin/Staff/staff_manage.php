@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin Staff Management Module
  * Allows admins to view, create, edit staff users and manage permissions
@@ -65,7 +66,9 @@ $roleTypes = $staffProfileGateway->getAllRoleTypes();
 
 // Get total counts for dashboard
 $totalStaff = count($staff);
-$activeStaff = count(array_filter($staff, function($s) { return $s['active'] === 'Y'; }));
+$activeStaff = count(array_filter($staff, function ($s) {
+    return $s['active'] === 'Y';
+}));
 
 // Get session messages
 $sessionData = $_SESSION['cor4edu'];

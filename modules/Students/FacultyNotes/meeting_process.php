@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Student Meeting Process Module
  * Handles creation and updating of student meetings
@@ -140,7 +141,6 @@ try {
     } else {
         throw new Exception('Failed to ' . $action . ' meeting.');
     }
-
 } catch (Exception $e) {
     $_SESSION['flash_errors'] = ['Error processing meeting: ' . $e->getMessage()];
     header('Location: index.php?q=/modules/Students/student_manage_view.php&studentID=' . $studentID . '&tab=academics');

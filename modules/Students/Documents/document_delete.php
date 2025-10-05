@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS - Document Delete Process
  * Handles document deletion following Gibbon patterns
@@ -99,7 +100,6 @@ try {
         header("Location: index.php?q=/modules/Students/Documents/document_upload.php&studentID=$studentID&category=$category");
         exit;
     }
-
 } catch (Exception $e) {
     $_SESSION['flash_errors'] = ['An error occurred: ' . $e->getMessage()];
     $studentID = $studentID ?? '';

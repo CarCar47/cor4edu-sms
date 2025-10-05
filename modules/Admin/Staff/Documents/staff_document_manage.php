@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Staff Document Management Module
  * Manage all documents for a staff member

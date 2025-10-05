@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Student Add Process Module
  * Following Gibbon patterns exactly - handles form submission
@@ -83,7 +84,6 @@ try {
     } else {
         throw new Exception('Failed to create student');
     }
-
 } catch (Exception $e) {
     // Error - render form with error message
     $programs = $programGateway->getActiveProgramsForDropdown();

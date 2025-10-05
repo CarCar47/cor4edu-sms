@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COR4EDU SMS Reports Gateway
  * Base class for all report data aggregation following Gibbon patterns

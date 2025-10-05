@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin Document Permanent Delete Process Module
  * Following Gibbon patterns exactly - permanent document deletion with file cleanup
@@ -63,7 +64,6 @@ try {
     } else {
         throw new Exception('Failed to delete document from system.');
     }
-
 } catch (Exception $e) {
     $_SESSION['flash_errors'] = ['Error deleting document: ' . $e->getMessage()];
     header('Location: index.php?q=/modules/Admin/Documents/document_history_manage.php');

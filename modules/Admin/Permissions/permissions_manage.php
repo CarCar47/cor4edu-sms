@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../../../bootstrap.php';
 
 // Basic session check for direct access protection
@@ -38,7 +39,6 @@ try {
 
     $systemPermQuery = "SELECT * FROM cor4edu_system_permissions WHERE active = 'Y' ORDER BY category, displayOrder";
     $systemPermissions = $pdo->query($systemPermQuery)->fetchAll(PDO::FETCH_ASSOC);
-
 } catch (PDOException $e) {
     $flashErrors = ['Database error: Unable to load permissions data. ' . $e->getMessage()];
     // Set session flash errors for user feedback
@@ -68,11 +68,10 @@ echo $twig->render('permissions_manage.twig.html', [
     'staff_list' => $staffList,
     'system_permissions' => $systemPermissions,
     'grouped_permissions' => is_array($systemPermissions) && !empty($systemPermissions)
-        ? array_reduce($systemPermissions, function($carry, $perm) {
+        ? array_reduce($systemPermissions, function ($carry, $perm) {
             $carry[$perm['category']][] = $perm;
             return $carry;
         }, [])
         : [],
     'is_super_admin' => $isSuper
 ]);
-?>

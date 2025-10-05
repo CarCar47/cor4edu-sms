@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin Staff Edit Module
  * Edit existing staff member information
@@ -54,16 +55,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $isSuperAdmin = $_POST['isSuperAdmin'] ?? 'N';
 
     // Validation
-    if (empty($firstName)) $errors[] = 'First name is required';
-    if (empty($lastName)) $errors[] = 'Last name is required';
-    if (empty($email)) $errors[] = 'Email is required';
-    if (empty($username)) $errors[] = 'Username is required';
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Invalid email format';
+    if (empty($firstName)) {
+        $errors[] = 'First name is required';
+    }
+    if (empty($lastName)) {
+        $errors[] = 'Last name is required';
+    }
+    if (empty($email)) {
+        $errors[] = 'Email is required';
+    }
+    if (empty($username)) {
+        $errors[] = 'Username is required';
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Invalid email format';
+    }
 
     // Password validation (only if changing)
     if (!empty($newPassword)) {
-        if (strlen($newPassword) < 8) $errors[] = 'Password must be at least 8 characters';
-        if ($newPassword !== $confirmPassword) $errors[] = 'Passwords do not match';
+        if (strlen($newPassword) < 8) {
+            $errors[] = 'Password must be at least 8 characters';
+        }
+        if ($newPassword !== $confirmPassword) {
+            $errors[] = 'Passwords do not match';
+        }
     }
 
     // Check for duplicate username/email (excluding current staff)
@@ -108,7 +123,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['flash_success'] = 'Staff member updated successfully';
             header('Location: index.php?q=/modules/Admin/Staff/staff_manage_view.php&staffID=' . $staffID);
             exit;
-
         } catch (Exception $e) {
             $errors[] = 'Database error: ' . $e->getMessage();
         }
